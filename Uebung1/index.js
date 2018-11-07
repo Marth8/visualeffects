@@ -1,13 +1,13 @@
 const canvas = document.querySelector("#glCanvas");
 const gl = canvas.getContext("webgl");
-const vsSourceString = `
-    attribute vec3 position;
+const vsSourceString = 
+    `attribute vec3 position;
     void main() { 
+        gl_PointSize = 10.0;
         gl_Position = vec4(position, 1.0);
-    }
-    `;
-const fsSourceString = `
-    void main() {
+    }`;
+const fsSourceString = 
+    `void main() {
         gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     }`;
 
@@ -23,24 +23,29 @@ function main() {
 
     resetCanvas();
 
-    const vertexShader = createVertexShader();
-    const fragmentShader = createFragmentShader();
+    const vertexShader = createVertexShader(vsSourceString);
+    const fragmentShader = createFragmentShader(fsSourceString);
     let shaderProgram = initShader(vertexShader, fragmentShader);
 
-    let posAttributeLocation = generateBuffer(shaderProgram);
+    const posBuf = gl.createBuffer();
+    let positions = new Float32Array([-0.75, 0, 0, 0.75, 0.75, 0]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    let posAttributeLocation =	gl.getAttribLocation(shaderProgram,	"position");
+
+    resetCanvas();
 
     gl.useProgram(shaderProgram);
 
-    gl.enableVertexAttribArray(posAttribLocation);
+    gl.enableVertexAttribArray(posAttributeLocation);
 
-    // 2 components (x,y); 32bit	floats;	don't normalize;	no stride and offset
-    gl.vertexAttribPointer(posAttribLocation,	2,	gl.FLOAT,	false,	0,	0);
+    // 2 components (x,y); 32bit floats; don't normalize; no stride and offset
+    gl.vertexAttribPointer(posAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // offset is 0, with 1	element
-    gl.drawArrays(gl.POINTS,	0,	1);
-    gl.disableVertexAttribArray(posAttribLocation);
+    // offset is 0, with 1 element, TRIANGLE STRIP
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0,	3);
 
-    gl.deleteBuffer();
+    gl.disableVertexAttribArray(posAttributeLocation);
 
     // Aufräumen
     gl.detachShader(shaderProgram, vertexShader);
@@ -48,16 +53,6 @@ function main() {
     gl.deleteShader(vertexShader);
     gl.deleteShader(fragmentShader);
     gl.deleteProgram(shaderProgram);
-}
-
-function generateBuffer(shaderProgram)
-{
-    let posBuf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER,	posBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0]), gl.STATIC_DRAW);
-    let posAttribLocation =	gl.getAttribLocation(shaderProgram,	"pos");
-
-    return posAttribLocation;
 }
 
 function initShader(vertexShader, fragmentShader)
@@ -83,6 +78,12 @@ function createVertexShader(vsSourceString)
     let shader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(shader, vsSourceString);
     gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        let info = gl.getShaderInfoLog(shader);
+        console.warn("could not compile web gl shader. \n\n" + info);
+    }
+
     return shader;
 }
 
@@ -91,6 +92,12 @@ function createFragmentShader(fsSourceString)
     let shader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(shader, fsSourceString);
     gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        let info = gl.getShaderInfoLog(shader);
+        console.warn("could not compile web gl shader. \n\n" + info);
+    }
+
     return shader;
 }
 
