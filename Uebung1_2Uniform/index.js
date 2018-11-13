@@ -1,34 +1,29 @@
 const canvas = document.querySelector("#glCanvas");
 const gl = canvas.getContext("webgl");
 const vsSourceString =
-    `attribute vec3 position;
-    void main() {
+    `
+    attribute vec3 position;
+    attribute vec3 color;
+    varying vec3 vColor;
+    void main() { 
         gl_PointSize = 10.0;
         gl_Position = vec4(position, 1.0);
+        vColor = color;
     }`;
 const fsSourceString =
-    `void main() {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }`;
-
-const fsRedString =
-    `void main() {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }`;
-
-const fsBlueString =
-    `void main() {
-        gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-    }`;
-
-const fsGreenString =
-    `void main() {
-        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision	highp float;
+    #else
+    precision	mediump float;
+    #endif
+    varying vec3 vColor;
+    void main() {
+        gl_FragColor = vec4(vColor, 1.0);
     }`;
 
 main();
 
-/// TODO: Punkt rendern und dann zum Dreieck rendern
 function main() {
     // Nur fortfahren, wenn WebGL verfügbar ist und funktioniert
     if (!gl) {
@@ -40,7 +35,7 @@ function main() {
 
     let housePositions = new Float32Array(
         [
-            0.4, -0.6,
+            0.4, -0.6 ,
             -0.4, 0   ,
             0.4 , 0   ,
 
@@ -59,20 +54,22 @@ function main() {
     );
 
     // Bei n-verschiedenen Shadern => n-mal useProgram
-    drawObject(housePositions, 2, 6, vsSourceString, fsBlueString);
-    drawObject(roofPositions, 2, 3, vsSourceString, fsRedString);
+    drawObject(housePositions, 2, 6, vsSourceString, fsSourceString, new Float32Array([1.0, 0.0, 1.0]));
+    drawObject(roofPositions, 2, 3, vsSourceString, fsSourceString, new Float32Array([0.0, 1.0, 0.0]));
 }
 
-function drawObject(positions, dimension, vertexCount, vsSourceString, fsSourceString)
+function drawObject(positions, dimension, vertexCount, vsSourceString, fsSourceString, colorArray)
 {
     const vertexShader = createVertexShader(vsSourceString);
     const fragmentShader = createFragmentShader(fsSourceString);
     let shaderProgram = initShader(vertexShader, fragmentShader);
-    let posAttributeLocation = initBuffer(shaderProgram, positions);
-    let buffers = {position: posAttributeLocation};
+    let	color =	gl.getUniformLocation(shaderProgram, "color");
+    let buffers = initBuffer(shaderProgram, positions, colorArray);
 
     // Bei n-verschiedenen Shadern => n-mal useProgram
     gl.useProgram(shaderProgram);
+    gl.uniform3fv(color, colorArray);
+    //gl.uniform3f(color, colorArray[0], colorArray[1], colorArray[2]);
     gl.enableVertexAttribArray(buffers);
 
     // 2 components (x,y); 32bit floats; don't normalize; no stride and offset
@@ -106,12 +103,16 @@ function drawScene(buffers, dimension, vertexCount)
     gl.disableVertexAttribArray(buffers);
 }
 
-function initBuffer(shaderProgram, positions)
+function initBuffer(shaderProgram, positions, color)
 {
     const posBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
     gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-    return gl.getAttribLocation(shaderProgram, "position");
+    const posAttrib = gl.getAttribLocation(shaderProgram, "position");
+    const colorBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, color, gl.STATIC_DRAW);
+    return {position: posAttrib, color: colorBuf};
 }
 
 function initShader(vertexShader, fragmentShader)
