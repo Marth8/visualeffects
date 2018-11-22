@@ -65,23 +65,24 @@ function main() {
             uRotate: gl.getUniformLocation(shaderProgram, "uRotate")
         }
     };
-    /*
+
+    var then = 0;
     // Draw the scene repeatedly
     function render(now) {
         now *= 0.001;  // convert to seconds
         const deltaTime = now - then;
         then = now;
 
-        drawScene(gl, programInfo, buffers, deltaTime);
+        drawScene(programInfo, housePositions, roofPositions, deltaTime);
 
         requestAnimationFrame(render);
     }
-    requestAnimationFrame(render);*/
+    requestAnimationFrame(render);
 
     // Bei n-verschiedenen Shadern => n-mal useProgram
     //drawObject(programInfo, housePositions, 2, 6, new Float32Array([1.0, 0.0, 1.0]));
     //drawObject(programInfo, roofPositions, 2, 3, new Float32Array([0.0, 1.0, 0.0]));
-    drawScene(programInfo, housePositions, roofPositions, 0);
+    //drawScene(programInfo, housePositions, roofPositions, 0);
 
     // Aufräumen
     gl.detachShader(programInfo.shaderProgram, vertexShader);
@@ -114,7 +115,10 @@ function drawObject(programInfo, positions, dimension, vertexCount, colorArray)
     gl.enableVertexAttribArray(programInfo.attributeLocations.position);
 
     const rotationMatrix = mat4.create();
-
+    mat4.rotate(rotationMatrix,  // destination matrix
+        rotationMatrix,  // matrix to rotate
+        squareRotation,   // amount to rotate in radians
+        [0, 0, 1]);       // axis to rotate around
     // Bei n-verschiedenen Shadern => n-mal useProgram
     gl.useProgram(programInfo.shaderProgram);
     gl.uniform3fv(programInfo.uniformLocations.uColor, colorArray);
