@@ -100,7 +100,7 @@ function drawScene(programInfo, housePositions, roofPositions, deltaTime) {
 
     // Bei n-verschiedenen Shadern => n-mal useProgram
     drawObject(programInfo, housePositions, 2, 6, new Float32Array([1.0, 0.0, 1.0]));
-    drawObject(programInfo, roofPositions, 2, 3, new Float32Array([0.0, 1.0, 0.0]));
+    // drawObject(programInfo, roofPositions, 2, 3, new Float32Array([0.0, 1.0, 0.0]));
 
     squareRotation += deltaTime;
 }
@@ -111,8 +111,8 @@ function drawObject(programInfo, positions, dimension, vertexCount, colorArray)
 
     // Den Position-Buffer binden und verbinden
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-    gl.vertexAttribPointer(programInfo.attributeLocations.position, dimension, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(programInfo.attributeLocations.position);
+    gl.vertexAttribPointer(programInfo.attributeLocations.aPosition, dimension, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(programInfo.attributeLocations.aPosition);
 
     const rotationMatrix = mat4.create();
     mat4.rotate(rotationMatrix,  // destination matrix
@@ -127,7 +127,7 @@ function drawObject(programInfo, positions, dimension, vertexCount, colorArray)
     // offset is 0, with 1 element, TRIANGLE STRIP
     gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 
-    gl.disableVertexAttribArray(programInfo.attributeLocations.position);
+    gl.disableVertexAttribArray(programInfo.attributeLocations.aPosition);
     gl.disableVertexAttribArray(programInfo.uniformLocations.uColor);
 }
 
