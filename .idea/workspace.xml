@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2d4ff69d-2c13-44e3-8c4f-0198898f0d25" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Uebung1Uhr/gl-matrix-min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Uebung2a/app.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Uebung2a/f-texture.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Uebung2a/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Uebung1Uhr/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Uebung1Uhr/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Uebung1Uhr/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/Uebung1Uhr/index.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -48,25 +48,26 @@
     <session id="374671833">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="3" />
+          <entry key="project.closed" value="4" />
+          <entry key="project.open.time.10" value="1" />
           <entry key="project.open.time.4" value="1" />
           <entry key="project.open.time.7" value="2" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="4" />
+          <entry key="project.opened" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="html" value="8" />
-          <entry key="js" value="17" />
+          <entry key="html" value="9" />
+          <entry key="js" value="18" />
           <entry key="ts" value="3" />
           <entry key="x" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="HTML" value="8" />
-          <entry key="JavaScript" value="17" />
+          <entry key="HTML" value="9" />
+          <entry key="JavaScript" value="18" />
           <entry key="PLAIN_TEXT" value="1" />
           <entry key="TypeScript" value="3" />
         </counts>
@@ -88,19 +89,15 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Uebung1Uhr/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="58" selection-start-line="6" selection-start-column="58" selection-end-line="6" selection-end-column="58" />
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/Uebung2a/index.html">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Uebung1Uhr/index.js">
+        <entry file="file://$PROJECT_DIR$/Uebung2a/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="143" column="31" selection-start-line="143" selection-end-line="144" />
+            <state relative-caret-position="340">
+              <caret line="20" column="32" lean-forward="true" selection-start-line="20" selection-start-column="32" selection-end-line="20" selection-end-column="32" />
             </state>
           </provider>
         </entry>
@@ -174,17 +171,7 @@
             <path>
               <item name="visualeffects" type="b2602c69:ProjectViewProjectNode" />
               <item name="visualeffects" type="462c0819:PsiDirectoryNode" />
-              <item name="Uebung1_2Uniform" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="visualeffects" type="b2602c69:ProjectViewProjectNode" />
-              <item name="visualeffects" type="462c0819:PsiDirectoryNode" />
-              <item name="Uebung1Uhr" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="visualeffects" type="b2602c69:ProjectViewProjectNode" />
-              <item name="visualeffects" type="462c0819:PsiDirectoryNode" />
-              <item name="WebGLTut" type="462c0819:PsiDirectoryNode" />
+              <item name="Uebung2a" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -200,6 +187,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Nico\Projekte\visualeffects\Uebung2a" />
       <recent name="C:\Users\Nico\Projekte\visualeffects\Uebung1Uhr" />
     </key>
   </component>
@@ -230,21 +218,21 @@
       <workItem from="1542646572651" duration="1852000" />
       <workItem from="1542721517002" duration="2344000" />
       <workItem from="1542724203748" duration="6413000" />
+      <workItem from="1544535744051" duration="899000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="22342000" />
+    <option name="totallyTimeSpent" value="23241000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18043622" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32907802" />
+      <window_info anchor="bottom" id="Find" order="1" visible="true" weight="0.32907802" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -361,8 +349,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Uebung1Uhr/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="143" column="31" selection-start-line="143" selection-end-line="144" />
+        <state relative-caret-position="141">
+          <caret line="145" column="24" lean-forward="true" selection-start-line="145" selection-start-column="24" selection-end-line="145" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Uebung2a/index.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Uebung2a/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" column="32" lean-forward="true" selection-start-line="20" selection-start-column="32" selection-end-line="20" selection-end-column="32" />
         </state>
       </provider>
     </entry>
