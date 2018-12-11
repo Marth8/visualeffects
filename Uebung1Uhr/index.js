@@ -65,23 +65,24 @@ function main() {
             uRotate: gl.getUniformLocation(shaderProgram, "uRotate")
         }
     };
-    /*
+
+    var then = 0;
     // Draw the scene repeatedly
     function render(now) {
         now *= 0.001;  // convert to seconds
         const deltaTime = now - then;
         then = now;
 
-        drawScene(gl, programInfo, buffers, deltaTime);
+        drawScene(programInfo, housePositions, roofPositions, deltaTime);
 
         requestAnimationFrame(render);
     }
-    requestAnimationFrame(render);*/
+    requestAnimationFrame(render);
 
     // Bei n-verschiedenen Shadern => n-mal useProgram
     //drawObject(programInfo, housePositions, 2, 6, new Float32Array([1.0, 0.0, 1.0]));
     //drawObject(programInfo, roofPositions, 2, 3, new Float32Array([0.0, 1.0, 0.0]));
-    drawScene(programInfo, housePositions, roofPositions, 0);
+    //drawScene(programInfo, housePositions, roofPositions, 0);
 
     // Aufräumen
     gl.detachShader(programInfo.shaderProgram, vertexShader);
@@ -99,7 +100,7 @@ function drawScene(programInfo, housePositions, roofPositions, deltaTime) {
 
     // Bei n-verschiedenen Shadern => n-mal useProgram
     drawObject(programInfo, housePositions, 2, 6, new Float32Array([1.0, 0.0, 1.0]));
-    drawObject(programInfo, roofPositions, 2, 3, new Float32Array([0.0, 1.0, 0.0]));
+    // drawObject(programInfo, roofPositions, 2, 3, new Float32Array([0.0, 1.0, 0.0]));
 
     squareRotation += deltaTime;
 }
@@ -110,11 +111,14 @@ function drawObject(programInfo, positions, dimension, vertexCount, colorArray)
 
     // Den Position-Buffer binden und verbinden
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-    gl.vertexAttribPointer(programInfo.attributeLocations.position, dimension, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(programInfo.attributeLocations.position);
+    gl.vertexAttribPointer(programInfo.attributeLocations.aPosition, dimension, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(programInfo.attributeLocations.aPosition);
 
     const rotationMatrix = mat4.create();
-
+    mat4.rotate(rotationMatrix,  // destination matrix
+        rotationMatrix,  // matrix to rotate
+        squareRotation,   // amount to rotate in radians
+        [0, 0, 1]);       // axis to rotate around
     // Bei n-verschiedenen Shadern => n-mal useProgram
     gl.useProgram(programInfo.shaderProgram);
     gl.uniform3fv(programInfo.uniformLocations.uColor, colorArray);
@@ -123,7 +127,7 @@ function drawObject(programInfo, positions, dimension, vertexCount, colorArray)
     // offset is 0, with 1 element, TRIANGLE STRIP
     gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 
-    gl.disableVertexAttribArray(programInfo.attributeLocations.position);
+    gl.disableVertexAttribArray(programInfo.attributeLocations.aPosition);
     gl.disableVertexAttribArray(programInfo.uniformLocations.uColor);
 }
 
