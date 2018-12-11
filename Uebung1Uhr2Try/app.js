@@ -7,6 +7,22 @@ let posAttribLocation = null;
 let color = null;
 let positionBuffer = null;
 let texcoordLocation = null;
+let squareRotation = 0;
+
+const trianglePositions = 
+    new Float32Array([
+        0.01, 0 ,
+        -0.01, 0.2   ,
+        0.01 , 0.2   ,
+
+        -0.01, 0,
+        0.01 , 0,
+        -0.01, 0.2,
+
+        -0.05, 0.2   ,
+        0 , 0.25 ,
+        0.05 , 0.2
+    ]);
 
 function main() {
     let test = "#ifdef GL_FRAGMENT_PRECISION_HIGH" +
@@ -23,26 +39,23 @@ function main() {
         alert("Unable to initialize WebGL. Your browser or machine may not support it.");
     }
 
-    let vertexShaderStr =
-                        "uniform vec3 color;" +
-                        "varying vec3 vColor;" +
-                        "attribute vec2 position;" +
-                        "attribute vec2 a_texcoord;" +
-                        "varying vec2 v_texcoord;" +
-                        "void main () {" + 
-                            "vColor = color;" +
-                            "v_texcoord = a_texcoord;" +
-                            "gl_PointSize = 10.0;" +
-                            "gl_Position = vec4(position, 0.0, 1.0);" +
-                        "}";
+    let vertexShaderStr =`
+                        uniform vec3 color;
+                        varying vec3 vColor;
+                        attribute vec3 position;
+                        uniform mat4 uRotate;
+                        void main () { 
+                            vColor = color;
+                            gl_PointSize = 10.0;
+                            gl_Position = vec4(position, 1.0);
+                        }`;
 
-    let fragmentShaderStr = "precision mediump float;" + 
-                        "varying vec3 vColor;" + 
-                        "varying vec2 v_texcoord;" +
-                        "uniform sampler2D u_texture;" +
-                        "void main() {" +
-                            "gl_FragColor = texture2D(u_texture, v_texcoord);" +
-                        "}";
+    let fragmentShaderStr = `
+                        precision mediump float; 
+                        varying vec3 vColor; 
+                        void main() {
+                            gl_FragColor = vec4(vColor, 1.0);
+                        }`;
 
     vs = createShaderFunction(gl.VERTEX_SHADER, vertexShaderStr);
     fs = createShaderFunction(gl.FRAGMENT_SHADER, fragmentShaderStr);
@@ -50,9 +63,7 @@ function main() {
 
     // Look up the location of the attributes and uniforms.
     color = gl.getUniformLocation(shaderProgram, "color");
-    gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
     posAttribLocation = gl.getAttribLocation(shaderProgram, "position");
-    texcoordLocation = gl.getAttribLocation(shaderProgram, "a_texcoord");
 
     // Because attributes get their date from buffers, its necessary to create one.
     positionBuffer = gl.createBuffer();
@@ -61,75 +72,11 @@ function main() {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
     // Dem Buffer die Daten übergeben.
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        // Dreieck 1
-        0.5, 0.5,
-        -0.5, -0.5,
-        -0.5, 0.5,
-        
-        // Dreieck 2
-        0.5, 0.5,
-        0.5, -0.5,
-        -0.5, -0.5,
-
-        // Dreieck 3
-        0.0, 1, 
-        0.7, 0.5,
-        -0.7, 0.5
-    ]), gl.STATIC_DRAW);
-
-    // Texturen
-    // Create a buffer for texcoords.
-    gl.enableVertexAttribArray(texcoordLocation);
-
-    // Supply texcoords as floats.
-    gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
-
-    // setTexcoords
-    setTexcoords();
-
-    // Create a texture.
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
-    // Fill the texture with a 1x1 blue pixel.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
-
-    // Asynchronously load an image.
-    let image = new Image();
-    image.src = "f-texture.png";
-    image.addEventListener('load', function() {
-        // Now that the image has loaded make copy it to the texture.
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        gl.generateMipmap(gl.TEXTURE_2D);
-    });
+    gl.bufferData(gl.ARRAY_BUFFER, trianglePositions, gl.STATIC_DRAW);
 
     animate();
 
     // cleanup();
-}
-
-function setTexcoords() {
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-            // Dreieck 1
-            0.5, 0.5,
-            -0.5, -0.5,
-            -0.5, 0.5,
-        
-            // Dreieck 2
-            0.5, 0.5,
-            0.5, -0.5,
-            -0.5, -0.5,
-
-            0.0, 1, 
-            0.7, 0.5,
-            -0.7, 0.5
-        ]),
-        gl.STATIC_DRAW
-    );
 }
 
 function cleanup() {
