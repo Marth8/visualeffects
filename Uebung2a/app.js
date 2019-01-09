@@ -1,234 +1,128 @@
-let gl = null;
-let vs = null;
-let fs = null;
-let canvas = null;
-let shaderProgram = null;
-let posAttribLocation = null;
-let color = null;
-let positionBuffer = null;
-let texcoordLocation = null;
+import GL from './Classes/GL.js';
+import Renderer from './Classes/Renderer.js';
+import Shader from './Classes/Shader.js';
+import VertexArray from './Classes/VertexArray.js';
+import VertexBuffer from './Classes/VertexBuffer.js';
+import IndexBuffer from './Classes/IndexBuffer.js';
+import Texture from './Classes/Texture.js';
 
-function main() {
-    let test = "#ifdef GL_FRAGMENT_PRECISION_HIGH" +
-                "precision highp float;" + 
-                "#else" +
-                "precision mediump float;" + 
-                "#endif";
+let canvas = document.getElementById('c');
+GL.loadGL(canvas);
 
-    canvas = document.getElementById('c');
-    initGl(canvas);
+const vsSourceString =
+    `
+    attribute vec3 aPosition;
+    attribute vec2 aTexCoord;
+    varying vec2 vTexcoord;
+    void main() { 
+        vTexcoord = aTexCoord;
+        gl_PointSize = 10.0;
+        gl_Position = vec4(aPosition, 1.0);
+    }`;
 
-    // Nur weiter machen, wenn WebGL verfügbar ist.
-    if (!gl) {
-        alert("Unable to initialize WebGL. Your browser or machine may not support it.");
-    }
+const fsSourceString =
+    `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    varying vec2 vTexcoord;
+    uniform sampler2D uTexture;
+    void main() {
+        gl_FragColor = texture2D(uTexture, vTexcoord);
+    }`;
 
-    let vertexShaderStr =
-                        "uniform vec3 color;" +
-                        "varying vec3 vColor;" +
-                        "attribute vec2 position;" +
-                        "attribute vec2 a_texcoord;" +
-                        "varying vec2 v_texcoord;" +
-                        "void main () {" + 
-                            "vColor = color;" +
-                            "v_texcoord = a_texcoord;" +
-                            "gl_PointSize = 10.0;" +
-                            "gl_Position = vec4(position, 0.0, 1.0);" +
-                        "}";
+const fsSourceString2 =
+    `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    uniform vec3 uColor;
+    void main() {
+        gl_FragColor = vec4(uColor, 1.0);
+    }`;
 
-    let fragmentShaderStr = "precision mediump float;" + 
-                        "varying vec3 vColor;" + 
-                        "varying vec2 v_texcoord;" +
-                        "uniform sampler2D u_texture;" +
-                        "void main() {" +
-                            "gl_FragColor = texture2D(u_texture, v_texcoord);" +
-                        "}";
+let housePositions = new Float32Array(
+    [
+        0.4, -0.6,
+        -0.4, 0   ,
+        0.4 , 0   ,
 
-    vs = createShaderFunction(gl.VERTEX_SHADER, vertexShaderStr);
-    fs = createShaderFunction(gl.FRAGMENT_SHADER, fragmentShaderStr);
-    shaderProgram = createProgramFunction(vs, fs);
-
-    // Look up the location of the attributes and uniforms.
-    color = gl.getUniformLocation(shaderProgram, "color");
-    gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
-    posAttribLocation = gl.getAttribLocation(shaderProgram, "position");
-    texcoordLocation = gl.getAttribLocation(shaderProgram, "a_texcoord");
-
-    // Because attributes get their date from buffers, its necessary to create one.
-    positionBuffer = gl.createBuffer();
-    
-    // Um den Zugriff auf den Buffer zu ermöglichen, wird die Referenz zu diesem erstellt.
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-    // Dem Buffer die Daten übergeben.
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        // Dreieck 1
-        0.5, 0.5,
-        -0.5, -0.5,
-        -0.5, 0.5,
+        -0.4, -0.6,
+        0.4 , -0.6,
+        -0.4, 0   ,
         
-        // Dreieck 2
-        0.5, 0.5,
-        0.5, -0.5,
-        -0.5, -0.5,
+        -0.5, 0   ,
+        0   , 0.5 ,
+        0.5 , 0
+    ]
+);
 
-        // Dreieck 3
-        0.0, 1, 
-        0.7, 0.5,
-        -0.7, 0.5
-    ]), gl.STATIC_DRAW);
+let roofPositions = new Float32Array(
+    [
+        -0.5, 0   ,
+        0   , 0.5 ,
+        0.5 , 0
+    ]
+);
 
-    // Texturen
-    // Create a buffer for texcoords.
-    gl.enableVertexAttribArray(texcoordLocation);
+let renderer = new Renderer();
 
-    // Supply texcoords as floats.
-    gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
+// Setzt den Ansichtsbereich, welcher die Transformation
+// von x und y von normalisierten Geräte Koordinaten
+// zu window Koordinaten spezifiziert.
+// (x, y, width, height)
+let gl = GL.getGL();
+gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight)
+renderer.clear();
 
-    // setTexcoords
-    setTexcoords();
+// Draw House
+let program = gl.createProgram();
+let shader = new Shader(program, vsSourceString, fsSourceString);
+let vertexArray = new VertexArray();
+let texture = new Texture(window.location.href + "res/f-texture.png", 0, shader, "uTexture");
+texture.bind();
 
-    // Create a texture.
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+// Den Shader binden 
+shader.bind();
 
-    // Fill the texture with a 1x1 blue pixel.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+// shader.setUniform3f("uColor", 0.5, 0.5, 1.0);
+// shader.setUniform1i("uTexture", 0);
 
-    // Asynchronously load an image.
-    let image = new Image();
-    image.src = "f-texture.png";
-    image.addEventListener('load', function() {
-        // Now that the image has loaded make copy it to the texture.
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        gl.generateMipmap(gl.TEXTURE_2D);
-    });
+// setup indexbuffer
+const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1]);
+const vb1 = new VertexBuffer(housePositions);
+const vb2 = new VertexBuffer(housePositions);
+let posAttribLocation = shader.getParameter("aPosition");
+let texCoordsAttribLocation = shader.getParameter("aTexCoord");
+vertexArray.addBuffer(vb1, [posAttribLocation], 2);
+vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
 
-    animate();
 
-    // cleanup();
-}
+// Draw roof
+let program2 = gl.createProgram();
+let shader2 = new Shader(program2, vsSourceString, fsSourceString2);
+let vertexArray2 = new VertexArray();
+let vertexBuffer3 = new VertexBuffer(housePositions);
 
-function setTexcoords() {
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-            // Dreieck 1
-            0.5, 0.5,
-            -0.5, -0.5,
-            -0.5, 0.5,
-        
-            // Dreieck 2
-            0.5, 0.5,
-            0.5, -0.5,
-            -0.5, -0.5,
+// Den Shader binden 
+shader2.bind();
+shader2.setUniform3f("uColor", 0.5, 0.5, 1.0);
 
-            0.0, 1, 
-            0.7, 0.5,
-            -0.7, 0.5
-        ]),
-        gl.STATIC_DRAW
-    );
-}
+// setup indexbuffer
+const ib2 = new IndexBuffer([6, 7, 8]);
+let posAttribLocation2 = shader2.getParameter("aPosition");
+vertexArray2.addBuffer(vertexBuffer3, [posAttribLocation2], 2);
 
-function cleanup() {
-    gl.disableVertexAttribArray(posAttribLocation);
+requestAnimationFrame(() => animate());
 
-    // finally delete VBO after last frame
-    gl.deleteBuffer(positionBuffer);
-
-    // Speicher freigeben.
-    gl.detachShader(shaderProgram, vs);
-    gl.detachShader(shaderProgram, fs);
-    gl.deleteShader(vs);
-    gl.deleteShader(fs);
-    gl.deleteProgram(shaderProgram);
-}
-
-function initGl(canvas) {
-    gl = canvas.getContext('webgl', {alpha:true, depth:true});
-}
-
-function updateScene() {
-    // asdf
-}
-
-function renderScene() {
-    // Setzt den Ansichtsbereich, welcher die Transformation
-    // von x und y von normalisierten Geräte Koordinaten
-    // zu window Koordinaten spezifiziert.
-    // (x, y, width, height)
-    gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight)
-
-    // Clear the canvas (setting the background color)
-    gl.clearColor(0.47, 0.66, 0.25, 1.0)
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    // Clear the depth buffer. Saves the depth for each pixel.
-    gl.clearDepth(1.0);
-    gl.clear(gl.DEPTH_BUFFER_BIT);
-
-    // Tiefentest einschalten.
-    gl.enable(gl.DEPTH_TEST);
-
-    // Tell WebGl which shader program to execute.
-    gl.useProgram(shaderProgram);
-
-    // Tell WebGL how to take date from the buffer and supply it to
-    // the attribute in the shader. For that, its necessary to turn
-    // the attribute on.
-    gl.enableVertexAttribArray(posAttribLocation);
-
-    // Tell the attribute how to get data out of positionBuffer.
-    gl.vertexAttribPointer(posAttribLocation, 2, gl.FLOAT, false, 0, 0);
-
-    // oberes linkes Dreieck der Hausmauer.
-    // unteres rechtes Dreieck der Hausmauer.
-    // Setzt die Farbe für das linke Dreieck, der unteren Haushälfte.
-    gl.uniform3f(color, 1.0, 0.96, 0.6);
-
-    // offset is 0, with 1 element
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-    
-    // Setzt die Farbe für das Dach.
-    gl.uniform3f(color, 0.99, 0.27, 0.29);
-    gl.drawArrays(gl.TRIANGLES, 6, 3);
-}
-
-// Rendering Loop für bspw. Animationen.
-function animate() {
-    console.log("animate");
-    updateScene();
-    renderScene();
+function animate()
+{
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    renderer.draw(vertexArray, ib1, shader);
+    renderer.draw(vertexArray2, ib2, shader2);
     requestAnimationFrame(animate);
-}
-
-function createShaderFunction(type, shaderString) {
-    let shader = gl.createShader(type);
-    gl.shaderSource(shader, shaderString);
-    gl.compileShader(shader);
-
-    let success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-    if (success) {
-        return shader;
-    }
-
-    console.log(gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
-}
-
-function createProgramFunction(vertexShader, fragmentShader) {
-    let program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    
-    let success = gl.getProgramParameter(program, gl.LINK_STATUS);
-    if (success) {
-        return program;
-    }
-
-    console.log("Beim Erstellen des Programms ist ein Fehler aufgetreten." + gl.getProgramInfoLog(program));
-    gl.deleteProgram(program);
 }
