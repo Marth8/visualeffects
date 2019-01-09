@@ -67,10 +67,10 @@ let vertexArray = new VertexArray();
 
 // Den Shader binden 
 shader.bind();
-shader.setUniform3f("uColor", 1.0, 0.0, 1.0);
+shader.setUniform3f("uColor", 0.5, 0.5, 1.0);
 
 // test array
-let testArray = [-0.4,0.1, 0.4,0.1, -0.4,-0.7];
+let testArray = [-0.4, 0.1, 0.4, 0.1, -0.4, -0.7];
 
 // setup indexbuffer
 const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1, 6, 7, 8]);
@@ -78,7 +78,6 @@ const vb1 = new VertexBuffer(housePositions);
 const vb2 = new VertexBuffer(roofPositions);
 let posAttribLocation = shader.getParameter("aPosition");
 vertexArray.addBuffer(vb1, [posAttribLocation], 2);
-// vertexArray.addBuffer(vb2, [posAttribLocation], 2)
 renderer.clear();
 renderer.draw(vertexArray, ib1, shader);
 

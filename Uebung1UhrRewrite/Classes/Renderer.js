@@ -10,7 +10,7 @@ class Renderer
 
     draw(vertexArray, indexBuffer, shader)
     {
-        shader.bind();
+        //shader.bind();
         vertexArray.bind();
         indexBuffer.bind();
 
