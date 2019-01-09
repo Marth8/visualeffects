@@ -84,8 +84,8 @@ let shader2 = new Shader(program2, vsSourceString, fsSourceString);
 let vertexArray2 = new VertexArray();
 
 // Den Shader binden 
-shader.bind();
-shader.setUniform3f("uColor", 1.0, 0.5, 1.0);
+shader2.bind();
+shader2.setUniform3f("uColor", 1.0, 0.5, 1.0);
 
 // setup indexbuffer
 const ib2 = new IndexBuffer([6, 7, 8]);
