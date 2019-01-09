@@ -1,23 +1,26 @@
 import GL from "./GL.js";
 const gl = GL.getGL();
 
-class VertexBuffer {
+class IndexBuffer {
     constructor(data)
     {
+        const gl = this.gl = GL.getGL();
         this.buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, data);
+        this.data = data;
+        this.count = data.length;
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data), gl.STATIC_DRAW);
     }
 
     bind()
     {
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, data);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffer);
     }
 
     cleanup()
     {
-        gl.deleteBuffer(this.buffer);
+        this.gl.deleteBuffer(this.buffer);
     }
 }
 
-export default VertexBuffer
+export default IndexBuffer

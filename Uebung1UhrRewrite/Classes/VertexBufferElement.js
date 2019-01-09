@@ -8,4 +8,4 @@ class VertexBufferElement
     }
 }
 
-export default VertexBuffer
+export default VertexBufferElement

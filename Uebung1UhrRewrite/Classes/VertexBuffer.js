@@ -4,19 +4,21 @@ const gl = GL.getGL();
 class VertexBuffer {
     constructor(data)
     {
+        const gl = this.gl = GL.getGL();
         this.buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, data);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+        this.data = data;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.data), gl.STATIC_DRAW);
     }
 
     bind()
     {
-        gl.bindBuffer(gl.ARRAY_BUFFER, data);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
     }
 
     cleanup()
     {
-        gl.deleteBuffer(this.buffer);
+        this.gl.deleteBuffer(this.buffer);
     }
 }
 

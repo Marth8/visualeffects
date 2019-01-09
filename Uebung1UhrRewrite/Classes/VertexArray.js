@@ -1,15 +1,23 @@
 import GL from "./GL.js";
-import Renderer from "./Renderer";
+import Renderer from "./Renderer.js";
 const gl = GL.getGL();
 
 class VertexArray {
-    constructor(stride)
+    constructor(program, stride)
     {
+        const gl = this.gl = GL.getGL();
+        this.vertexArray = gl.createVertexArray();
+        gl.bindVertexArray(this.vertexArray);
+    }
 
+    bind()
+    {
+        this.gl.bindVertexArray(this.vertexArray);
     }
 
     addBuffer(vb, vbElements, stride)
     {
+        this.bind();
         vb.bind();
 
         let offset = 0;
@@ -20,14 +28,16 @@ class VertexArray {
             // Tell WebGL how to take date from the buffer and supply it to
             // the attribute in the shader. For that, its necessary to turn
             // the attribute on.
-            gl.enableVertexAttribArray(i);
+            this.gl.enableVertexAttribArray(element);
 
             // Tell the attribute how to get data out of positionBuffer.
-            gl.vertexAttribPointer(i, element.count, gl.FLOAT, element.normalized, stride * element.count, offset);
+            //this.gl.vertexAttribPointer(element, element.count, this.gl.FLOAT, element.normalized, stride * element.count, offset);
+            this.gl.vertexAttribPointer(element, 2, this.gl.FLOAT, false, 2 * i, offset);
 
             // Nur floats
             offset += element.count * 4;
         }
+        
     }
 }
 
