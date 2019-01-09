@@ -60,7 +60,9 @@ let renderer = new Renderer();
 // (x, y, width, height)
 let gl = GL.getGL();
 gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight)
+renderer.clear();
 
+// Draw House
 let program = gl.createProgram();
 let shader = new Shader(program, vsSourceString, fsSourceString);
 let vertexArray = new VertexArray();
@@ -69,15 +71,25 @@ let vertexArray = new VertexArray();
 shader.bind();
 shader.setUniform3f("uColor", 0.5, 0.5, 1.0);
 
-// test array
-let testArray = [-0.4, 0.1, 0.4, 0.1, -0.4, -0.7];
-
 // setup indexbuffer
-const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1, 6, 7, 8]);
+const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1]);
 const vb1 = new VertexBuffer(housePositions);
-const vb2 = new VertexBuffer(roofPositions);
 let posAttribLocation = shader.getParameter("aPosition");
 vertexArray.addBuffer(vb1, [posAttribLocation], 2);
-renderer.clear();
 renderer.draw(vertexArray, ib1, shader);
+
+// Draw roof
+let program2 = gl.createProgram();
+let shader2 = new Shader(program2, vsSourceString, fsSourceString);
+let vertexArray2 = new VertexArray();
+
+// Den Shader binden 
+shader2.bind();
+shader2.setUniform3f("uColor", 1.0, 0.5, 1.0);
+
+// setup indexbuffer
+const ib2 = new IndexBuffer([6, 7, 8]);
+let posAttribLocation2 = shader2.getParameter("aPosition");
+vertexArray2.addBuffer(vb1, [posAttribLocation2], 2);
+renderer.draw(vertexArray2, ib2, shader2);
 
