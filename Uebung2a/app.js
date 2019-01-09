@@ -5,6 +5,7 @@ import VertexArray from './Classes/VertexArray.js';
 import VertexBuffer from './Classes/VertexBuffer.js';
 import IndexBuffer from './Classes/IndexBuffer.js';
 import Texture from './Classes/Texture.js';
+import Color from './Classes/Color.js';
 
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
@@ -61,6 +62,16 @@ let housePositions = new Float32Array(
     ]
 );
 
+let texCoords = new Float32Array(
+    [
+        1,1, 
+        0,0, 
+        1,0, 
+        0,1,
+        1,1
+    ]
+);
+
 let roofPositions = new Float32Array(
     [
         -0.5, 0   ,
@@ -95,7 +106,7 @@ shader.bind();
 // setup indexbuffer
 const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1]);
 const vb1 = new VertexBuffer(housePositions);
-const vb2 = new VertexBuffer(housePositions);
+const vb2 = new VertexBuffer(texCoords);
 let posAttribLocation = shader.getParameter("aPosition");
 let texCoordsAttribLocation = shader.getParameter("aTexCoord");
 vertexArray.addBuffer(vb1, [posAttribLocation], 2);
@@ -110,7 +121,9 @@ let vertexBuffer3 = new VertexBuffer(housePositions);
 
 // Den Shader binden 
 shader2.bind();
-shader2.setUniform3f("uColor", 0.5, 0.5, 1.0);
+//shader2.setUniform3f("uColor", 0.5, 0.5, 1.0);
+let color = new Color("uColor", shader2, 0.5, 0.5, 1);
+color.bind();
 
 // setup indexbuffer
 const ib2 = new IndexBuffer([6, 7, 8]);
