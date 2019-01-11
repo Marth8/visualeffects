@@ -181,7 +181,7 @@ function animate(now)
         // Die Uhr rotieren
         mat4.rotate(modelViewMatrix2,  // destination matrix
             modelViewMatrix2,  // matrix to rotate
-            -0.1047,   // amount to rotate in radians
+            -0.0087266,   // amount to rotate in radians
             [0, 0, 1]);       // axis to rotate around
         shader2.bind();
         shader2.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix2);
