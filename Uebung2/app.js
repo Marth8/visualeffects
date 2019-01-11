@@ -152,9 +152,9 @@ const vb2 = new VertexBuffer(housePositions);
 let posAttribLocation2 = shader2.getParameter("aPosition");
 vertexArray2.addBuffer(vb2, [posAttribLocation2], 2);
 
-requestAnimationFrame((now) => animate(now));
+requestAnimationFrame(() => animate());
 
-function animate(now)
+function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
