@@ -9,14 +9,13 @@ class Shader
         this.locations = [];
         this.vertexshader = Shader.getShader(vsShaderString, "vertex");
         this.fragmentShader = Shader.getShader(fsShaderString, "fragment");
-        this.gl.attachShader(this.program, this.vertexshader);
-        this.gl.attachShader(this.program, this.fragmentShader);
+        gl.attachShader(this.program, this.vertexshader);
+        gl.attachShader(this.program, this.fragmentShader);
+        this.gl.linkProgram(this.program);
     }
 
     bind()
     {
-        this.gl.linkProgram(this.program);
-
         if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
             console.warn("Could not link program: " + this.gl.getProgramInfoLog(this.program));
             return null;
@@ -43,6 +42,11 @@ class Shader
         return attribLocation;
     }
 
+    setUniform1i(name, value)
+    {
+        this.gl.uniform1i(this.getUniformLocation(name), value);
+    }
+
     setUniform3f(name, v0, v1, v2)
     {
         this.gl.uniform3f(this.getUniformLocation(name), v0, v1, v2);
@@ -53,6 +57,11 @@ class Shader
         this.gl.uniform4f(this.getUniformLocation(name), v0, v1, v2, v3);
     }
 
+    setUniformMatrix4fv(name, transpose, matrix)
+    {
+        this.gl.uniformMatrix4fv(this.getUniformLocation(name), transpose, matrix);
+    }
+    
     getUniformLocation(name)
     {
         let uniformlocation = this.locations.find(location => location.name == name);

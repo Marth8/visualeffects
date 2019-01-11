@@ -11,9 +11,11 @@ GL.loadGL(canvas);
 const vsSourceString =
     `
     attribute vec3 aPosition;
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
     void main() { 
         gl_PointSize = 10.0;
-        gl_Position = vec4(aPosition, 1.0);
+        gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
     }`;
 
 const fsSourceString =
@@ -28,29 +30,33 @@ const fsSourceString =
         gl_FragColor = vec4(uColor, 1.0);
     }`;
 
-let housePositions = new Float32Array(
-    [
-        0.4, -0.6,
-        -0.4, 0   ,
-        0.4 , 0   ,
+let minutePositions = new Float32Array([
+    0.03, 0 ,
+    -0.03, 1.5   ,
+    0.03 , 1.5   ,
 
-        -0.4, -0.6,
-        0.4 , -0.6,
-        -0.4, 0   ,
-        
-        -0.5, 0   ,
-        0   , 0.5 ,
-        0.5 , 0
-    ]
-);
+    -0.03, 0,
+    0.03 , 0,
+    -0.03, 1.5,
 
-let roofPositions = new Float32Array(
-    [
-        -0.5, 0   ,
-        0   , 0.5 ,
-        0.5 , 0
-    ]
-);
+    -0.2, 1.5   ,
+    0 , 1.75 ,
+    0.2 , 1.5
+]);
+
+let secondPositions = new Float32Array([
+    0.03, 0 ,
+    -0.03, 2   ,
+    0.03 , 2   ,
+
+    -0.03, 0,
+    0.03 , 0,
+    -0.03, 2,
+
+    -0.2, 2   ,
+    0 , 2.25 ,
+    0.2 , 2
+]);
 
 let renderer = new Renderer();
 
@@ -69,27 +75,135 @@ let vertexArray = new VertexArray();
 
 // Den Shader binden 
 shader.bind();
-shader.setUniform3f("uColor", 0.5, 0.5, 1.0);
+
+// Create a perspective matrix, a special matrix that is
+// used to simulate the distortion of perspective in a camera.
+// Our field of view is 45 degrees, with a width/height
+// ratio that matches the display size of the canvas
+// and we only want to see objects between 0.1 units
+// and 100 units away from the camera.
+
+const fieldOfView = 45 * Math.PI / 180;   // in radians
+const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+const zNear = 0.1;
+const zFar = 100.0;
+const projectionMatrix = mat4.create();
+
+// note: glmatrix.js always has the first argument
+// as the destination to receive the result.
+mat4.perspective(projectionMatrix,
+                fieldOfView,
+                aspect,
+                zNear,
+                zFar);
+
+// Set the drawing position to the "identity" point, which is
+// the center of the scene.
+const modelViewMatrix = mat4.create();
+
+// Now move the drawing position a bit to where we want to
+// start drawing the square.
+
+mat4.translate(modelViewMatrix,     // destination matrix
+                modelViewMatrix,     // matrix to translate
+                [-0.0, 0.0, -6.0]);  // amount to translate
+
+shader.setUniform3f("uColor", 1, 0, 0);
+shader.setUniformMatrix4fv("uProjectionMatrix", false, projectionMatrix);
+shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
 
 // setup indexbuffer
-const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1]);
-const vb1 = new VertexBuffer(housePositions);
+const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1, 6, 7, 8]);
+const vb1 = new VertexBuffer(secondPositions);
 let posAttribLocation = shader.getParameter("aPosition");
 vertexArray.addBuffer(vb1, [posAttribLocation], 2);
-renderer.draw(vertexArray, ib1, shader);
 
-// Draw roof
+// Draw second zeiger
 let program2 = gl.createProgram();
 let shader2 = new Shader(program2, vsSourceString, fsSourceString);
 let vertexArray2 = new VertexArray();
 
 // Den Shader binden 
 shader2.bind();
-shader2.setUniform3f("uColor", 1.0, 0.5, 1.0);
+
+// Create a perspective matrix, a special matrix that is
+// used to simulate the distortion of perspective in a camera.
+// Our field of view is 45 degrees, with a width/height
+// ratio that matches the display size of the canvas
+// and we only want to see objects between 0.1 units
+// and 100 units away from the camera.
+const projectionMatrix2 = mat4.create();
+
+// note: glmatrix.js always has the first argument
+// as the destination to receive the result.
+mat4.perspective(projectionMatrix2,
+                fieldOfView,
+                aspect,
+                zNear,
+                zFar);
+
+// Set the drawing position to the "identity" point, which is
+// the center of the scene.
+const modelViewMatrix2 = mat4.create();
+
+// Now move the drawing position a bit to where we want to
+// start drawing the square.
+
+mat4.translate(modelViewMatrix2,     // destination matrix
+                modelViewMatrix2,     // matrix to translate
+                [-0.0, 0.0, -6.0]);  // amount to translate
+
+shader2.setUniform3f("uColor", 0, 0, 0);
+shader2.setUniformMatrix4fv("uProjectionMatrix", false, projectionMatrix2);
+shader2.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix2);
 
 // setup indexbuffer
-const ib2 = new IndexBuffer([6, 7, 8]);
+const ib2 = new IndexBuffer([0, 1, 2, 3, 4, 1, 6, 7, 8]);
+const vb2 = new VertexBuffer(minutePositions);
 let posAttribLocation2 = shader2.getParameter("aPosition");
-vertexArray2.addBuffer(vb1, [posAttribLocation2], 2);
-renderer.draw(vertexArray2, ib2, shader2);
+vertexArray2.addBuffer(vb2, [posAttribLocation2], 2);
 
+let then = 0;
+let secondCounter = 0;
+let minuteCounter = 0;
+requestAnimationFrame((now) => animate(now));
+
+function animate(now)
+{
+    now *= 0.001;  // convert to seconds
+    const deltaTime = now - then;
+    then = now;
+    secondCounter += deltaTime;
+    minuteCounter += deltaTime;
+
+    if(minuteCounter >= 60)
+    {
+        // Die Uhr rotieren
+        mat4.rotate(modelViewMatrix2,  // destination matrix
+            modelViewMatrix2,  // matrix to rotate
+            -0.1047,   // amount to rotate in radians
+            [0, 0, 1]);       // axis to rotate around
+        shader2.bind();
+        shader2.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix2);
+        minuteCounter = 0;
+    }
+
+    if(secondCounter >= 1)
+    {
+        // Die Uhr rotieren
+        mat4.rotate(modelViewMatrix,  // destination matrix
+            modelViewMatrix,  // matrix to rotate
+            -0.1047,   // amount to rotate in radians
+            [0, 0, 1]);       // axis to rotate around
+        shader.bind();
+        shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+        secondCounter = 0;
+    }
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clearColor(0, 0, 0, 0);
+
+    renderer.draw(vertexArray, ib1, shader);
+    renderer.draw(vertexArray2, ib2, shader2);
+    requestAnimationFrame(animate);
+}

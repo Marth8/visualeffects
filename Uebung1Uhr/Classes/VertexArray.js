@@ -1,6 +1,4 @@
 import GL from "./GL.js";
-import Renderer from "./Renderer.js";
-const gl = GL.getGL();
 
 class VertexArray {
     constructor(program, stride)

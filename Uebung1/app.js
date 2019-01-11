@@ -70,7 +70,7 @@ let vertexArray = new VertexArray();
 // Den Shader binden 
 shader.bind();
 shader.setUniform3f("uColor", 0.5, 0.5, 1.0);
-
+              
 // setup indexbuffer
 const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1]);
 const vb1 = new VertexBuffer(housePositions);
