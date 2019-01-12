@@ -1,5 +1,4 @@
 import GL from "./GL.js";
-const gl = GL.getGL();
 
 class IndexBuffer {
     constructor(data)

@@ -1,6 +1,6 @@
 import GL from './GL.js';
 import Shader from "./Shader.js";
-
+import GameObject from "./Gameobject.js"
 class Renderer
 {
     constructor()
@@ -20,6 +20,12 @@ class Renderer
         //gl.drawArrays(gl.TRIANGLES, 0, ib.getCount());
     }
 
+    drawGameObject(gameObject, shader)
+    {
+        shader.bind();
+        gameObject.draw();
+    }
+    
     clear()
     {
         // Clear the canvas (setting the background color)

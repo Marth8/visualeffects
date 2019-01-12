@@ -4,6 +4,9 @@ import Shader from './Classes/Shader.js';
 import VertexArray from './Classes/VertexArray.js';
 import VertexBuffer from './Classes/VertexBuffer.js';
 import IndexBuffer from './Classes/IndexBuffer.js';
+import GameObject from './Classes/GameObject.js';
+import Color from './Classes/Color.js';
+import Texture from './Classes/Texture.js';
 
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
@@ -11,11 +14,13 @@ GL.loadGL(canvas);
 const vsSourceString =
     `
     attribute vec3 aPosition;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
+    attribute vec2 aTexCoord;
+    varying vec2 vTexcoord;
+    uniform mat4 uTransform;
     void main() { 
+        vTexcoord = aTexCoord;
         gl_PointSize = 10.0;
-        gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aPosition, 1.0);
+        gl_Position =vec4(aPosition, 1.0);
     }`;
 
 const fsSourceString =
@@ -25,9 +30,10 @@ const fsSourceString =
     #else
     precision mediump float;
     #endif
-    uniform vec3 uColor;
+    varying vec2 vTexcoord;
+    uniform sampler2D uTexture;
     void main() {
-        gl_FragColor = vec4(uColor, 1.0);
+        gl_FragColor = texture2D(uTexture, vTexcoord);
     }`;
 
 let housePositions = new Float32Array(
@@ -58,107 +64,77 @@ renderer.clear();
 
 // Draw House
 let program = gl.createProgram();
-let shader = new Shader(program, vsSourceString, fsSourceString);
-let vertexArray = new VertexArray();
 
-// Den Shader binden 
+let shader = new Shader(program, vsSourceString, fsSourceString);
 shader.bind();
 
-// Create a perspective matrix, a special matrix that is
-// used to simulate the distortion of perspective in a camera.
-// Our field of view is 45 degrees, with a width/height
-// ratio that matches the display size of the canvas
-// and we only want to see objects between 0.1 units
-// and 100 units away from the camera.
+let texture = new Texture("uTexture", shader, window.location.href + "res/woodWall.jpg", 0);
 
-const fieldOfView = 45 * Math.PI / 180;   // in radians
-const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-const zNear = 0.1;
-const zFar = 100.0;
-const projectionMatrix = mat4.create();
-
-// note: glmatrix.js always has the first argument
-// as the destination to receive the result.
-mat4.perspective(projectionMatrix,
-                fieldOfView,
-                aspect,
-                zNear,
-                zFar);
-
-// Set the drawing position to the "identity" point, which is
-// the center of the scene.
-const modelViewMatrix = mat4.create();
-
-// Now move the drawing position a bit to where we want to
-// start drawing the square.
-
-mat4.translate(modelViewMatrix,     // destination matrix
-                modelViewMatrix,     // matrix to translate
-                [-0.0, 0.0, -6.0]);  // amount to translate
-
-shader.setUniform3f("uColor", 1, 0, 0);
-shader.setUniformMatrix4fv("uProjectionMatrix", false, projectionMatrix);
-shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
-
-// setup indexbuffer
+let vertexArray = new VertexArray();
 const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1]);
 const vb1 = new VertexBuffer(housePositions);
+const vb2 = new VertexBuffer(housePositions);
 let posAttribLocation = shader.getParameter("aPosition");
+let texCoordsAttribLocation = shader.getParameter("aTexCoord");
 vertexArray.addBuffer(vb1, [posAttribLocation], 2);
+vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
+
+let gameObject = new GameObject(vertexArray, ib1, texture);
 
 //-------------------------------------------------------------------
-// Draw second zeiger
+// Draw roof
 let program2 = gl.createProgram();
-let shader2 = new Shader(program2, vsSourceString, fsSourceString);
-let vertexArray2 = new VertexArray();
 
-// Den Shader binden 
+let shader2 = new Shader(program2, vsSourceString, fsSourceString);
 shader2.bind();
 
-// Create a perspective matrix, a special matrix that is
-// used to simulate the distortion of perspective in a camera.
-// Our field of view is 45 degrees, with a width/height
-// ratio that matches the display size of the canvas
-// and we only want to see objects between 0.1 units
-// and 100 units away from the camera.
-const projectionMatrix2 = mat4.create();
+let vertexArray2 = new VertexArray(); 
 
-// note: glmatrix.js always has the first argument
-// as the destination to receive the result.
-mat4.perspective(projectionMatrix2,
-                fieldOfView,
-                aspect,
-                zNear,
-                zFar);
+let texture2 = new Texture("uTexture", shader2, window.location.href + "res/roof.jpg", 0);
 
-// Set the drawing position to the "identity" point, which is
-// the center of the scene.
-const modelViewMatrix2 = mat4.create();
-
-// Now move the drawing position a bit to where we want to
-// start drawing the square.
-
-mat4.translate(modelViewMatrix2,     // destination matrix
-                modelViewMatrix2,     // matrix to translate
-                [-0.0, 0.0, -6.0]);  // amount to translate
-
-shader2.setUniform3f("uColor", 0, 0, 0);
-shader2.setUniformMatrix4fv("uProjectionMatrix", false, projectionMatrix2);
-shader2.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix2);
-
-// setup indexbuffer
 const ib2 = new IndexBuffer([6, 7, 8]);
-const vb2 = new VertexBuffer(housePositions);
+const vb3 = new VertexBuffer(housePositions);
+const vb4 = new VertexBuffer(housePositions);
 let posAttribLocation2 = shader2.getParameter("aPosition");
-vertexArray2.addBuffer(vb2, [posAttribLocation2], 2);
+let texCoordsAttribLocation2 = shader.getParameter("aTexCoord");
+vertexArray2.addBuffer(vb3, [posAttribLocation2], 2);
+vertexArray2.addBuffer(vb4, [texCoordsAttribLocation2], 2);
+
+let gameObject2 = new GameObject(vertexArray2, ib2, texture2);
+
+// Die Keyeventlistener hinzufügen
+canvas.setAttribute("tabindex", "0");
+canvas.addEventListener('keypress', function(evt) {
+    switch (evt.charCode) {
+        case 43: /* + */
+            break;
+        case 45: /* - */
+            break;
+    }   
+}, true);
+
+canvas.addEventListener('keydown', function
+(evt) {
+    switch (evt.keyCode) {
+        case 37: /* left */
+            break;
+        case 38: /* up */
+            break;
+        case 39: /* right */
+            break;
+        case 40: /* down */
+            break;
+    }
+}, true);
 
 requestAnimationFrame(() => animate());
 
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    renderer.draw(vertexArray, ib1, shader);
-    renderer.draw(vertexArray2, ib2, shader2);
+    shader.bind();
+    renderer.drawGameObject(gameObject, shader);
+    shader2.bind();
+    renderer.drawGameObject(gameObject2, shader2);
     requestAnimationFrame(animate);
 }

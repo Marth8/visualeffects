@@ -1,8 +1,9 @@
-class Color {
+import Material from './Material.js';
+
+class Color extends Material{
     constructor(uniformName, shader, v0, v1, v2, v3)
     {
-        this.uniformName = uniformName;
-        this.shader = shader;
+        super(uniformName, shader);
         this.v0 = v0; 
         this.v1 = v1;
         this.v2 = v2;
@@ -11,6 +12,8 @@ class Color {
 
     bind()
     {
+        super.bind();
+        
         if(!this.v3)
         {
             this.shader.setUniform3f(this.uniformName, this.v0, this.v1, this.v2);
