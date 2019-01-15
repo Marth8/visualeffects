@@ -39,8 +39,8 @@ const fsSourceString =
 
 let housePositions = new Float32Array(
     [
-        0.4, -0.6,
-        -0.4, 0   ,
+        0.4, -0.6, 
+        -0.4, 0   , 
         0.4 , 0   ,
 
         -0.4, -0.6,
@@ -51,6 +51,43 @@ let housePositions = new Float32Array(
         0   , 0.5 ,
         0.5 , 0
     ]
+);
+let squarePositions = new Float32Array(
+    // vordere Fläche
+    -1.0, -1.0,  1.0,
+        1.0, -1.0,  1.0,
+        1.0,  1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    
+    // hintere Fläche
+    -1.0, -1.0, -1.0,
+    -1.0,  1.0, -1.0,
+        1.0,  1.0, -1.0,
+        1.0, -1.0, -1.0,
+    
+    // obere Fläche
+    -1.0,  1.0, -1.0,
+    -1.0,  1.0,  1.0,
+        1.0,  1.0,  1.0,
+        1.0,  1.0, -1.0,
+    
+    // untere Fläche
+    -1.0, -1.0, -1.0,
+        1.0, -1.0, -1.0,
+        1.0, -1.0,  1.0,
+    -1.0, -1.0,  1.0,
+    
+    // rechte Fläche
+        1.0, -1.0, -1.0,
+        1.0,  1.0, -1.0,
+        1.0,  1.0,  1.0,
+        1.0, -1.0,  1.0,
+    
+    // linke Fläche
+    -1.0, -1.0, -1.0,
+    -1.0, -1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    -1.0,  1.0, -1.0
 );
 
 let renderer = new Renderer();
@@ -103,20 +140,23 @@ vertexArray2.addBuffer(vb4, [texCoordsAttribLocation2], 2);
 
 let gameObject2 = new GameObject(vertexArray2, ib2, texture2);
 
-let testMatrix = mat4.create();
-let invertedMatrix = null;
-mat4.translate(testMatrix,     // destination matrix
-    testMatrix,     // matrix to translate
-    [-0.0, 0.0, -6.0]);  // amount to translate
-mat4.invert(testMatrix, testMatrix);
+// Beispiel Scaling
+// gameObject2.transform.scale(new Float32Array([2, 2, 2]));
+// gameObject2.transform.rotate(50, new Float32Array([0, 0, 1]));
 
 // Die Keyeventlistener hinzufügen
 canvas.setAttribute("tabindex", "0");
 canvas.addEventListener('keypress', function(evt) {
     switch (evt.charCode) {
         case 43: /* + */
+            mat4.translate(viewMatrix,     // destination matrix
+                viewMatrix,     // matrix to translate
+                [-0.0, 0.0, 0.10]);  // amount to translate 
             break;
         case 45: /* - */
+            mat4.translate(viewMatrix,     // destination matrix
+                viewMatrix,     // matrix to translate
+                [-0.0, 0.0, -0.10]);  // amount to translate 
             break;
     }   
 }, true);
@@ -125,25 +165,37 @@ canvas.addEventListener('keydown', function
 (evt) {
     switch (evt.keyCode) {
         case 37: /* left */
+            mat4.translate(viewMatrix,
+                viewMatrix,
+                [0.01, 0, 0]);
             break;
         case 38: /* up */
+            mat4.translate(viewMatrix,
+                viewMatrix,
+                [-0.0, -0.01, 0]);
             break;
         case 39: /* right */
+            mat4.translate(viewMatrix,
+                viewMatrix,
+                [-0.01, 0, 0]);
             break;
         case 40: /* down */
+            mat4.translate(viewMatrix,
+                viewMatrix,
+                [-0.0, 0.01, 0]);
             break;
     }
 }, true);
 
 requestAnimationFrame(() => animate());
+
 const fieldOfView = 45 * Math.PI / 180;   // in radians
 const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
 const zNear = 0.1;
 const zFar = 100.0;
 const projectionMatrix = mat4.create();
 
-// note: glmatrix.js always has the first argument
-// as the destination to receive the result.
+// Perspektivmatrix setzen
 mat4.perspective(projectionMatrix,
                  fieldOfView,
                  aspect,
@@ -157,11 +209,11 @@ const viewMatrix = mat4.create();
 
 mat4.translate(viewMatrix,     // destination matrix
                viewMatrix,     // matrix to translate
-               [-0.0, 0.0, -6.0]);  // amount to translate 
-let camera = new ViewCamera(viewMatrix, projectionMatrix);
+               [-0.0, 0.0, -4.0]);  // amount to translate 
 
 function animate()
 {
+    let camera = new ViewCamera(viewMatrix, projectionMatrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     shader.bind();
     renderer.drawGameObject(gameObject, shader, camera);
