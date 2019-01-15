@@ -20,10 +20,17 @@ class Renderer
         //gl.drawArrays(gl.TRIANGLES, 0, ib.getCount());
     }
 
-    drawGameObject(gameObject, shader)
+    drawGameObject(gameObject, shader, camera)
     {
         shader.bind();
         gameObject.draw();
+        shader.setUniformMatrix4fv("uTransform", false, gameObject.transform.modelMatrix);
+        
+        /**
+        let matrix = camera.getViewProjectionMatrix();
+        mat4.multiply(matrix, matrix, gameObject.transform.modelMatrix);
+        shader.setUniformMatrix4fv("uTransform", false, matrix);
+        */
     }
     
     clear()

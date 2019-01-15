@@ -22,9 +22,6 @@ class Texture extends Material{
         this.image.crossOrigin = "";
         this.image.addEventListener('load', () => 
         {
-            console.log(this.image);
-            console.log(this.texture);
-
             // Now that the image has loaded make copy it to the texture.
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.image);

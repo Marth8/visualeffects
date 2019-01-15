@@ -7,6 +7,7 @@ import IndexBuffer from './Classes/IndexBuffer.js';
 import GameObject from './Classes/GameObject.js';
 import Color from './Classes/Color.js';
 import Texture from './Classes/Texture.js';
+import ViewCamera from './Classes/ViewCamera.js';
 
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
@@ -20,7 +21,7 @@ const vsSourceString =
     void main() { 
         vTexcoord = aTexCoord;
         gl_PointSize = 10.0;
-        gl_Position =vec4(aPosition, 1.0);
+        gl_Position = uTransform * vec4(aPosition, 1.0);
     }`;
 
 const fsSourceString =
@@ -102,6 +103,13 @@ vertexArray2.addBuffer(vb4, [texCoordsAttribLocation2], 2);
 
 let gameObject2 = new GameObject(vertexArray2, ib2, texture2);
 
+let testMatrix = mat4.create();
+let invertedMatrix = null;
+mat4.translate(testMatrix,     // destination matrix
+    testMatrix,     // matrix to translate
+    [-0.0, 0.0, -6.0]);  // amount to translate
+mat4.invert(testMatrix, testMatrix);
+
 // Die Keyeventlistener hinzufügen
 canvas.setAttribute("tabindex", "0");
 canvas.addEventListener('keypress', function(evt) {
@@ -128,13 +136,37 @@ canvas.addEventListener('keydown', function
 }, true);
 
 requestAnimationFrame(() => animate());
+const fieldOfView = 45 * Math.PI / 180;   // in radians
+const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+const zNear = 0.1;
+const zFar = 100.0;
+const projectionMatrix = mat4.create();
+
+// note: glmatrix.js always has the first argument
+// as the destination to receive the result.
+mat4.perspective(projectionMatrix,
+                 fieldOfView,
+                 aspect,
+                 zNear,
+                 zFar);
+
+const viewMatrix = mat4.create();
+
+// Now move the drawing position a bit to where we want to
+// start drawing the square.
+
+mat4.translate(viewMatrix,     // destination matrix
+               viewMatrix,     // matrix to translate
+               [-0.0, 0.0, -6.0]);  // amount to translate 
+let camera = new ViewCamera(viewMatrix, projectionMatrix);
+console.log(camera.getViewProjectionMatrix());
 
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     shader.bind();
-    renderer.drawGameObject(gameObject, shader);
+    renderer.drawGameObject(gameObject, shader, camera);
     shader2.bind();
-    renderer.drawGameObject(gameObject2, shader2);
+    renderer.drawGameObject(gameObject2, shader2, camera);
     requestAnimationFrame(animate);
 }
