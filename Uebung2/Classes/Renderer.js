@@ -14,10 +14,8 @@ class Renderer
         vertexArray.bind();
         indexBuffer.bind();
 
+        // Zeichnen der Elemente
         this.gl.drawElements(this.gl.TRIANGLES, indexBuffer.count, this.gl.UNSIGNED_SHORT, 0);
-
-        // offset is 0, with 1 element
-        //gl.drawArrays(gl.TRIANGLES, 0, ib.getCount());
     }
 
     drawGameObject(gameObject, shader, camera)
@@ -25,12 +23,9 @@ class Renderer
         shader.bind();
         gameObject.draw();
         shader.setUniformMatrix4fv("uTransform", false, gameObject.transform.modelMatrix);
-        
-        /**
         let matrix = camera.getViewProjectionMatrix();
         mat4.multiply(matrix, matrix, gameObject.transform.modelMatrix);
         shader.setUniformMatrix4fv("uTransform", false, matrix);
-        */
     }
     
     clear()

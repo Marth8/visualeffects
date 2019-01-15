@@ -12,9 +12,10 @@ class ViewCamera
 
     getViewProjectionMatrix()
     {
-        this.cameraMatrix = mat4.invert(this.viewMatrix, this.cameraMatrix);
-        this.viewProjectionMatrix = mat4.multiply(this.viewProjectionMatrix, this.cameraMatrix, this.projectionMatrix);
+        // this.cameraMatrix = mat4.invert(this.viewMatrix, this.cameraMatrix);
+        this.viewProjectionMatrix = mat4.multiply(this.viewProjectionMatrix, this.projectionMatrix, this.viewMatrix);
         return this.viewProjectionMatrix;
     }
 }
+
 export default ViewCamera

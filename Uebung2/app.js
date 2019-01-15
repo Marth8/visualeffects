@@ -159,7 +159,6 @@ mat4.translate(viewMatrix,     // destination matrix
                viewMatrix,     // matrix to translate
                [-0.0, 0.0, -6.0]);  // amount to translate 
 let camera = new ViewCamera(viewMatrix, projectionMatrix);
-console.log(camera.getViewProjectionMatrix());
 
 function animate()
 {

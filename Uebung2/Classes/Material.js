@@ -3,7 +3,7 @@ class Material
 {
     constructor(uniformName, shader)
     {
-        const gl = this.gl = GL.getGL();
+        this.gl = GL.getGL();
         this.uniformName = uniformName;
         this.shader = shader;
     }
