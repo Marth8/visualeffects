@@ -8,7 +8,7 @@ import GameObject from './Classes/GameObject.js';
 import Color from './Classes/Color.js';
 import Texture from './Classes/Texture.js';
 import ViewCamera from './Classes/ViewCamera.js';
-
+import Cube from './Classes/Cube.js';
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
 
@@ -37,21 +37,17 @@ const fsSourceString =
         gl_FragColor = texture2D(uTexture, vTexcoord);
     }`;
 
-let housePositions = new Float32Array(
-    [
-        0.4, -0.6, 
-        -0.4, 0   , 
-        0.4 , 0   ,
-
-        -0.4, -0.6,
-        0.4 , -0.6,
-        -0.4, 0   ,
-        
-        -0.5, 0   ,
-        0   , 0.5 ,
-        0.5 , 0
-    ]
-);
+const fsColorSourceString =
+    `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    uniform vec3 uColor;
+    void main() {
+        gl_FragColor = vec4(uColor, 1.0);
+    }`;
 
 let renderer = new Renderer();
 
@@ -69,43 +65,18 @@ let program = gl.createProgram();
 let shader = new Shader(program, vsSourceString, fsSourceString);
 shader.bind();
 
+// Den Cube mit Textur erstellen
 let texture = new Texture("uTexture", shader, window.location.href + "res/woodWall.jpg", 0);
+let cube = new Cube(shader, true, null, texture);
+cube.gameObject.transform.translate([2, 0, 0]);
 
-let vertexArray = new VertexArray();
-const ib1 = new IndexBuffer([0, 1, 2, 3, 4, 1]);
-const vb1 = new VertexBuffer(housePositions);
-const vb2 = new VertexBuffer(housePositions);
-let posAttribLocation = shader.getParameter("aPosition");
-let texCoordsAttribLocation = shader.getParameter("aTexCoord");
-vertexArray.addBuffer(vb1, [posAttribLocation], 2);
-vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
-
-let gameObject = new GameObject(vertexArray, ib1, texture);
-
-//-------------------------------------------------------------------
-// Draw roof
+// Male zweiten Cube
 let program2 = gl.createProgram();
-
-let shader2 = new Shader(program2, vsSourceString, fsSourceString);
+let shader2 = new Shader(program2, vsSourceString, fsColorSourceString);
 shader2.bind();
-
-let vertexArray2 = new VertexArray(); 
-
-let texture2 = new Texture("uTexture", shader2, window.location.href + "res/roof.jpg", 0);
-
-const ib2 = new IndexBuffer([6, 7, 8]);
-const vb3 = new VertexBuffer(housePositions);
-const vb4 = new VertexBuffer(housePositions);
-let posAttribLocation2 = shader2.getParameter("aPosition");
-let texCoordsAttribLocation2 = shader.getParameter("aTexCoord");
-vertexArray2.addBuffer(vb3, [posAttribLocation2], 2);
-vertexArray2.addBuffer(vb4, [texCoordsAttribLocation2], 2);
-
-let gameObject2 = new GameObject(vertexArray2, ib2, texture2);
-
-// Beispiel Scaling
-// gameObject2.transform.scale(new Float32Array([2, 2, 2]));
-// gameObject2.transform.rotate(50, new Float32Array([0, 0, 1]));
+let color = new Color("uColor", shader2, 0.5, 0, 0.5);
+let colorCube = new Cube(shader2, false, color, null);
+colorCube.gameObject.transform.translate([-2, 0, 0]);
 
 // Die Keyeventlistener hinzufügen
 canvas.setAttribute("tabindex", "0");
@@ -155,7 +126,7 @@ requestAnimationFrame(() => animate());
 const fieldOfView = 45 * Math.PI / 180;   // in radians
 const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
 const zNear = 0.1;
-const zFar = 100.0;
+const zFar = 1000.0;
 const projectionMatrix = mat4.create();
 
 // Perspektivmatrix setzen
@@ -169,18 +140,17 @@ const viewMatrix = mat4.create();
 
 // Now move the drawing position a bit to where we want to
 // start drawing the square.
-
 mat4.translate(viewMatrix,     // destination matrix
                viewMatrix,     // matrix to translate
-               [-0.0, 0.0, -4.0]);  // amount to translate 
+               [-0.0, 0.0, -10.0]);  // amount to translate 
+let camera = new ViewCamera(viewMatrix, projectionMatrix);
 
 function animate()
 {
-    let camera = new ViewCamera(viewMatrix, projectionMatrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    shader.bind();
-    renderer.drawGameObject(gameObject, shader, camera);
-    shader2.bind();
-    renderer.drawGameObject(gameObject2, shader2, camera);
+    renderer.drawCube(cube, shader, camera);
+    cube.gameObject.transform.rotate(90/10000, [0, 1, 0]);
+    colorCube.gameObject.transform.rotate(-90/10000, [1, 1, 0]);
+    renderer.drawCube(colorCube, shader2, camera);
     requestAnimationFrame(animate);
 }
