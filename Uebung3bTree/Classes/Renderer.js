@@ -27,12 +27,12 @@ class Renderer
         shader.setUniformMatrix4fv("uTransform", false, matrix);
     }
     
-    drawElement(element, shader, camera)
+    drawCube(cube, shader, camera)
     {
         shader.bind();
-        element.gameObject.draw();
+        cube.gameObject.draw();
         let matrix = camera.getViewProjectionMatrix();
-        mat4.multiply(matrix, matrix, element.gameObject.transform.modelMatrix);
+        mat4.multiply(matrix, matrix, cube.gameObject.transform.modelMatrix);
         shader.setUniformMatrix4fv("uTransform", false, matrix);
     }
 

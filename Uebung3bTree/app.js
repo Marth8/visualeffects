@@ -9,8 +9,6 @@ import Color from './Classes/Color.js';
 import Texture from './Classes/Texture.js';
 import ViewCamera from './Classes/ViewCamera.js';
 import Cube from './Classes/Cube.js';
-import Sphere from './Classes/Sphere.js';
-
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
 
@@ -125,31 +123,54 @@ const viewMatrix = mat4.create();
 // start drawing the square.
 mat4.translate(viewMatrix,     // destination matrix
                viewMatrix,     // matrix to translate
-               [-0.0, 0.0, -10.0]);  // amount to translate 
+               [-0.0, 0.0, -15.0]);  // amount to translate
 
-
-// Draw Cube
+// Den Cube mit Textur erstellen
 let program = gl.createProgram();
 let shader = new Shader(program, vsSourceString, fsSourceString);
 shader.bind();
 let texture = new Texture("uTexture", shader, window.location.href + "res/woodWall.jpg", 0);
 let cube = new Cube(shader, true, null, texture);
-cube.gameObject.transform.translate([2, 0, 0]);
+cube.gameObject.transform.translate([0, -3, 0]);
+cube.gameObject.transform.scale([1, 2, 1]);
 
-// Draw Sphere
+// Erster Ast
 let program2 = gl.createProgram();
-let shader2 = new Shader(program2, vsSourceString, fsColorSourceString);
+let shader2 = new Shader(program2, vsSourceString, fsSourceString);
 shader2.bind();
-let color = new Color("uColor", shader2, 0.5, 0.5, 0);
-let sphere = new Sphere(shader, false, color, null);
-sphere.gameObject.transform.translate([-2, 0, 0]);
+let texture2 = new Texture("uTexture", shader2, window.location.href + "res/woodWall.jpg", 0);
+let cube2 = new Cube(shader2, true, null, texture2);
+cube2.gameObject.transform.scale([1, 2, 1]);
+cube2.gameObject.transform.rotate(1.0472, [1, 0, 0]);
+
+// Zweiter Ast
+let program3 = gl.createProgram();
+let shader3 = new Shader(program3, vsSourceString, fsSourceString);
+shader3.bind();
+let texture3 = new Texture("uTexture", shader3, window.location.href + "res/woodWall.jpg", 0);
+let cube3 = new Cube(shader3, true, null, texture3);
+cube3.gameObject.transform.scale([1, 2, 1]);
+cube3.gameObject.transform.rotate(1.0472, [1, 0, 0]);
+cube3.gameObject.transform.rotate(10 * 0.20944, [0, 1, 0]);
+
+// Dritter Ast
+let program4 = gl.createProgram();
+let shader4 = new Shader(program4, vsSourceString, fsSourceString);
+shader4.bind();
+let texture4 = new Texture("uTexture", shader4, window.location.href + "res/woodWall.jpg", 0);
+let cube4 = new Cube(shader4, true, null, texture4);
+cube4.gameObject.transform.scale([1, 2, 1]);
+cube4.gameObject.transform.rotate(1.0472, [1, 0, 0]);
+cube4.gameObject.transform.rotate(20 * 0.20944, [0, 1, 0]);
+
+let camera = new ViewCamera(viewMatrix, projectionMatrix);
 
 function animate()
 {
-    let camera = new ViewCamera(viewMatrix, projectionMatrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    renderer.drawElement(cube, shader, camera);
-    cube.gameObject.transform.rotate(90/10000, [0, 1, 0]);
-    renderer.drawElement(sphere, shader2, camera);
+    renderer.drawCube(cube, shader, camera);
+    renderer.drawCube(cube2, shader2, camera);
+    //renderer.drawCube(cube3, shader3, camera);
+    renderer.drawCube(cube4, shader4, camera);
     requestAnimationFrame(animate);
 }
