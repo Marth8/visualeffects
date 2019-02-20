@@ -102,6 +102,21 @@ canvas.addEventListener('keydown', function
     }
 }, true);
 
+let mouseIsDown = false;
+canvas.addEventListener('mousedown', (evt) => {
+    mouseIsDown = true;
+});
+canvas.addEventListener('mousemove', (evt) => {
+    if (mouseIsDown)
+    {
+        console.log(evt.movementX, evt.movementY);
+        let rotation = evt.movementX / 4;
+        mat4.rotate(viewMatrix, viewMatrix, (rotation / 180) * 3.14, [0, 0, 0]);
+    }
+})
+canvas.addEventListener('mouseup', (evt) => {
+    mouseIsDown = false;
+});
 requestAnimationFrame(() => animate());
 
 const fieldOfView = 45 * Math.PI / 180;   // in radians
@@ -159,14 +174,13 @@ let shader4 = new Shader(program4, vsSourceString, fsSourceString);
 shader4.bind();
 let texture4 = new Texture("uTexture", shader4, window.location.href + "res/woodWall.jpg", 0);
 let cube4 = new Cube(shader4, true, null, texture4);
-cube4.gameObject.transform.scale([1, 2, 1]);
 cube4.gameObject.transform.rotate(1.0472, [1, 0, 0]);
 cube4.gameObject.transform.rotate(20 * 0.20944, [0, 1, 0]);
-
-let camera = new ViewCamera(viewMatrix, projectionMatrix);
+cube4.gameObject.transform.scale([1, 2, 1]);
 
 function animate()
 {
+    let camera = new ViewCamera(viewMatrix, projectionMatrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     renderer.drawCube(cube, shader, camera);
     renderer.drawCube(cube2, shader2, camera);

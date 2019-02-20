@@ -1,6 +1,7 @@
 import GL from './GL.js';
 import Shader from "./Shader.js";
 import GameObject from "./Gameobject.js"
+
 class Renderer
 {
     constructor()
