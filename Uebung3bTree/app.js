@@ -9,6 +9,9 @@ import Color from './Classes/Color.js';
 import Texture from './Classes/Texture.js';
 import ViewCamera from './Classes/ViewCamera.js';
 import Cube from './Classes/Cube.js';
+import Transform from './Classes/Transform.js';
+import Tree from './Classes/Tree.js';
+
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
 
@@ -103,15 +106,23 @@ canvas.addEventListener('keydown', function
 }, true);
 
 let mouseIsDown = false;
+let lastXPosition = -1;
+let lastYPosition = -1;
+
 canvas.addEventListener('mousedown', (evt) => {
     mouseIsDown = true;
 });
 canvas.addEventListener('mousemove', (evt) => {
     if (mouseIsDown)
     {
-        console.log(evt.movementX, evt.movementY);
+        lastXPosition = evt.pageX;
+        lastYPosition = evt.pageY;
+        let diffX = evt.pageX - lastXPosition;
+        let diffY = evt.pageY - lastYPosition;
+        //console.log(evt.movementX, evt.movementY);
         let rotation = evt.movementX / 4;
-        mat4.rotate(viewMatrix, viewMatrix, (rotation / 180) * 3.14, [0, 0, 0]);
+
+        mat4.rotate(viewMatrix, viewMatrix, (rotation / 180) * 3.14, [0, 1, 0]);
     }
 })
 canvas.addEventListener('mouseup', (evt) => {
@@ -146,8 +157,8 @@ let shader = new Shader(program, vsSourceString, fsSourceString);
 shader.bind();
 let texture = new Texture("uTexture", shader, window.location.href + "res/woodWall.jpg", 0);
 let cube = new Cube(shader, true, null, texture);
-cube.gameObject.transform.translate([0, -3, 0]);
-cube.gameObject.transform.scale([1, 2, 1]);
+cube.gameObject.transform.setPosition([0, -3, 0]);
+cube.gameObject.transform.setScale([0.8, 2, 0.8]);
 
 // Erster Ast
 let program2 = gl.createProgram();
@@ -155,8 +166,8 @@ let shader2 = new Shader(program2, vsSourceString, fsSourceString);
 shader2.bind();
 let texture2 = new Texture("uTexture", shader2, window.location.href + "res/woodWall.jpg", 0);
 let cube2 = new Cube(shader2, true, null, texture2);
-cube2.gameObject.transform.scale([1, 2, 1]);
-cube2.gameObject.transform.rotate(1.0472, [1, 0, 0]);
+cube2.gameObject.transform.setScale([0.8, 2, 0.8]);
+cube2.gameObject.transform.rotateZ(60);
 
 // Zweiter Ast
 let program3 = gl.createProgram();
@@ -164,9 +175,9 @@ let shader3 = new Shader(program3, vsSourceString, fsSourceString);
 shader3.bind();
 let texture3 = new Texture("uTexture", shader3, window.location.href + "res/woodWall.jpg", 0);
 let cube3 = new Cube(shader3, true, null, texture3);
-cube3.gameObject.transform.scale([1, 2, 1]);
-cube3.gameObject.transform.rotate(1.0472, [1, 0, 0]);
-cube3.gameObject.transform.rotate(10 * 0.20944, [0, 1, 0]);
+cube3.gameObject.transform.setScale([1, 2, 1]);
+cube3.gameObject.transform.rotateY(120);
+cube3.gameObject.transform.rotateZ(60);
 
 // Dritter Ast
 let program4 = gl.createProgram();
@@ -174,17 +185,18 @@ let shader4 = new Shader(program4, vsSourceString, fsSourceString);
 shader4.bind();
 let texture4 = new Texture("uTexture", shader4, window.location.href + "res/woodWall.jpg", 0);
 let cube4 = new Cube(shader4, true, null, texture4);
-cube4.gameObject.transform.rotate(1.0472, [1, 0, 0]);
-cube4.gameObject.transform.rotate(20 * 0.20944, [0, 1, 0]);
-cube4.gameObject.transform.scale([1, 2, 1]);
-
+cube4.gameObject.transform.setScale([1, 2, 1]);
+cube3.gameObject.transform.rotateY(120);
+cube3.gameObject.transform.rotateZ(60);
+let tree = new Tree(vsSourceString, fsSourceString);
 function animate()
 {
     let camera = new ViewCamera(viewMatrix, projectionMatrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    renderer.drawCube(cube, shader, camera);
-    renderer.drawCube(cube2, shader2, camera);
-    //renderer.drawCube(cube3, shader3, camera);
-    renderer.drawCube(cube4, shader4, camera);
+    tree.draw(renderer, camera);
+    //renderer.drawElement(cube, shader, camera);
+    //renderer.drawElement(cube2, shader2, camera);
+    //renderer.drawElement(cube3, shader3, camera);
+    //renderer.drawElement(cube4, shader4, camera);
     requestAnimationFrame(animate);
 }
