@@ -109,25 +109,6 @@ let mouseIsDown = false;
 let lastXPosition = -1;
 let lastYPosition = -1;
 
-canvas.addEventListener('mousedown', (evt) => {
-    mouseIsDown = true;
-});
-canvas.addEventListener('mousemove', (evt) => {
-    if (mouseIsDown)
-    {
-        lastXPosition = evt.pageX;
-        lastYPosition = evt.pageY;
-        let diffX = evt.pageX - lastXPosition;
-        let diffY = evt.pageY - lastYPosition;
-        //console.log(evt.movementX, evt.movementY);
-        let rotation = evt.movementX / 4;
-
-        mat4.rotate(viewMatrix, viewMatrix, (rotation / 180) * 3.14, [0, 1, 0]);
-    }
-})
-canvas.addEventListener('mouseup', (evt) => {
-    mouseIsDown = false;
-});
 requestAnimationFrame(() => animate());
 
 const fieldOfView = 45 * Math.PI / 180;   // in radians
@@ -143,18 +124,32 @@ mat4.perspective(projectionMatrix,
                  zNear,
                  zFar);
 
-const viewMatrix = mat4.create();
-
-// Now move the drawing position a bit to where we want to
-// start drawing the square.
-mat4.translate(viewMatrix,     // destination matrix
-               viewMatrix,     // matrix to translate
-               [-0.0, 0.0, -15.0]);  // amount to translate
-
 let tree = new Tree(vsSourceString, fsSourceString);
+let camera = new ViewCamera(projectionMatrix);
+canvas.addEventListener('mousedown', (evt) => {
+    mouseIsDown = true;
+});
+canvas.addEventListener('mousemove', (evt) => {
+    if (mouseIsDown)
+    {
+        lastXPosition = evt.pageX;
+        lastYPosition = evt.pageY;
+        let diffX = evt.pageX - lastXPosition;
+        let diffY = evt.pageY - lastYPosition;
+        // console.log(evt.movementX, evt.movementY);
+        let rotation = evt.movementX / 4;
+
+        camera.rotateY(rotation);
+    }
+})
+canvas.addEventListener('mouseup', (evt) => {
+    mouseIsDown = false;
+});
+
+camera.move([0, 0, -15]);
+
 function animate()
 {
-    let camera = new ViewCamera(viewMatrix, projectionMatrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     tree.draw(renderer, camera);
     requestAnimationFrame(animate);
