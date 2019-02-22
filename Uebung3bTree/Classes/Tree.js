@@ -16,8 +16,8 @@ class Tree extends Transform{
         this.shader.bind();
         let texture = new Texture("uTexture", this.shader, window.location.href + "res/woodWall.jpg", 0);
         this.root = new Cube(this.shader, true, null, texture);
-        this.root.gameObject.transform.setScale([0.8, 2, 0.8]);
-        this.root.gameObject.transform.setPosition([0, -3, 0]);
+        this.root.gameObject.transform.setScale([1, 2, 1]);
+        this.root.gameObject.transform.move([0, -1, 0]);
 
         // Erster Ast
         let program2 = gl.createProgram();
@@ -25,12 +25,13 @@ class Tree extends Transform{
         this.shader2.bind();
         let texture2 = new Texture("uTexture", this.shader2, window.location.href + "res/woodWall.jpg", 0);
         this.branch1 = new Cube(this.shader2, true, null, texture2);
-        this.branch1.gameObject.transform.setScale([0.8, 2, 0.8]);
-        
+        this.branch1.gameObject.transform.setScale([1, 2, 1]);
+        this.branch1.gameObject.transform.move([0, 2, 0]);
+
         // Den Rotator für den ersten Ast anlegen
         let branch1Rotator = new Transform();
         this.branch1.gameObject.transform.setParent(branch1Rotator);
-        branch1Rotator.rotateY(60);
+        branch1Rotator.rotateY(0);
         branch1Rotator.rotateZ(60);
 
         // Zweiter Ast
@@ -39,13 +40,12 @@ class Tree extends Transform{
         this.shader3.bind();
         let texture3 = new Texture("uTexture", this.shader3, window.location.href + "res/woodWall.jpg", 0);
         this.branch2 = new Cube(this.shader3, true, null, texture3);
-        this.branch2.gameObject.transform.setScale([0.8, 2, 0.8]);
-        this.branch2.gameObject.transform.rotateY(120);
-        this.branch2.gameObject.transform.rotateZ(60);
+        this.branch2.gameObject.transform.setScale([1, 2, 1]);
+        this.branch2.gameObject.transform.move([0, 2, 0]);
 
         // Den Rotator für den zweiten Ast anlegen
         let branch2Rotator = new Transform();
-        this.branch2.gameObject.transform.parent = branch2Rotator;
+        this.branch2.gameObject.transform.setParent(branch2Rotator);
         branch2Rotator.rotateY(120);
         branch2Rotator.rotateZ(60);
 
@@ -55,22 +55,19 @@ class Tree extends Transform{
         this.shader4.bind();
         let texture4 = new Texture("uTexture", this.shader4, window.location.href + "res/woodWall.jpg", 0);
         this.branch3 = new Cube(this.shader4, true, null, texture4);
-        this.branch3.gameObject.transform.setScale([0.8, 2, 0.8]);
-        this.branch3.gameObject.transform.rotateY(120);
-        this.branch3.gameObject.transform.rotateZ(60);
+        this.branch3.gameObject.transform.setScale([1, 2, 1]);
+        this.branch3.gameObject.transform.move([0, 2, 0]);
 
         // Den Rotator für den dritten Ast anlegen
         let branch3Rotator = new Transform();
-        this.branch3.gameObject.transform.parent = branch3Rotator;
+        this.branch3.gameObject.transform.setParent(branch3Rotator);
         branch3Rotator.rotateY(240);
         branch3Rotator.rotateZ(60);
 
-        this.root.gameObject.transform.parent = this;
-        branch1Rotator.parent = this;
-        branch2Rotator.parent = this;
-        branch3Rotator.parent = this;
-
-        this.scene = null;
+        this.root.gameObject.transform.setParent(this);
+        branch1Rotator.setParent(this);
+        branch2Rotator.setParent(this);
+        branch3Rotator.setParent(this);
     }
 
     draw(renderer, camera)

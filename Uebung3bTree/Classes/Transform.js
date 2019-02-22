@@ -16,7 +16,7 @@ class Transform
 
     getWorldMatrix()
     {
-        if(this.worldChanged) 
+        if(this.worldChanged || this.localChanged) 
         {
             if (this.localChanged) 
             {
@@ -39,68 +39,75 @@ class Transform
         return this.worldMatrix;
     }
 
-    getModelMatrix()
-    {
-        if (this.localChanged) 
-        {
-            mat4.fromRotationTranslationScale(this.modelMatrix, this.rotationQuarternion, this.position, this.scale);
-            this.localChanged = false;
-        }
-
-        return this.modelMatrix;
-    }
-    
     setPosition(position)
     {
         this.position = position;
         this.localChanged = true;
+        this.childs.forEach((element) => element.worldChanged = true);
     }
 
     move(moveVector)
     {
         this.position = vec3.add(this.position, this.position, moveVector);
         this.localChanged = true;
+        this.childs.forEach((element) => element.worldChanged = true);
+
     }
 
     setAxisAngle(angle, axis)
     {
         quat.setAxisAngle(this.rotationQuarternion, axis, (angle / 180) * Math.PI);
         this.localChanged = true;
+        this.childs.forEach((element) => element.worldChanged = true);
+
     }
 
     rotateX(angle)
     {
         quat.rotateX(this.rotationQuarternion, this.rotationQuarternion, (angle / 180) * Math.PI);
         this.localChanged = true;
+        this.childs.forEach((element) => element.worldChanged = true);
+
     }
 
     rotateY(angle)
     {
-        this.localChanged = true;
         quat.rotateY(this.rotationQuarternion, this.rotationQuarternion, (angle / 180) * Math.PI);
+        this.localChanged = true;
+        this.childs.forEach((element) => element.worldChanged = true);
+
     }
 
     rotateZ(angle)
     {
         quat.rotateZ(this.rotationQuarternion, this.rotationQuarternion, (angle / 180) * Math.PI);
         this.localChanged = true;
+        this.childs.forEach((element) => element.worldChanged = true);
+
     }
 
     setScale(scale)
     {
         this.scale = scale;
         this.localChanged = true;
+        this.childs.forEach((element) => element.worldChanged = true);
+
     }
 
     setParent(parent)
     {
         this.parent = parent;
+        this.parent.childs.push(this);
         this.worldChanged = true;
+        parent.worldChanged = true;
     }
 
     addChild(child)
     {
+        child.parent = this;
         this.childs.push(child);
+        child.worldChanged = true;
+        this.worldChanged = true;
     }
 }
 
