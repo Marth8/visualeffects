@@ -11,7 +11,7 @@ import ViewCamera from './Classes/ViewCamera.js';
 import Cube from './Classes/Cube.js';
 import Transform from './Classes/Transform.js';
 import Tree from './Classes/Tree.js';
-
+import Sphere from './Classes/Sphere.js';
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
 
@@ -146,9 +146,18 @@ canvas.addEventListener('mouseup', (evt) => {
 
 camera.move([0, 0, -15]);
 
+// Draw Sphere
+let program2 = gl.createProgram();
+let shader2 = new Shader(program2, vsSourceString, fsColorSourceString);
+shader2.bind();
+let color = new Color("uColor", shader2, 0.5, 0.5, 0);
+let sphere = new Sphere(shader2, false, color, null);
+sphere.gameObject.transform.move([-2, 0, 0]);
+
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     tree.draw(renderer, camera);
+    renderer.drawElement(sphere, shader2, camera);
     requestAnimationFrame(animate);
 }
