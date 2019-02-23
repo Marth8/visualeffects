@@ -126,20 +126,18 @@ mat4.perspective(projectionMatrix,
 
 let tree = new Tree(vsSourceString, fsSourceString);
 let camera = new ViewCamera(projectionMatrix);
+
+// Die Eventlistener für die Mausbewegungen hinterlegen
 canvas.addEventListener('mousedown', (evt) => {
     mouseIsDown = true;
 });
 canvas.addEventListener('mousemove', (evt) => {
     if (mouseIsDown)
     {
-        lastXPosition = evt.pageX;
-        lastYPosition = evt.pageY;
-        let diffX = evt.pageX - lastXPosition;
-        let diffY = evt.pageY - lastYPosition;
-        // console.log(evt.movementX, evt.movementY);
-        let rotation = evt.movementX / 4;
-
-        camera.rotateY(rotation);
+        let xRotation = evt.movementX / 4;
+        let yRotation = evt.movementY / 4;
+        camera.rotateY(xRotation);
+        camera.rotateX(yRotation);
     }
 })
 canvas.addEventListener('mouseup', (evt) => {

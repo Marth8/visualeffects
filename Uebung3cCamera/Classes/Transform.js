@@ -59,7 +59,6 @@ class Transform
         quat.setAxisAngle(this.rotationQuarternion, axis, (angle / 180) * Math.PI);
         this.localChanged = true;
         this.childs.forEach((element) => element.worldChanged = true);
-
     }
 
     rotateX(angle)
@@ -67,7 +66,6 @@ class Transform
         quat.rotateX(this.rotationQuarternion, this.rotationQuarternion, (angle / 180) * Math.PI);
         this.localChanged = true;
         this.childs.forEach((element) => element.worldChanged = true);
-
     }
 
     rotateY(angle)
@@ -75,7 +73,6 @@ class Transform
         quat.rotateY(this.rotationQuarternion, this.rotationQuarternion, (angle / 180) * Math.PI);
         this.localChanged = true;
         this.childs.forEach((element) => element.worldChanged = true);
-
     }
 
     rotateZ(angle)
@@ -83,7 +80,6 @@ class Transform
         quat.rotateZ(this.rotationQuarternion, this.rotationQuarternion, (angle / 180) * Math.PI);
         this.localChanged = true;
         this.childs.forEach((element) => element.worldChanged = true);
-
     }
 
     setScale(scale)
@@ -91,7 +87,6 @@ class Transform
         this.scale = scale;
         this.localChanged = true;
         this.childs.forEach((element) => element.worldChanged = true);
-
     }
 
     setParent(parent)
