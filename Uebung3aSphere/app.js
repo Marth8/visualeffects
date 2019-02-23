@@ -9,7 +9,8 @@ import Color from './Classes/Color.js';
 import Texture from './Classes/Texture.js';
 import ViewCamera from './Classes/ViewCamera.js';
 import Cube from './Classes/Cube.js';
-import Sphere from './Classes/Sphere.js';
+import Transform from './Classes/Transform.js';
+import Tree from './Classes/Tree.js';
 
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
@@ -104,6 +105,10 @@ canvas.addEventListener('keydown', function
     }
 }, true);
 
+let mouseIsDown = false;
+let lastXPosition = -1;
+let lastYPosition = -1;
+
 requestAnimationFrame(() => animate());
 
 const fieldOfView = 45 * Math.PI / 180;   // in radians
@@ -119,37 +124,31 @@ mat4.perspective(projectionMatrix,
                  zNear,
                  zFar);
 
-const viewMatrix = mat4.create();
+let tree = new Tree(vsSourceString, fsSourceString);
+let camera = new ViewCamera(projectionMatrix);
 
-// Now move the drawing position a bit to where we want to
-// start drawing the square.
-mat4.translate(viewMatrix,     // destination matrix
-               viewMatrix,     // matrix to translate
-               [-0.0, 0.0, -10.0]);  // amount to translate 
+// Die Eventlistener für die Mausbewegungen hinterlegen
+canvas.addEventListener('mousedown', (evt) => {
+    mouseIsDown = true;
+});
+canvas.addEventListener('mousemove', (evt) => {
+    if (mouseIsDown)
+    {
+        let xRotation = evt.movementX / 4;
+        let yRotation = evt.movementY / 4;
+        camera.rotateY(xRotation);
+        camera.rotateX(yRotation);
+    }
+})
+canvas.addEventListener('mouseup', (evt) => {
+    mouseIsDown = false;
+});
 
-
-// Draw Cube
-let program = gl.createProgram();
-let shader = new Shader(program, vsSourceString, fsSourceString);
-shader.bind();
-let texture = new Texture("uTexture", shader, window.location.href + "res/woodWall.jpg", 0);
-let cube = new Cube(shader, true, null, texture);
-cube.gameObject.transform.translate([2, 0, 0]);
-
-// Draw Sphere
-let program2 = gl.createProgram();
-let shader2 = new Shader(program2, vsSourceString, fsColorSourceString);
-shader2.bind();
-let color = new Color("uColor", shader2, 0.5, 0.5, 0);
-let sphere = new Sphere(shader, false, color, null);
-sphere.gameObject.transform.translate([-2, 0, 0]);
+camera.move([0, 0, -15]);
 
 function animate()
 {
-    let camera = new ViewCamera(viewMatrix, projectionMatrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    renderer.drawElement(cube, shader, camera);
-    cube.gameObject.transform.rotate(90/10000, [0, 1, 0]);
-    renderer.drawElement(sphere, shader2, camera);
+    tree.draw(renderer, camera);
     requestAnimationFrame(animate);
 }

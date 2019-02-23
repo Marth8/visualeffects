@@ -1,7 +1,6 @@
 import GL from './GL.js';
 import Shader from "./Shader.js";
 import GameObject from "./Gameobject.js"
-
 class Renderer
 {
     constructor()
@@ -24,7 +23,7 @@ class Renderer
         shader.bind();
         gameObject.draw();
         let matrix = camera.getViewProjectionMatrix();
-        mat4.multiply(matrix, matrix, gameObject.transform.modelMatrix);
+        mat4.multiply(matrix, matrix, gameObject.transform.getWorldMatrix());
         shader.setUniformMatrix4fv("uTransform", false, matrix);
     }
     
@@ -33,7 +32,7 @@ class Renderer
         shader.bind();
         element.gameObject.draw();
         let matrix = camera.getViewProjectionMatrix();
-        mat4.multiply(matrix, matrix, element.gameObject.transform.modelMatrix);
+        mat4.multiply(matrix, matrix, element.gameObject.transform.getWorldMatrix());
         shader.setUniformMatrix4fv("uTransform", false, matrix);
     }
 
