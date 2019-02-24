@@ -18,7 +18,7 @@ import Plane from './Classes/Plane.js';
 const canvas = document.getElementById('c');
 const gl = GL.loadGL(canvas);
 const enableBlending = true;
-const zSorting = false;
+const zSorting = true;
 const path = window.location.href.substring(0,window.location.href.lastIndexOf("\/")+1);
 
 if (enableBlending)
