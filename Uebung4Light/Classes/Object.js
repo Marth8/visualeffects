@@ -44,8 +44,10 @@ class Object
             this.vb1 = new VertexBuffer(geo.positions);
             this.posAttribLocation = shader.getParameter("aPosition");
             this.vertexArray.addBuffer(this.vb1, [this.posAttribLocation], 3);
+            this.vb2 = new VertexBuffer(geo.normals);
+            this.normalsAttribLocation = shader.getParameter("aNormal");
+            this.vertexArray.addBuffer(this.vb2, [this.normalsAttribLocation], 3);
             this.ib = new IndexBuffer(geo.indices);
-            
             if(texture)
             {
                 this.vb2 = new VertexBuffer(geo.texCoords);

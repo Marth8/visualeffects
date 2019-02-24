@@ -14,6 +14,7 @@ import Tree from './Classes/Tree.js';
 import Sphere from './Classes/Sphere.js';
 import Object from './Classes/Object.js';
 import Plane from './Classes/Plane.js';
+import DirectionalLight from './Classes/DirectionalLight.js';
 
 const canvas = document.getElementById('c');
 const gl = GL.loadGL(canvas);
@@ -33,7 +34,12 @@ const vsSourceString =
     attribute vec2 aTexCoord;
     varying vec2 vTexcoord;
     uniform mat4 uTransform;
+    uniform mat4 uNormalMatrix;
+    attribute vec3 aNormal;
+    varying vec3 vNormal;
     void main() { 
+        vec3 normal = normalize(aNormal);
+        vNormal = mat3(uNormalMatrix) * normal;
         vTexcoord = aTexCoord;
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
@@ -46,6 +52,7 @@ const fsSourceString =
     #else
     precision mediump float;
     #endif
+    varying vec3 vNormal;
     varying vec2 vTexcoord;
     uniform sampler2D uTexture;
     void main() {
@@ -60,21 +67,35 @@ const fsColorSourceString =
     precision mediump float;
     #endif
     uniform vec3 uColor;
+    varying vec3 vNormal;
+    struct DirectionalLight
+    {
+        vec3 color;
+        vec3 direction;
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
+    };
+    uniform DirectionalLight dLight;
     void main() {
-        gl_FragColor = vec4(uColor, 1.0);
+        vec3 lightDir = normalize(-dLight.direction);
+        float nDotL = max(dot(lightDir, vNormal), 0.0);
+        vec3 diffuse = dLight.color * vec3(uColor) * nDotL;
+        gl_FragColor = vec4(diffuse, 1.0);
     }`;
 
-    const fsHalfColorSourceString =
-    `
-    #ifdef GL_FRAGMENT_PRECISION_HIGH
-    precision highp float;
-    #else
-    precision mediump float;
-    #endif
-    uniform vec3 uColor;
-    void main() {
-        gl_FragColor = vec4(uColor, 0.5);
-    }`;
+const fsHalfColorSourceString =
+`
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec3 uColor;
+varying vec3 vNormal;
+void main() {
+    gl_FragColor = vec4(uColor, 0.5);
+}`;
 
 let renderer = new Renderer();
 
@@ -161,34 +182,37 @@ let program3 = gl.createProgram();
 let objShader = new Shader(program3, vsSourceString, fsSourceString);
 objShader.bind();
 let texture4 = new Texture("uTexture", objShader, path + "res/capsule0.jpg", 0);
-let object = new Object(objShader, 'res/capsule.obj', 1, null, texture4);
+let capsule = new Object(objShader, 'res/capsule.obj', 1, null, null, texture4);
 
 // Draw capsule2
 let program = gl.createProgram();
-let objShader2 = new Shader(program, vsSourceString, fsHalfColorSourceString);
+let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
 objShader2.bind();
 let color = new Color("uColor", objShader2, 1, 0.5, 0);
 let capsule2 = new Object(objShader2, 'res/capsule.obj', 1, null, color, null);
-capsule2.gameObject.transform.move([0, 1, 2]);
+capsule2.gameObject.transform.move([-3, 0, 2]);
 
 // Draw cube3
 let program2 = gl.createProgram();
-let objShader3 = new Shader(program2, vsSourceString, fsHalfColorSourceString);
+let objShader3 = new Shader(program2, vsSourceString, fsColorSourceString);
 objShader3.bind();
 let color2 = new Color("uColor", objShader3, 0, 0.5, 0);
 let cube3 = new Cube(objShader3, false, color2, null);
-cube3.gameObject.transform.move([0, -1, -2]);
+cube3.gameObject.transform.move([3, 0, -2]);
+let dLight = new DirectionalLight("dLight", 0.2, 0.5, 1, objShader3, 1, 1, 1, [0, 10, 0]);
+dLight.bind();
 
 // Draw cube4
 let program4 = gl.createProgram();
-let objShader4 = new Shader(program4, vsSourceString, fsHalfColorSourceString);
+let objShader4 = new Shader(program4, vsSourceString, fsColorSourceString);
 objShader4.bind();
-let color3 = new Color("uColor", objShader4, 0, 0, 0.5);
-let cube4 = new Plane(objShader4, false, color3, null);
-cube4.gameObject.transform.setScale([1, 1, 1]);
-cube4.gameObject.transform.move([0, -1, 5]);
+let color3 = new Color("uColor", objShader4, 0, 0, 0);
+let plane = new Plane(objShader4, false, color3, null);
+plane.gameObject.transform.setScale([10, 10, 1]);
+plane.gameObject.transform.rotateX(90);
+plane.gameObject.transform.move([0, 0, 0]);
 
-let objects = [cube4, capsule2, cube3, object];
+let objects = [plane, capsule, capsule2, cube3];
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

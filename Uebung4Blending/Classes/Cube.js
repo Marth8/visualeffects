@@ -96,7 +96,7 @@ class Cube
         const vb1 = new VertexBuffer(cubePositions);
         let posAttribLocation = shader.getParameter("aPosition");
         vertexArray.addBuffer(vb1, [posAttribLocation], 3);
-
+        
         if (hasTexture)
         {
             const vb2 = new VertexBuffer(textureCoordinates);

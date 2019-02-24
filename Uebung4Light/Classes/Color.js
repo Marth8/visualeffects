@@ -22,7 +22,6 @@ class Color extends Material{
         {
             this.shader.setUniform4f(this.uniformName, this.v0, this.v1, this.v2, this.v3);
         }
-
     }
 
 }

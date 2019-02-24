@@ -161,7 +161,7 @@ let program3 = gl.createProgram();
 let objShader = new Shader(program3, vsSourceString, fsSourceString);
 objShader.bind();
 let texture4 = new Texture("uTexture", objShader, path + "res/capsule0.jpg", 0);
-let object = new Object(objShader, 'res/capsule.obj', 1, null, texture4);
+let object = new Object(objShader, 'res/capsule.obj', 1, null, null, texture4);
 
 // Draw capsule2
 let program = gl.createProgram();

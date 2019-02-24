@@ -25,6 +25,10 @@ class Renderer
         let matrix = camera.getViewProjectionMatrix();
         mat4.multiply(matrix, matrix, gameObject.transform.getWorldMatrix());
         shader.setUniformMatrix4fv("uTransform", false, matrix);
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
     }
     
     drawElement(element, camera)
@@ -32,8 +36,13 @@ class Renderer
         element.shader.bind();
         element.gameObject.draw();
         let matrix = camera.getViewProjectionMatrix();
-        mat4.multiply(matrix, matrix, element.gameObject.transform.getWorldMatrix());
+        let modelMatrix = element.gameObject.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
     }
 
     drawElements(elements, camera, zSorting)

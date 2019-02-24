@@ -21,6 +21,10 @@ const textureCoordinates = new Float32Array([
 
 const indices = [0,  1,  2, 0,  2,  3];
 
+const normals = new Float32Array([    // Normal
+    0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
+]);
+
 class Plane
 {
     constructor(shader, hasTexture, color, texture)
@@ -34,7 +38,10 @@ class Plane
         const vb1 = new VertexBuffer(planePositions);
         let posAttribLocation = shader.getParameter("aPosition");
         vertexArray.addBuffer(vb1, [posAttribLocation], 3);
-
+        const vb2 = new VertexBuffer(normals);
+        let normalAttribLocation = shader.getParameter("aNormal");
+        vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
+        
         if (hasTexture)
         {
             const vb2 = new VertexBuffer(textureCoordinates);
