@@ -24,6 +24,11 @@ class ViewCamera extends Transform
         return this.viewProjectionMatrix;
     }
 
+    getViewMatrix()
+    {
+        return this.getWorldMatrix();
+    }
+
     
 }
 

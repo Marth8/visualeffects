@@ -11,6 +11,7 @@ class Sphere
         this.shader = shader;
         this.color = color;
         this.texture = texture;
+        this.canBeDrawn = true;
         this.hasTexture = this.hasTexture;
         this.ib = new IndexBuffer(this.indices);
         let vertexArray = new VertexArray();

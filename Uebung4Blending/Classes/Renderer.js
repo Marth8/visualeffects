@@ -27,13 +27,48 @@ class Renderer
         shader.setUniformMatrix4fv("uTransform", false, matrix);
     }
     
-    drawElement(element, shader, camera)
+    drawElement(element, camera)
     {
-        shader.bind();
+        element.shader.bind();
         element.gameObject.draw();
         let matrix = camera.getViewProjectionMatrix();
         mat4.multiply(matrix, matrix, element.gameObject.transform.getWorldMatrix());
-        shader.setUniformMatrix4fv("uTransform", false, matrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+    }
+
+    drawElements(elements, camera, zSorting)
+    {
+        if (zSorting)
+        {
+            const sorting = [];
+            for(let element of elements)
+            {
+                if(element.canBeDrawn)
+                {
+                    let zMatrix = mat4.create();
+                    mat4.multiply(zMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+                    let zPos = zMatrix[14];
+                    sorting.push({element: element, z: zPos});
+                }
+            }
+
+            sorting.sort((a, b) => a.z - b.z);
+
+            for(let zElement of sorting)
+            {
+                this.drawElement(zElement.element, camera);
+            }
+        }
+        else
+        {
+            for(let element of elements)
+            {
+                if(element.canBeDrawn)
+                {
+                    this.drawElement(element, camera);
+                }
+            }
+        }
     }
 
     clear()

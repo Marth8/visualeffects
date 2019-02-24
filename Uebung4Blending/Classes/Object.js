@@ -8,12 +8,23 @@ import Color from "./Color.js";
 
 class Object
 {
-    constructor(shader, file, scaleFac, transform = new Transform(), texture = null)
+    constructor(shader, file, scaleFac, transform = new Transform(), color = null, texture = null)
     {
         this.gl = GL.getGL();
         this.transform  = transform;
         this.canBeDrawn = false;
         this.texture = texture;
+        this.color = color;
+        this.shader = shader;
+        if(!this.texture)
+        {
+            this.gameObject = new GameObject(new VertexArray(), new IndexBuffer([]), this.color);
+        }
+        else
+        {
+            this.gameObject = new GameObject(new VertexArray(), new IndexBuffer([]), this.texture);
+        }
+
         var request = new XMLHttpRequest();
         request.open('GET', file, true);
         request.send();
@@ -35,28 +46,17 @@ class Object
             this.vertexArray.addBuffer(this.vb1, [this.posAttribLocation], 3);
             this.ib = new IndexBuffer(geo.indices);
             
-            if(!texture)
-            {
-                this.color = new Color("uColor", shader, 0.5, 0.5, 0);
-                this.gameObject = new GameObject(this.vertexArray, this.ib, this.color);
-            }
-            else
+            if(texture)
             {
                 this.vb2 = new VertexBuffer(geo.texCoords);
                 this.texCoordsAttribLocation = shader.getParameter("aTexCoord");
                 this.vertexArray.addBuffer(this.vb2, [this.texCoordsAttribLocation], 2);
-                this.gameObject = new GameObject(this.vertexArray, this.ib, this.texture);
             }
 
-
+            // Die Sachen dem GameObject setzen
+            this.gameObject.vertexArray = this.vertexArray;
+            this.gameObject.indexBuffer = this.ib;
             this.canBeDrawn = true;
-
-            //var app = { imgSrc: [] };
-            //if (geo.textureName)
-                //app.imgSrc.push(geo.textureName);
-
-            //that.renderer.addObject(geo, app, transform);
-            //that.renderer.triggerRedraw();
         };
     }
 

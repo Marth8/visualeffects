@@ -13,9 +13,19 @@ import Transform from './Classes/Transform.js';
 import Tree from './Classes/Tree.js';
 import Sphere from './Classes/Sphere.js';
 import Object from './Classes/Object.js';
+import Plane from './Classes/Plane.js';
 
-let canvas = document.getElementById('c');
-GL.loadGL(canvas);
+const canvas = document.getElementById('c');
+const gl = GL.loadGL(canvas);
+const enableBlending = true;
+const zSorting = false;
+const path = window.location.href.substring(0,window.location.href.lastIndexOf("\/")+1);
+
+if (enableBlending)
+{
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+}
 
 const vsSourceString =
     `
@@ -54,13 +64,24 @@ const fsColorSourceString =
         gl_FragColor = vec4(uColor, 1.0);
     }`;
 
+    const fsHalfColorSourceString =
+    `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    uniform vec3 uColor;
+    void main() {
+        gl_FragColor = vec4(uColor, 0.5);
+    }`;
+
 let renderer = new Renderer();
 
 // Setzt den Ansichtsbereich, welcher die Transformation
 // von x und y von normalisierten Geräte Koordinaten
 // zu window Koordinaten spezifiziert.
 // (x, y, width, height)
-let gl = GL.getGL();
 gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight)
 renderer.clear();
 
@@ -139,18 +160,38 @@ camera.move([0, 0, -15]);
 let program3 = gl.createProgram();
 let objShader = new Shader(program3, vsSourceString, fsSourceString);
 objShader.bind();
-const path = window.location.href.substring(0,window.location.href.lastIndexOf("\/")+1);
 let texture4 = new Texture("uTexture", objShader, path + "res/capsule0.jpg", 0);
 let object = new Object(objShader, 'res/capsule.obj', 1, null, texture4);
 
+// Draw capsule2
+let program = gl.createProgram();
+let objShader2 = new Shader(program, vsSourceString, fsHalfColorSourceString);
+objShader2.bind();
+let color = new Color("uColor", objShader2, 1, 0.5, 0);
+let capsule2 = new Object(objShader2, 'res/capsule.obj', 1, null, color, null);
+capsule2.gameObject.transform.move([0, 1, 2]);
+
+// Draw cube3
+let program2 = gl.createProgram();
+let objShader3 = new Shader(program2, vsSourceString, fsHalfColorSourceString);
+objShader3.bind();
+let color2 = new Color("uColor", objShader3, 0, 0.5, 0);
+let cube3 = new Cube(objShader3, false, color2, null);
+cube3.gameObject.transform.move([0, -1, -2]);
+
+// Draw cube4
+let program4 = gl.createProgram();
+let objShader4 = new Shader(program4, vsSourceString, fsHalfColorSourceString);
+objShader4.bind();
+let color3 = new Color("uColor", objShader4, 0, 0, 0.5);
+let cube4 = new Plane(objShader4, false, color3, null);
+cube4.gameObject.transform.setScale([1, 1, 1]);
+cube4.gameObject.transform.move([0, -1, 5]);
+
+let objects = [cube4, capsule2, cube3, object];
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    if (object.canBeDrawn)
-    {
-        renderer.drawElement(object, objShader, camera);
-    }
-
-    // enderer.drawElement(sphere, shader2, camera);
+    renderer.drawElements(objects, camera, zSorting);
     requestAnimationFrame(animate);
 }

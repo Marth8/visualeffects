@@ -91,6 +91,7 @@ class Cube
         this.shader = shader;
         this.color = color;
         this.texture = texture;
+        this.canBeDrawn = true;
         let vertexArray = new VertexArray();
         const vb1 = new VertexBuffer(cubePositions);
         let posAttribLocation = shader.getParameter("aPosition");
