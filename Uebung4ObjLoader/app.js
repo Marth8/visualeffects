@@ -12,6 +12,8 @@ import Cube from './Classes/Cube.js';
 import Transform from './Classes/Transform.js';
 import Tree from './Classes/Tree.js';
 import Sphere from './Classes/Sphere.js';
+import Object from './Classes/Object.js';
+
 let canvas = document.getElementById('c');
 GL.loadGL(canvas);
 
@@ -67,14 +69,10 @@ canvas.setAttribute("tabindex", "0");
 canvas.addEventListener('keypress', function(evt) {
     switch (evt.charCode) {
         case 43: /* + */
-            mat4.translate(viewMatrix,     // destination matrix
-                viewMatrix,     // matrix to translate
-                [-0.0, 0.0, 0.10]);  // amount to translate 
+            camera.move([0, 0, 0.5]);
             break;
         case 45: /* - */
-            mat4.translate(viewMatrix,     // destination matrix
-                viewMatrix,     // matrix to translate
-                [-0.0, 0.0, -0.10]);  // amount to translate 
+            camera.move([0, 0, -0.5]);
             break;
     }   
 }, true);
@@ -83,24 +81,16 @@ canvas.addEventListener('keydown', function
 (evt) {
     switch (evt.keyCode) {
         case 37: /* left */
-            mat4.translate(viewMatrix,
-                viewMatrix,
-                [0.01, 0, 0]);
+            camera.move([0.05, 0, 0]);
             break;
         case 38: /* up */
-            mat4.translate(viewMatrix,
-                viewMatrix,
-                [-0.0, -0.01, 0]);
+            camera.move([0.0, -0.05, 0]);
             break;
         case 39: /* right */
-            mat4.translate(viewMatrix,
-                viewMatrix,
-                [-0.01, 0, 0]);
+            camera.move([-0.05, 0, 0])
             break;
         case 40: /* down */
-            mat4.translate(viewMatrix,
-                viewMatrix,
-                [-0.0, 0.01, 0]);
+            camera.move([-0.0, 0.05, 0])
             break;
     }
 }, true);
@@ -124,7 +114,6 @@ mat4.perspective(projectionMatrix,
                  zNear,
                  zFar);
 
-let tree = new Tree(vsSourceString, fsSourceString);
 let camera = new ViewCamera(projectionMatrix);
 
 // Die Eventlistener für die Mausbewegungen hinterlegen
@@ -146,44 +135,22 @@ canvas.addEventListener('mouseup', (evt) => {
 
 camera.move([0, 0, -15]);
 
-// Draw Sphere
-let program2 = gl.createProgram();
-let shader2 = new Shader(program2, vsSourceString, fsColorSourceString);
-shader2.bind();
-let color = new Color("uColor", shader2, 0.5, 0.5, 0);
-let sphere = new Sphere(shader2, false, color, null);
-sphere.gameObject.transform.move([-2, 0, 0]);
-
 // Draw object
-loadObject('res/Bourbon/Bourbon.obj', null, 0.75);
-
-function loadObject(file, transform, scaleFac)
-{
-    var request = new XMLHttpRequest();
-    request.open('GET', file, true);
-    request.send();
-
-    request.onload = function() {
-        var objDoc = new OBJDoc(file);
-        // parse parameters: fileString, scale, reverse
-        if (!objDoc.parse(request.responseText, scaleFac, true)) {
-            console.error("OBJ file parsing error: " + file);
-            return;
-        }
-
-        var geo = objDoc.getDrawingInfo();
-        var app = { imgSrc: [] };
-        //if (geo.textureName)
-            //app.imgSrc.push(geo.textureName);
-
-        //that.renderer.addObject(geo, app, transform);
-        //that.renderer.triggerRedraw();
-    };
-}
+let program3 = gl.createProgram();
+let objShader = new Shader(program3, vsSourceString, fsSourceString);
+objShader.bind();
+const path = window.location.href.substring(0,window.location.href.lastIndexOf("\/")+1);
+let texture4 = new Texture("uTexture", objShader, path + "res/capsule0.jpg", 0);
+let object = new Object(objShader, 'res/capsule.obj', 1, null, texture4);
 
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    renderer.drawElement(sphere, shader2, camera);
+    if (object.canBeDrawn)
+    {
+        renderer.drawElement(object, objShader, camera);
+    }
+
+    // enderer.drawElement(sphere, shader2, camera);
     requestAnimationFrame(animate);
 }

@@ -67,14 +67,10 @@ canvas.setAttribute("tabindex", "0");
 canvas.addEventListener('keypress', function(evt) {
     switch (evt.charCode) {
         case 43: /* + */
-            mat4.translate(viewMatrix,     // destination matrix
-                viewMatrix,     // matrix to translate
-                [-0.0, 0.0, 0.10]);  // amount to translate 
+            camera.move([0, 0, 0.5]);
             break;
         case 45: /* - */
-            mat4.translate(viewMatrix,     // destination matrix
-                viewMatrix,     // matrix to translate
-                [-0.0, 0.0, -0.10]);  // amount to translate 
+            camera.move([0, 0, -0.5]);
             break;
     }   
 }, true);
@@ -83,24 +79,16 @@ canvas.addEventListener('keydown', function
 (evt) {
     switch (evt.keyCode) {
         case 37: /* left */
-            mat4.translate(viewMatrix,
-                viewMatrix,
-                [0.01, 0, 0]);
+            camera.move([0.05, 0, 0]);
             break;
         case 38: /* up */
-            mat4.translate(viewMatrix,
-                viewMatrix,
-                [-0.0, -0.01, 0]);
+            camera.move([0.0, -0.05, 0]);
             break;
         case 39: /* right */
-            mat4.translate(viewMatrix,
-                viewMatrix,
-                [-0.01, 0, 0]);
+            camera.move([-0.05, 0, 0])
             break;
         case 40: /* down */
-            mat4.translate(viewMatrix,
-                viewMatrix,
-                [-0.0, 0.01, 0]);
+            camera.move([-0.0, 0.05, 0])
             break;
     }
 }, true);
