@@ -49,6 +49,11 @@ class Shader
         this.gl.uniform1i(this.getUniformLocation(name), value);
     }
 
+    setUniform1f(name, value)
+    {
+        this.gl.uniform1f(this.getUniformLocation(name), value);
+    }
+
     setUniform3f(name, v0, v1, v2)
     {
         this.gl.uniform3f(this.getUniformLocation(name), v0, v1, v2);

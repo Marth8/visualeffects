@@ -7,6 +7,7 @@ class Light {
         this.ambient = ambient;
         this.diffuse = diffuse;
         this.specular = specular;
+        this.isOn = 1;
     }
 
     bind(shader)
@@ -14,6 +15,7 @@ class Light {
         shader.setUniform3f(this.colorUniform + ".ambient", this.ambient, this.ambient, this.ambient);
         shader.setUniform3f(this.colorUniform + ".diffuse", this.diffuse, this.diffuse, this.diffuse);
         shader.setUniform3f(this.colorUniform + ".specular", this.specular, this.specular, this.specular);
+        shader.setUniform1i(this.colorUniform + ".isOn", this.isOn);
     }
 }
 

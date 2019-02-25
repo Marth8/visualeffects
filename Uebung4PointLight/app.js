@@ -15,6 +15,7 @@ import Sphere from './Classes/Sphere.js';
 import Object from './Classes/Object.js';
 import Plane from './Classes/Plane.js';
 import DirectionalLight from './Classes/DirectionalLight.js';
+import PointLight from './Classes/PointLight.js';
 
 const canvas = document.getElementById('c');
 const gl = GL.loadGL(canvas);
@@ -79,16 +80,38 @@ const fsColorSourceString =
         vec3 ambient;
         vec3 diffuse;
         vec3 specular;
+        int isOn;
+    };
+    struct PointLight
+    {
+        vec3 position;
+
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
+
+        float constant;
+        float linear;
+        float quadratic;
+
+        int isOn;
     };
     uniform DirectionalLight dLight;
-    vec3 GetDirectionalLight(DirectionalLight dLight, vec3 vNormal);
+    uniform PointLight pLight;
+    vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
+    vec3 GetPointLight(PointLight pLight, vec3 normal);
     void main() {
         vec3 result = GetDirectionalLight(dLight, normalize(vNormal)) * uColor;
+        result += GetPointLight(pLight, normalize(vNormal)) * uColor;
         gl_FragColor = vec4(result, 1.0);
     }
     
     vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
     {
+        if(dLight.isOn != 1) {
+            return vec3(0,0,0);
+        }
+
         vec3 ambient = dLight.ambient;
 
         vec3 lightDir = normalize(dLight.direction);
@@ -101,6 +124,33 @@ const fsColorSourceString =
 
         vec3 specular = (dLight.specular * spec);
         
+        return (diffuse + ambient + specular);
+    }
+    
+    vec3 GetPointLight(PointLight pLight, vec3 normal)
+    {
+        if(pLight.isOn != 1) {
+            return vec3(0,0,0);
+        }
+
+        vec3 ambient = pLight.ambient;
+
+        vec3 lightDir = normalize(pLight.position - vPosition);
+        float nDotL = max(dot(normal, lightDir), 0.0);
+        vec3 diffuse = dLight.diffuse * nDotL;
+
+        vec3 viewDir = normalize(-vPosition);
+        vec3 halfway = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(normal, halfway), 0.0), 16.0);
+        vec3 specular = (dLight.specular * spec);
+
+        float distance = length(pLight.position - vPosition);
+        float attenuation = 1.0 / (pLight.constant + pLight.linear * distance + pLight.quadratic * (distance * distance));
+
+        ambient *= attenuation;
+        diffuse *= attenuation;
+        specular *= attenuation;
+
         return (diffuse + ambient + specular);
     }`;
 
@@ -158,8 +208,6 @@ canvas.addEventListener('keydown', function
 }, true);
 
 let mouseIsDown = false;
-
-requestAnimationFrame(() => animate());
 
 const fieldOfView = 45 * Math.PI / 180;   // in radians
 const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
@@ -230,6 +278,20 @@ plane.gameObject.transform.move([0, -1.1, 0]);
 let objects = [plane, capsule2, cube3];
 let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [5, 2, 0]);
 renderer.addLight(dLight);
+let pLight = new PointLight("pLight", 0.1, 0.4, 0.3, [3, 0, -2], 1.0, 0.09, 0.032);
+renderer.addLight(pLight);
+
+$("#point").change((e) => {
+    console.log(e);
+    pLight.isOn = (pLight.isOn + 1) % 2;
+});
+
+$("#directional").change((e) => {
+    console.log(e);
+    dLight.isOn = (dLight.isOn + 1) % 2;
+});
+
+requestAnimationFrame(() => animate());
 
 function animate()
 {

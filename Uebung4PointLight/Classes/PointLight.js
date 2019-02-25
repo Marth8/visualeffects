@@ -15,6 +15,9 @@ class PointLight extends Light {
     {
         super.bind(shader)
         shader.setUniform3f(this.colorUniform + ".position", this.position[0], this.position[1], this.position[2]);
+        shader.setUniform1f(this.colorUniform + ".constant", this.constant);
+        shader.setUniform1f(this.colorUniform + ".linear", this.linear);
+        shader.setUniform1f(this.colorUniform + ".quadratic", this.quadratic);
     }
 }
 
