@@ -3,43 +3,14 @@ import VertexArray from "./VertexArray.js";
 import VertexBuffer from "./VertexBuffer.js";
 import IndexBuffer from "./IndexBuffer.js";
 
-const cubePositions = new Float32Array([
-    // vordere Fläche
-    -1.0, -1.0,  1.0,
-    1.0, -1.0,  1.0,
-    1.0,  1.0,  1.0,
-    -1.0,  1.0,  1.0,
-    
-    // hintere Fläche
-    -1.0, -1.0, -1.0,
-    -1.0,  1.0, -1.0,
-    1.0,  1.0, -1.0,
-    1.0, -1.0, -1.0,
-    
-    // obere Fläche
-    -1.0,  1.0, -1.0,
-    -1.0,  1.0,  1.0,
-    1.0,  1.0,  1.0,
-    1.0,  1.0, -1.0,
-    
-    // untere Fläche
-    -1.0, -1.0, -1.0,
-    1.0, -1.0, -1.0,
-    1.0, -1.0,  1.0,
-    -1.0, -1.0,  1.0,
-    
-    // rechte Fläche
-    1.0, -1.0, -1.0,
-    1.0,  1.0, -1.0,
-    1.0,  1.0,  1.0,
-    1.0, -1.0,  1.0,
-    
-    // linke Fläche
-    -1.0, -1.0, -1.0,
-    -1.0, -1.0,  1.0,
-    -1.0,  1.0,  1.0,
-    -1.0,  1.0, -1.0
-]);
+const vertices = new Float32Array([   // Coordinates
+    1.0, 1.0, 1.0,  -1.0, 1.0, 1.0,  -1.0,-1.0, 1.0,   1.0,-1.0, 1.0, // v0-v1-v2-v3 front
+    1.0, 1.0, 1.0,   1.0,-1.0, 1.0,   1.0,-1.0,-1.0,   1.0, 1.0,-1.0, // v0-v3-v4-v5 right
+    1.0, 1.0, 1.0,   1.0, 1.0,-1.0,  -1.0, 1.0,-1.0,  -1.0, 1.0, 1.0, // v0-v5-v6-v1 up
+   -1.0, 1.0, 1.0,  -1.0, 1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0,-1.0, 1.0, // v1-v6-v7-v2 left
+   -1.0,-1.0,-1.0,   1.0,-1.0,-1.0,   1.0,-1.0, 1.0,  -1.0,-1.0, 1.0, // v7-v4-v3-v2 down
+    1.0,-1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0, 1.0,-1.0,   1.0, 1.0,-1.0  // v4-v7-v6-v5 back
+ ]);
 
 const textureCoordinates = new Float32Array([
     // Front
@@ -74,14 +45,14 @@ const textureCoordinates = new Float32Array([
     0.0,  1.0,
 ]);
 
-const indices = [
-    0,  1,  2,      0,  2,  3,    // vorne
-    4,  5,  6,      4,  6,  7,    // hinten
-    8,  9,  10,     8,  10, 11,   // oben
-    12, 13, 14,     12, 14, 15,   // unten
-    16, 17, 18,     16, 18, 19,   // rechts
-    20, 21, 22,     20, 22, 23    // links
-];
+const indices = new Uint8Array([
+    0, 1, 2,   0, 2, 3,    // front
+    4, 5, 6,   4, 6, 7,    // right
+    8, 9,10,   8,10,11,    // up
+   12,13,14,  12,14,15,    // left
+   16,17,18,  16,18,19,    // down
+   20,21,22,  20,22,23     // back
+]);
 
 const normals = new Float32Array([    // Normal
     0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
@@ -102,7 +73,7 @@ class Cube
         this.texture = texture;
         this.canBeDrawn = true;
         let vertexArray = new VertexArray();
-        const vb1 = new VertexBuffer(cubePositions);
+        const vb1 = new VertexBuffer(vertices);
         let posAttribLocation = shader.getParameter("aPosition");
         vertexArray.addBuffer(vb1, [posAttribLocation], 3);
         const vb2 = new VertexBuffer(normals);

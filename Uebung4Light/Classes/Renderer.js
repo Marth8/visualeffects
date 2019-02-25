@@ -43,14 +43,20 @@ class Renderer
         element.shader.bind();
         this.lights.forEach(value => value.bind(element.shader));
         element.gameObject.draw();
+
+        let modelViewMatrix = mat4.create();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelViewMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+
         let matrix = camera.getViewProjectionMatrix();
         let modelMatrix = element.gameObject.transform.getWorldMatrix();
         mat4.multiply(matrix, matrix, modelMatrix);
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
-        let normalMatrix = mat4.create();
-        mat4.invert(normalMatrix, modelMatrix);
-        mat4.transpose(normalMatrix, normalMatrix);
-        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
     }
 
     drawElements(elements, camera, zSorting)

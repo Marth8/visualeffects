@@ -1,10 +1,10 @@
 import GL from "./GL.js";
 import Light from "./Light.js";
 
-class DirectionalLight extends Light {
-    constructor(colorUniform, ambient, diffuse, specular, direction)
+class PointLight extends Light {
+    constructor(colorUniform, ambient, diffuse, specular, v0, v1, v2, direction)
     {
-        super(colorUniform, ambient, diffuse, specular, direction)
+        super(colorUniform, ambient, diffuse, specular, v0, v1, v2, direction)
         this.direction = direction;
     }
 
@@ -15,4 +15,4 @@ class DirectionalLight extends Light {
     }
 }
 
-export default DirectionalLight
+export default PointLight

@@ -32,14 +32,18 @@ const vsSourceString =
     `
     attribute vec3 aPosition;
     attribute vec2 aTexCoord;
-    varying vec2 vTexcoord;
+    attribute vec3 aNormal;
+
     uniform mat4 uTransform;
     uniform mat4 uNormalMatrix;
-    attribute vec3 aNormal;
+    uniform mat4 uModelViewMatrix;
+
+    varying vec2 vTexcoord;
     varying vec3 vNormal;
+    varying vec3 vPosition;
     void main() { 
-        vec3 normal = normalize(aNormal);
-        vNormal = mat3(uNormalMatrix) * normal;
+        vNormal = (uNormalMatrix * vec4(aNormal, 0.0)).xyz;
+        vPosition = (uModelViewMatrix * vec4(aPosition, 1.0)).xyz;
         vTexcoord = aTexCoord;
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
@@ -68,20 +72,36 @@ const fsColorSourceString =
     #endif
     uniform vec3 uColor;
     varying vec3 vNormal;
+    varying vec3 vPosition;
     struct DirectionalLight
     {
-        vec3 color;
         vec3 direction;
         vec3 ambient;
         vec3 diffuse;
         vec3 specular;
     };
     uniform DirectionalLight dLight;
+    vec3 GetDirectionalLight(DirectionalLight dLight, vec3 vNormal);
     void main() {
-        vec3 lightDir = normalize(-dLight.direction);
-        float nDotL = max(dot(lightDir, vNormal), 0.0);
-        vec3 diffuse = dLight.color * vec3(uColor) * nDotL;
-        gl_FragColor = vec4(diffuse, 1.0);
+        vec3 result = GetDirectionalLight(dLight, vNormal) * normalize(uColor);
+        gl_FragColor = vec4(result, 1.0);
+    }
+    
+    vec3 GetDirectionalLight(DirectionalLight dLight, vec3 vNormal)
+    {
+        vec3 ambient = dLight.ambient;
+
+        vec3 lightDir = normalize(dLight.direction);
+        float nDotL = max(dot(vNormal, lightDir), 0.0);
+        vec3 diffuse = dLight.diffuse * nDotL;
+
+        vec3 viewDir = normalize(-vPosition);
+        vec3 halfway = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(vNormal, halfway), 0.0), 32.0);
+
+        vec3 specular = (dLight.specular * spec);
+        
+        return (diffuse + ambient + specular);
     }`;
 
 const fsHalfColorSourceString =
@@ -138,8 +158,6 @@ canvas.addEventListener('keydown', function
 }, true);
 
 let mouseIsDown = false;
-let lastXPosition = -1;
-let lastYPosition = -1;
 
 requestAnimationFrame(() => animate());
 
@@ -204,14 +222,13 @@ cube3.gameObject.transform.move([3, 0, -2]);
 let program4 = gl.createProgram();
 let objShader4 = new Shader(program4, vsSourceString, fsColorSourceString);
 objShader4.bind();
-let color3 = new Color("uColor", objShader4, 0, 0, 0);
-let plane = new Plane(objShader4, false, color3, null);
-plane.gameObject.transform.setScale([10, 10, 1]);
-plane.gameObject.transform.rotateX(90);
-plane.gameObject.transform.move([0, 0, 0]);
+let color3 = new Color("uColor", objShader4, 0.9, 0.1, 0.1);
+let plane = new Cube(objShader4, false, color3, null);
+plane.gameObject.transform.setScale([10, 0.1, 10]);
+plane.gameObject.transform.move([0, -1.1, 0]);
 
-let objects = [plane, capsule, capsule2, cube3];
-let dLight = new DirectionalLight("dLight", 0.2, 0.5, 1, 1, 1, 1, [0, -20, 0]);
+let objects = [plane, capsule2, cube3];
+let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [5, 2, 0]);
 renderer.addLight(dLight);
 
 function animate()
