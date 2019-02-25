@@ -6,6 +6,12 @@ class Renderer
     constructor()
     {
        this.gl = GL.getGL();
+       this.lights = [];
+    }
+
+    addLight(light)
+    {
+        this.lights.push(light);
     }
 
     draw(vertexArray, indexBuffer, shader)
@@ -21,6 +27,7 @@ class Renderer
     drawGameObject(gameObject, shader, camera)
     {
         shader.bind();
+        this.lights.forEach(value => value.bind(shader));
         gameObject.draw();
         let matrix = camera.getViewProjectionMatrix();
         mat4.multiply(matrix, matrix, gameObject.transform.getWorldMatrix());
@@ -34,6 +41,7 @@ class Renderer
     drawElement(element, camera)
     {
         element.shader.bind();
+        this.lights.forEach(value => value.bind(element.shader));
         element.gameObject.draw();
         let matrix = camera.getViewProjectionMatrix();
         let modelMatrix = element.gameObject.transform.getWorldMatrix();

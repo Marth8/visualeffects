@@ -199,8 +199,6 @@ objShader3.bind();
 let color2 = new Color("uColor", objShader3, 0, 0.5, 0);
 let cube3 = new Cube(objShader3, false, color2, null);
 cube3.gameObject.transform.move([3, 0, -2]);
-let dLight = new DirectionalLight("dLight", 0.2, 0.5, 1, objShader3, 1, 1, 1, [0, 10, 0]);
-dLight.bind();
 
 // Draw cube4
 let program4 = gl.createProgram();
@@ -213,6 +211,9 @@ plane.gameObject.transform.rotateX(90);
 plane.gameObject.transform.move([0, 0, 0]);
 
 let objects = [plane, capsule, capsule2, cube3];
+let dLight = new DirectionalLight("dLight", 0.2, 0.5, 1, 1, 1, 1, [0, -20, 0]);
+renderer.addLight(dLight);
+
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
