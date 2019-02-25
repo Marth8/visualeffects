@@ -83,21 +83,21 @@ const fsColorSourceString =
     uniform DirectionalLight dLight;
     vec3 GetDirectionalLight(DirectionalLight dLight, vec3 vNormal);
     void main() {
-        vec3 result = GetDirectionalLight(dLight, vNormal) * normalize(uColor);
+        vec3 result = GetDirectionalLight(dLight, normalize(vNormal)) * uColor;
         gl_FragColor = vec4(result, 1.0);
     }
     
-    vec3 GetDirectionalLight(DirectionalLight dLight, vec3 vNormal)
+    vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
     {
         vec3 ambient = dLight.ambient;
 
         vec3 lightDir = normalize(dLight.direction);
-        float nDotL = max(dot(vNormal, lightDir), 0.0);
+        float nDotL = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = dLight.diffuse * nDotL;
 
         vec3 viewDir = normalize(-vPosition);
         vec3 halfway = normalize(lightDir + viewDir);
-        float spec = pow(max(dot(vNormal, halfway), 0.0), 32.0);
+        float spec = pow(max(dot(normal, halfway), 0.0), 16.0);
 
         vec3 specular = (dLight.specular * spec);
         
