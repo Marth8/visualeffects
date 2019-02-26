@@ -85,6 +85,59 @@ class Renderer
         element.gameObject.draw();
     }
 
+    drawElementsWithShadow(elements, camera, shadowMap, light)
+    {
+        const sorting = [];
+        for(let element of elements)
+        {
+            if(element.canBeDrawn)
+            {
+                let zMatrix = mat4.create();
+                mat4.multiply(zMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+                let zPos = zMatrix[14];
+                sorting.push({element: element, z: zPos});
+            }
+        }
+
+        sorting.sort((a, b) => a.z - b.z);
+
+        for(let zElement of sorting)
+        {
+            this.drawElementWithShadow(zElement.element, camera, shadowMap, light);
+        }
+    }
+
+    drawElementWithShadow(element, camera, shadowMap, light)
+    {
+        element.shader.bind();
+
+        this.lights.forEach(value => value.bind(element.shader));
+
+        let modelViewMatrix = mat4.create();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelViewMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.gameObject.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.gameObject.transform.getWorldMatrix());
+
+        element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
+
+        // Shadow-Zeug setzen
+        this.gl.activeTexture(this.gl.TEXTURE0 + 1);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, shadowMap);
+        element.shader.setUniform1i("shadowMap", 1); // TODO: NOCH DAS ZEUG IM SHADER DRAUFRECHNEN
+        element.gameObject.draw();
+    }
+
     drawElementWithoutLight(element, camera)
     {
         element.shader.bind();
@@ -143,13 +196,14 @@ class Renderer
         }
     }
 
-    renderDepthScene(elements, light, left = -100.0, right = 100.0, bottom = 100.0, top = 100.0, nearPlane = 0.1, farPlane = 100.5)
+    renderDepthScene(elements, light, left = -10.0, right = 10.0, bottom = 10.0, top = 10.0, nearPlane = 0.1, farPlane = 100)
     {
         let lightProjection = mat4.create();
         mat4.ortho(lightProjection, left, right, bottom, top, nearPlane, farPlane);  
         let lightView = light.getViewMatrix();
         let lightViewProjection = mat4.create();
         mat4.multiply(lightViewProjection, lightProjection, lightView);
+        this.lightViewProjection = lightViewProjection;
 
         // Das neue Programm mit dem neuen Shader hinterlegen
         const newProgram = this.gl.createProgram();

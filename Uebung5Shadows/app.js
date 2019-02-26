@@ -143,7 +143,7 @@ const fsColorSourceString =
     vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
     vec3 GetPointLight(PointLight pLight, vec3 normal);
     vec3 GetHeadLight(HeadLight hLight, vec3 normal);
-    float ShadowCalculation(vec4 fragPosLightSpace);
+    float ShadowCalculation(vec4 vPositionLightSpace);
 
     void main() {
         vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
@@ -167,8 +167,12 @@ const fsColorSourceString =
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = dLight.specular * (spec * material.specular);
-        
-        return (diffuse + ambient + specular) * uColor;
+
+        // calculate shadow
+        float shadow = ShadowCalculation(vPositionLightSpace);       
+        vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
+
+        return lighting * uColor;
     }
     
     vec3 GetPointLight(PointLight pLight, vec3 normal)
@@ -227,16 +231,16 @@ const fsColorSourceString =
         }
     }
     
-    float ShadowCalculation(vec4 fragPosLightSpace)
+    float ShadowCalculation(vec4 vPositionLightSpace)
     {
         // perform perspective divide
-        vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;    
+        vec3 projCoords = vPositionLightSpace.xyz / vPositionLightSpace.w;    
         projCoords = projCoords * 0.5 + 0.5;
     
         float closestDepth = texture2D(shadowMap, projCoords.xy).r; 
         float currentDepth = projCoords.z;
     
-        float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+        float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
 
         return shadow;
     }`;
@@ -388,7 +392,6 @@ function animate()
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     frameBuffer.bind();
-    gl.depthMask(true);
     renderer.renderDepthScene(objects, dLight);
     frameBuffer.unbind();
 
@@ -398,6 +401,8 @@ function animate()
     let depthTexture = new DepthTexture("uTexture", depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
     let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
     renderer.renderDepthPlane(depthPlane, camera);
+
+    //renderer.drawElementsWithShadow(objects, camera, frameBuffer.depthMap, dLight);
 
     requestAnimationFrame(animate);
 }
