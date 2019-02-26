@@ -1,10 +1,9 @@
 import GL from "./GL.js";
 class Material
 {
-    constructor(uniformName, shader, ambient, diffuse, specular, shininess)
+    constructor(shader, ambient, diffuse, specular, shininess)
     {
         this.gl = GL.getGL();
-        this.uniformName = uniformName;
         this.shader = shader;
         this.ambient = ambient;
         this.diffuse = diffuse;

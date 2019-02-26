@@ -38,9 +38,10 @@ class Plane
         const vb1 = new VertexBuffer(planePositions);
         let posAttribLocation = shader.getParameter("aPosition");
         vertexArray.addBuffer(vb1, [posAttribLocation], 3);
-        const vb2 = new VertexBuffer(normals);
+
         if (hasNormals)
         {
+            const vb2 = new VertexBuffer(normals);
             let normalAttribLocation = shader.getParameter("aNormal");
             vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
         }

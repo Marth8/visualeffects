@@ -17,7 +17,7 @@ class GameObject
         this.vertexArray.bind();
         this.indexBuffer.bind();
 
-        if(withMaterial)
+        if (withMaterial)
         {
             this.material.bind();
         }

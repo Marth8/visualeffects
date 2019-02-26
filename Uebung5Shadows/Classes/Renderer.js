@@ -1,25 +1,27 @@
 import GL from './GL.js';
 import Shader from "./Shader.js";
+import GameObject from "./Gameobject.js";
 
 const vertexShaderShadow = `
-uniform mat4 uTransform;
-attribute vec3 aPosition;
-varying vec4 vProjCoord;
+    uniform mat4 uTransform;
+    attribute vec3 aPosition;
+    varying vec4 vProjCoord;
 
-void main() {
-    gl_Position = uTransform * vec4(aPosition, 1.0);;
-}
+    void main() {
+        gl_Position = uTransform * vec4(aPosition, 1.0);;
+    }
 `;
 const fragmentShaderShadow = `
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-varying vec4 vProjCoord;
-void main() {
-}
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    varying vec4 vProjCoord;
+    void main() {
+    }
 `;
+
 class Renderer
 {
     constructor()
@@ -137,7 +139,7 @@ class Renderer
         element.shader.setUniform1i("shadowMap", 1); // TODO: NOCH DAS ZEUG IM SHADER DRAUFRECHNEN
         element.gameObject.draw();
     }
-
+    
     drawElementWithoutLight(element, camera)
     {
         element.shader.bind();
@@ -186,7 +188,7 @@ class Renderer
 
         for(let light of this.lights)
         {
-            if(light.type == "p")
+            if(light.type == "p" || light.type == "h")
             {
                 let lightCube = light.getLightCube();
                 lightCube.gameObject.transform.setScale([0.3, 0.3, 0.3]);
@@ -196,7 +198,7 @@ class Renderer
         }
     }
 
-    renderDepthScene(elements, light, left = -10.0, right = 10.0, bottom = 10.0, top = 10.0, nearPlane = 0.1, farPlane = 100)
+    renderDepthScene(elements, light, left = -10.0, right = 10.0, bottom = -10.0, top = 10.0, nearPlane = 0.1, farPlane = 100)
     {
         let lightProjection = mat4.create();
         mat4.ortho(lightProjection, left, right, bottom, top, nearPlane, farPlane);  

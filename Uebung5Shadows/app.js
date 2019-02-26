@@ -1,20 +1,28 @@
 import GL from './Classes/GL.js';
 import Renderer from './Classes/Renderer.js';
 import Shader from './Classes/Shader.js';
+import VertexArray from './Classes/VertexArray.js';
+import VertexBuffer from './Classes/VertexBuffer.js';
+import IndexBuffer from './Classes/IndexBuffer.js';
+import GameObject from './Classes/GameObject.js';
 import Color from './Classes/Color.js';
 import Texture from './Classes/Texture.js';
 import ViewCamera from './Classes/ViewCamera.js';
 import Cube from './Classes/Cube.js';
+import Transform from './Classes/Transform.js';
+import Tree from './Classes/Tree.js';
+import Sphere from './Classes/Sphere.js';
 import Object from './Classes/Object.js';
 import Plane from './Classes/Plane.js';
 import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
+import HeadLight from './Classes/HeadLight.js';
 import FrameBuffer from './Classes/FrameBuffer.js';
 import DepthTexture from './Classes/DepthTexture.js';
 
 const canvas = document.getElementById('c');
 const gl = GL.loadGL(canvas);
-const enableBlending = false;
+const enableBlending = true;
 const zSorting = true;
 const path = window.location.href.substring(0,window.location.href.lastIndexOf("\/")+1);
 
@@ -28,6 +36,30 @@ gl.enable(gl.DEPTH_TEST);
 gl.depthFunc(gl.LEQUAL);
 gl.enable(gl.CULL_FACE);
 
+const vsDepthPlane = 
+    `
+    attribute vec3 aPosition;
+    attribute vec2 aTexCoord;
+    varying vec2 vTexcoord;
+
+    void main() { 
+        vTexcoord = aTexCoord;
+        gl_Position = vec4(aPosition.xy, 0.0, 1.0);
+    }`;
+
+const fsDepthPlane =
+    `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    varying vec2 vTexcoord;
+    uniform sampler2D uTexture;
+    void main() {
+        gl_FragColor = vec4(vec3(texture2D(uTexture, vTexcoord).x), 1.0);
+    }`;
+
 const vsSourceString =
     `
     attribute vec3 aPosition;
@@ -40,7 +72,7 @@ const vsSourceString =
     uniform mat4 uModelMatrix; 
     uniform mat4 lightSpaceMatrix;
 
-    varying vec2 vTexcoord;
+    varying vec2 vTexCoord;
     varying vec3 vNormal;
     varying vec3 vPosition;
     varying vec3 xPosition;
@@ -50,20 +82,10 @@ const vsSourceString =
         vNormal = (uNormalMatrix * vec4(aNormal, 0.0)).xyz;
         vPosition = (uModelViewMatrix * vec4(aPosition, 1.0)).xyz;
         xPosition = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
-        vTexcoord = aTexCoord;
-        vPositionLightSpace = lightSpaceMatrix * vec4(aPosition, 1.0);
+        vTexCoord = aTexCoord;
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
-    }`;
-const vsTexString = 
-    `
-    attribute vec3 aPosition;
-    attribute vec2 aTexCoord;
-    varying vec2 vTexcoord;
-
-    void main() { 
-        vTexcoord = aTexCoord;
-        gl_Position = vec4(aPosition.xy, 0.0, 1.0);
+        vPositionLightSpace = lightSpaceMatrix * vec4(aPosition, 1.0);
     }`;
 
 const fsSourceString =
@@ -73,10 +95,11 @@ const fsSourceString =
     #else
     precision mediump float;
     #endif
+    varying vec3 vNormal;
     varying vec2 vTexcoord;
     uniform sampler2D uTexture;
     void main() {
-        gl_FragColor = vec4(vec3(texture2D(uTexture, vTexcoord).x), 1.0);
+        gl_FragColor = texture2D(uTexture, vTexcoord);
     }`;
 
 const fsColorSourceString =
@@ -94,15 +117,21 @@ const fsColorSourceString =
     uniform sampler2D shadowMap;
     struct DirectionalLight
     {
+        vec3 color;
+
         vec3 position;
         vec3 direction;
+
         vec3 ambient;
         vec3 diffuse;
         vec3 specular;
+
         int isOn;
     };
     struct PointLight
     {
+        vec3 color;
+
         vec3 position;
 
         vec3 ambient;
@@ -117,6 +146,8 @@ const fsColorSourceString =
     };
     struct HeadLight
     {
+        vec3 color;
+
         vec3 direction;
         vec3 position;
 
@@ -135,11 +166,12 @@ const fsColorSourceString =
         vec3 specular;
         float shininess;
     };
+
     uniform Material material;
     uniform DirectionalLight dLight;
     uniform PointLight pLight;
     uniform HeadLight hLight;
-
+    
     vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
     vec3 GetPointLight(PointLight pLight, vec3 normal);
     vec3 GetHeadLight(HeadLight hLight, vec3 normal);
@@ -148,6 +180,7 @@ const fsColorSourceString =
     void main() {
         vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
         result += GetPointLight(pLight, normalize(vNormal));
+        result += GetHeadLight(hLight, normalize(vNormal));
         gl_FragColor = vec4(result, 1.0);
     }
     
@@ -157,22 +190,22 @@ const fsColorSourceString =
             return vec3(0,0,0);
         }
 
-        vec3 ambient = dLight.ambient * material.ambient;
+        vec3 ambient = dLight.ambient * material.ambient * dLight.color;
 
         vec3 lightDir = normalize(dLight.direction);
         float nDotL = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = dLight.diffuse * (nDotL * material.diffuse);
+        vec3 diffuse = dLight.diffuse * (nDotL * material.diffuse * dLight.color);
 
         vec3 viewDir = normalize(-vPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-        vec3 specular = dLight.specular * (spec * material.specular);
-
+        vec3 specular = dLight.specular * (spec * material.specular * dLight.color);
+        
         // calculate shadow
         float shadow = ShadowCalculation(vPositionLightSpace);       
         vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
 
-        return lighting * uColor;
+        return (diffuse + ambient + specular) * uColor;
     }
     
     vec3 GetPointLight(PointLight pLight, vec3 normal)
@@ -181,16 +214,16 @@ const fsColorSourceString =
             return vec3(0,0,0);
         }
 
-        vec3 ambient = pLight.ambient * material.ambient;
+        vec3 ambient = pLight.ambient * material.ambient * pLight.color;
 
         vec3 lightDir = normalize(pLight.position - xPosition);
         float nDotL = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = pLight.diffuse * (nDotL * material.diffuse);
+        vec3 diffuse = pLight.diffuse * (nDotL * material.diffuse * pLight.color);
 
         vec3 viewDir = normalize(-xPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-        vec3 specular = pLight.specular * (spec * material.specular);
+        vec3 specular = pLight.specular * (spec * material.specular * pLight.color);
 
         float distance = length(pLight.position - xPosition);
         float attenuation = 1.0 / (pLight.constant + pLight.linear * distance + pLight.quadratic * (distance * distance));
@@ -207,27 +240,28 @@ const fsColorSourceString =
         if(hLight.isOn != 1) {
             return vec3(0,0,0);
         }
-        vec3 lightDir = normalize(hLight.position - vPosition);
+        vec3 lightDir = normalize(hLight.position - xPosition);
 
+        float theta = dot(lightDir, normalize(-hLight.direction));
 
-        if (true)
+        if (theta > hLight.cutOff)
         {
-            vec3 ambient = hLight.ambient * material.ambient;
+            vec3 ambient = hLight.ambient * material.ambient * hLight.color;
 
-            vec3 lightDir = normalize(hLight.direction);
+            vec3 lightDir = normalize(-hLight.direction);
             float nDotL = max(dot(normal, lightDir), 0.0);
-            vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse);
+            vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse * hLight.color);
     
-            vec3 viewDir = normalize(-vPosition);
+            vec3 viewDir = normalize(-xPosition);
             vec3 halfway = normalize(lightDir + viewDir);
             float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-            vec3 specular = hLight.specular * (spec * material.specular);
+            vec3 specular = hLight.specular * (spec * material.specular * hLight.color);
             
-            return (diffuse + ambient + specular);
+            return (diffuse + ambient + specular) * uColor;
         }
         else
         {
-            return hLight.ambient * material.ambient;
+            return hLight.ambient * material.ambient * hLight.color * uColor;
         }
     }
     
@@ -244,6 +278,183 @@ const fsColorSourceString =
 
         return shadow;
     }`;
+
+const fsTexSourceString =
+`
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying vec3 vNormal;
+varying vec3 vPosition;
+varying vec3 xPosition;
+varying vec2 vTexCoord;
+varying vec4 vPositionLightSpace;
+uniform sampler2D shadowMap;
+struct DirectionalLight
+{
+    vec3 color;
+
+    vec3 position;
+    vec3 direction;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    int isOn;
+};
+struct PointLight
+{
+    vec3 color;
+
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
+
+    int isOn;
+};
+struct HeadLight
+{
+    vec3 color;
+
+    vec3 direction;
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    float cutOff;
+
+    int isOn;
+};
+struct Material
+{
+    sampler2D diffuse;
+    sampler2D specular;
+    vec3 ambient;
+    float shininess;
+};
+
+uniform Material material;
+uniform DirectionalLight dLight;
+uniform PointLight pLight;
+uniform HeadLight hLight;
+
+vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
+vec3 GetPointLight(PointLight pLight, vec3 normal);
+vec3 GetHeadLight(HeadLight hLight, vec3 normal);
+float ShadowCalculation(vec4 vPositionLightSpace);
+
+void main() {
+    vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
+    result += GetPointLight(pLight, normalize(vNormal));
+    result += GetHeadLight(hLight, normalize(vNormal));
+    gl_FragColor = vec4(result, 1.0);
+}
+
+vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
+{
+    if(dLight.isOn != 1) {
+        return vec3(0,0,0);
+    }
+
+    vec3 ambient = dLight.ambient * vec3(texture2D(material.diffuse, vTexCoord))  * dLight.color;
+
+    vec3 lightDir = normalize(dLight.direction);
+    float nDotL = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = dLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * dLight.color);
+
+    vec3 viewDir = normalize(-vPosition);
+    vec3 halfway = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+    vec3 specular = dLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * dLight.color);
+    
+    // calculate shadow
+    float shadow = ShadowCalculation(vPositionLightSpace);       
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
+
+    return (diffuse + ambient + specular);
+}
+
+vec3 GetPointLight(PointLight pLight, vec3 normal)
+{
+    if(pLight.isOn != 1) {
+        return vec3(0,0,0);
+    }
+
+    vec3 ambient = pLight.ambient * vec3(texture2D(material.diffuse, vTexCoord)) * pLight.color;
+
+    vec3 lightDir = normalize(pLight.position - xPosition);
+    float nDotL = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = pLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * pLight.color);
+
+    vec3 viewDir = normalize(-xPosition);
+    vec3 halfway = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+    vec3 specular = pLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * pLight.color);
+
+    float distance = length(pLight.position - xPosition);
+    float attenuation = 1.0 / (pLight.constant + pLight.linear * distance + pLight.quadratic * (distance * distance));
+
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+
+    return (diffuse + ambient + specular);
+}
+
+vec3 GetHeadLight(HeadLight hLight, vec3 normal)
+{
+    if(hLight.isOn != 1) {
+        return vec3(0,0,0);
+    }
+    vec3 lightDir = normalize(hLight.position - xPosition);
+
+    float theta = dot(lightDir, normalize(-hLight.direction));
+
+    if (theta > hLight.cutOff)
+    {
+        vec3 ambient = hLight.ambient * vec3(texture2D(material.diffuse, vTexCoord)) * hLight.color;
+
+        vec3 lightDir = normalize(-hLight.direction);
+        float nDotL = max(dot(normal, lightDir), 0.0);
+        vec3 diffuse = hLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * hLight.color);
+
+        vec3 viewDir = normalize(-xPosition);
+        vec3 halfway = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+        vec3 specular = hLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * hLight.color);
+        
+        return (diffuse + ambient + specular);
+    }
+    else
+    {
+        return hLight.ambient * material.ambient * hLight.color;
+    }
+}
+
+float ShadowCalculation(vec4 vPositionLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = vPositionLightSpace.xyz / vPositionLightSpace.w;    
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture2D(shadowMap, projCoords.xy).r; 
+    float currentDepth = projCoords.z;
+
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}`;
 
 let renderer = new Renderer();
 
@@ -323,16 +534,17 @@ camera.move([0, 0, -15]);
 
 // Draw object
 let program3 = gl.createProgram();
-let objShader = new Shader(program3, vsSourceString, fsSourceString);
+let objShader = new Shader(program3, vsSourceString, fsTexSourceString);
 objShader.bind();
-let texture4 = new Texture("uTexture", objShader, [1, 1, 1], [1, 1, 1], [1, 1, 1], 32, path + "res/capsule0.jpg", 0);
+let texture4 = new Texture(objShader, [1, 1, 1], [1, 1, 1], [1, 1, 1], 32, path + "res/capsule0.jpg", 0);
 let capsule = new Object(objShader, 'res/capsule.obj', 1, null, null, texture4);
+capsule.gameObject.transform.move([-1, 0, -3]);
 
 // Draw capsule2
 let program = gl.createProgram();
 let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
 objShader2.bind();
-let color = new Color("uColor", objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 1, 0.5, 0);
+let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 1, 0.5, 0);
 let capsule2 = new Object(objShader2, 'res/capsule.obj', 1, null, color, null);
 capsule2.gameObject.transform.move([-3, 0, 2]);
 
@@ -340,7 +552,7 @@ capsule2.gameObject.transform.move([-3, 0, 2]);
 let program2 = gl.createProgram();
 let objShader3 = new Shader(program2, vsSourceString, fsColorSourceString);
 objShader3.bind();
-let color2 = new Color("uColor", objShader3, [1, 1, 1], [1, 1, 1], [1, 1, 1], 77, 0, 0.5, 0);
+let color2 = new Color(objShader3, [1, 1, 1], [1, 1, 1], [1, 1, 1], 77, 0, 0.5, 0);
 let cube3 = new Cube(objShader3, false, color2, null);
 cube3.gameObject.transform.move([3, 0, -2]);
 
@@ -348,16 +560,18 @@ cube3.gameObject.transform.move([3, 0, -2]);
 let program4 = gl.createProgram();
 let objShader4 = new Shader(program4, vsSourceString, fsColorSourceString);
 objShader4.bind();
-let color3 = new Color("uColor", objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
+let color3 = new Color(objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
 let plane = new Cube(objShader4, false, color3, null);
-plane.gameObject.transform.setScale([10, 0.1, 10]);
-plane.gameObject.transform.move([0, -1.1, 0]);
+plane.gameObject.transform.setScale([40, 0.1, 100]);
+plane.gameObject.transform.move([0, -1.5, 0]);
 
-let objects = [plane, capsule2, cube3];
-let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0], [-5, 2, 0]);
+let objects = [plane, capsule2, cube3, capsule];
+let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [0, 10, 0], [-5, 2, 0]);
 renderer.addLight(dLight);
-let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017);
+let pLight = new PointLight("pLight", 0.4, 0.9, 0.7, 1.0, 0.07, 0.017, [0, 1, 0], [1.0, 1.0, 1.0]);
 renderer.addLight(pLight);
+let hLight = new HeadLight("hLight", 0.0, 0.4, 0.3, [2, 2, 3], [0, -1, -0], 12);
+renderer.addLight(hLight);
 
 $("#point").change((e) => {
     if(document.getElementById('point').checked) {
@@ -396,13 +610,12 @@ function animate()
     frameBuffer.unbind();
 
     let program4 = gl.createProgram();
-    let depthShader = new Shader(program4, vsTexString, fsSourceString);
+    let depthShader = new Shader(program4, vsDepthPlane, fsDepthPlane);
     depthShader.bind();
-    let depthTexture = new DepthTexture("uTexture", depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
+    let depthTexture = new DepthTexture(depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
     let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
-    renderer.renderDepthPlane(depthPlane, camera);
+    //renderer.renderDepthPlane(depthPlane, camera);
 
-    //renderer.drawElementsWithShadow(objects, camera, frameBuffer.depthMap, dLight);
-
+    renderer.drawElementsWithShadow(objects, camera, frameBuffer.depthMap, dLight);
     requestAnimationFrame(animate);
 }
