@@ -1,6 +1,24 @@
 import GL from './GL.js';
 import Shader from "./Shader.js";
 import GameObject from "./Gameobject.js"
+const vertexShaderShadow = `
+uniform mat4 uTransform;
+attribute vec3 aPosition;
+varying vec4 vProjCoord;
+
+void main() {
+    vProjCoord  = uTransform * vec4(position, 1.0);
+    gl_Position = vProjCoord;
+}
+`;
+const fragmentShaderShadow = `
+varying vec4 vProjCoord;
+
+void main() {
+    vec3 proj = (vProjCoord.xyz / vProjCoord.w + 1.0) / 2.0;
+    gl_FragColor = vec4(proj, 1.0);
+}
+`;
 class Renderer
 {
     constructor()
@@ -122,6 +140,33 @@ class Renderer
                 this.drawElementWithoutLight(lightCube, camera);
             } 
         }
+    }
+
+    renderDepthScene(elements, light, left = -10.0, right = 10.0, bottom = 10.0, top = 10.0, nearPlane = 1.0, farPlane = 7.5)
+    {
+        let lightProjection = mat4.create();
+        mat4.ortho(lightProjection, left, right, bottom, top, nearPlane, farPlane);  
+        let lightView = light.getViewMatrix();
+        let lightViewProjection = mat4.create();
+        mat4.multiply(lightViewProjection, lightProjection, lightView);
+
+        // Das neue Programm mit dem neuen Shader hinterlegen
+        const newProgram = gl.createProgram();
+        let vertexshader = Shader.getShader(vsShaderString, "vertex");
+        let fragmentShader = Shader.getShader(fsShaderString, "fragment");
+        gl.attachShader(newProgram, vertexshader);
+        gl.attachShader(newProgram, fragmentShader);
+        this.gl.linkProgram(newProgram);
+        this.gl.useProgram(newProgram);
+
+        for(let element of elements)
+        {
+            let matrix = light.getViewProjectionMatrix();
+            let modelMatrix = element.gameObject.transform.getWorldMatrix();
+            mat4.multiply(matrix, matrix, modelMatrix);
+            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(newProgram, "uTransform"));
+            element.draw(false);
+        };
     }
 
     clear()

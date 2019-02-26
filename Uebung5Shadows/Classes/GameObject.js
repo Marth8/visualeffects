@@ -12,11 +12,16 @@ class GameObject
         this.transform  = new Transform();
     }
 
-    draw()
+    draw(withMaterial = true)
     {
         this.vertexArray.bind();
         this.indexBuffer.bind();
-        this.material.bind();
+
+        if(withMaterial)
+        {
+            this.material.bind();
+        }
+
         this.gl.drawElements(this.gl.TRIANGLES, this.indexBuffer.count, this.gl.UNSIGNED_SHORT, 0);
     }
 }

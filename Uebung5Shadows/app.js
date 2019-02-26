@@ -16,10 +16,11 @@ import Object from './Classes/Object.js';
 import Plane from './Classes/Plane.js';
 import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
+import FrameBuffer from './Classes/FrameBuffer.js';
 
 const canvas = document.getElementById('c');
 const gl = GL.loadGL(canvas);
-const enableBlending = true;
+const enableBlending = false;
 const zSorting = true;
 const path = window.location.href.substring(0,window.location.href.lastIndexOf("\/")+1);
 
@@ -28,6 +29,10 @@ if (enableBlending)
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 }
+
+gl.enable(gl.DEPTH_TEST);
+gl.depthFunc(gl.LEQUAL);
+gl.enable(gl.CULL_FACE);
 
 const vsSourceString =
     `
@@ -81,6 +86,7 @@ const fsColorSourceString =
     varying vec3 xPosition;
     struct DirectionalLight
     {
+        vec3 position;
         vec3 direction;
         vec3 ambient;
         vec3 diffuse;
@@ -319,7 +325,7 @@ plane.gameObject.transform.setScale([10, 0.1, 10]);
 plane.gameObject.transform.move([0, -1.1, 0]);
 
 let objects = [plane, capsule2, cube3];
-let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
+let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [0, 20, 0], [-5, 2, 0]);
 renderer.addLight(dLight);
 let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017);
 renderer.addLight(pLight);
@@ -347,6 +353,8 @@ $("#headlight").change((e) => {
         hLight.isOn = false;
     }
 });
+
+let frameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
 
 requestAnimationFrame(() => animate());
 

@@ -7,7 +7,6 @@ class Shader
         const gl = this.gl = GL.getGL();
         this.program = program;
         this.locations = [];
-        this.lights = [];
         this.vertexshader = Shader.getShader(vsShaderString, "vertex");
         this.fragmentShader = Shader.getShader(fsShaderString, "fragment");
         gl.attachShader(this.program, this.vertexshader);
@@ -22,7 +21,6 @@ class Shader
             return null;
         }
         this.gl.useProgram(this.program);
-        for(let light of this.lights) light.bind();
     }
 
     unbind()
