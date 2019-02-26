@@ -333,7 +333,7 @@ let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
 renderer.addLight(dLight);
 let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
 renderer.addLight(pLight);
-let hLight = new HeadLight("hLight", 0.05, 0.4, 0.1, [1, 1, 1], [1, 1, 1], 12.5);
+let hLight = new HeadLight("hLight", 0.1, 0.4, 0.3, [1, 1, 1], [1, 1, 1], 12.5);
 renderer.addLight(hLight);
 
 $("#point").change((e) => {
