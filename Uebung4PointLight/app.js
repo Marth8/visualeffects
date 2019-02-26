@@ -38,13 +38,17 @@ const vsSourceString =
     uniform mat4 uTransform;
     uniform mat4 uNormalMatrix;
     uniform mat4 uModelViewMatrix;
+    uniform mat4 uModelMatrix; 
 
     varying vec2 vTexcoord;
     varying vec3 vNormal;
     varying vec3 vPosition;
+    varying vec3 xPosition;
+
     void main() { 
         vNormal = (uNormalMatrix * vec4(aNormal, 0.0)).xyz;
         vPosition = (uModelViewMatrix * vec4(aPosition, 1.0)).xyz;
+        xPosition = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
         vTexcoord = aTexCoord;
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
@@ -74,6 +78,7 @@ const fsColorSourceString =
     uniform vec3 uColor;
     varying vec3 vNormal;
     varying vec3 vPosition;
+    varying vec3 xPosition;
     struct DirectionalLight
     {
         vec3 direction;
@@ -124,8 +129,8 @@ const fsColorSourceString =
     vec3 GetPointLight(PointLight pLight, vec3 normal);
     vec3 GetHeadLight(HeadLight hLight, vec3 normal);
     void main() {
-        vec3 result = GetDirectionalLight(dLight, normalize(vNormal)) * uColor;
-        result += GetPointLight(pLight, normalize(vNormal)) * uColor;
+        vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
+        result += GetPointLight(pLight, normalize(vNormal));
         gl_FragColor = vec4(result, 1.0);
     }
     
@@ -146,7 +151,7 @@ const fsColorSourceString =
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = dLight.specular * (spec * material.specular);
         
-        return (diffuse + ambient + specular);
+        return (diffuse + ambient + specular) * uColor;
     }
     
     vec3 GetPointLight(PointLight pLight, vec3 normal)
@@ -157,23 +162,23 @@ const fsColorSourceString =
 
         vec3 ambient = pLight.ambient * material.ambient;
 
-        vec3 lightDir = normalize(pLight.position - vPosition);
+        vec3 lightDir = normalize(pLight.position - xPosition);
         float nDotL = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = pLight.diffuse * (nDotL * material.diffuse);
 
-        vec3 viewDir = normalize(-vPosition);
+        vec3 viewDir = normalize(-xPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = pLight.specular * (spec * material.specular);
 
-        float distance = length(pLight.position - vPosition);
+        float distance = length(pLight.position - xPosition);
         float attenuation = 1.0 / (pLight.constant + pLight.linear * distance + pLight.quadratic * (distance * distance));
 
         ambient *= attenuation;
         diffuse *= attenuation;
         specular *= attenuation;
 
-        return (diffuse + ambient + specular);
+        return (diffuse + ambient + specular) * uColor;
     }
     
     vec3 GetHeadLight(HeadLight hLight, vec3 normal)
@@ -204,19 +209,6 @@ const fsColorSourceString =
             return hLight.ambient * material.ambient;
         }
     }`;
-
-const fsHalfColorSourceString =
-`
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-uniform vec3 uColor;
-varying vec3 vNormal;
-void main() {
-    gl_FragColor = vec4(uColor, 0.5);
-}`;
 
 let renderer = new Renderer();
 
@@ -321,13 +313,13 @@ cube3.gameObject.transform.move([3, 0, -2]);
 let program4 = gl.createProgram();
 let objShader4 = new Shader(program4, vsSourceString, fsColorSourceString);
 objShader4.bind();
-let color3 = new Color("uColor", objShader4, [0, 0, 0], [0.5, 0, 0], [0.7, 0.6, 0.6], 32, 0.9, 0.1, 0.1);
+let color3 = new Color("uColor", objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
 let plane = new Cube(objShader4, false, color3, null);
 plane.gameObject.transform.setScale([10, 0.1, 10]);
 plane.gameObject.transform.move([0, -1.1, 0]);
 
 let objects = [plane, capsule2, cube3];
-let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [5, 2, 0]);
+let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
 renderer.addLight(dLight);
 let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017);
 renderer.addLight(pLight);

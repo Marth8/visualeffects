@@ -61,6 +61,8 @@ class Renderer
         mat4.multiply(matrix, matrix, modelMatrix);
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
 
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.gameObject.transform.getWorldMatrix());
+
         element.gameObject.draw();
     }
 
