@@ -15,7 +15,6 @@ class DepthTexture extends Material{
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.shader.setUniform1i(this.uniformName, this.slot);
     }
-
 }
 
 export default DepthTexture

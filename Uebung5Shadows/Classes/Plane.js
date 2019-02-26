@@ -27,7 +27,7 @@ const normals = new Float32Array([    // Normal
 
 class Plane
 {
-    constructor(shader, hasTexture, color, texture)
+    constructor(shader, hasTexture, color, texture, hasNormals = true)
     {
         this.ib = new IndexBuffer(indices);
         this.shader = shader;
@@ -39,9 +39,12 @@ class Plane
         let posAttribLocation = shader.getParameter("aPosition");
         vertexArray.addBuffer(vb1, [posAttribLocation], 3);
         const vb2 = new VertexBuffer(normals);
-        let normalAttribLocation = shader.getParameter("aNormal");
-        vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
-
+        if (hasNormals)
+        {
+            let normalAttribLocation = shader.getParameter("aNormal");
+            vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
+        }
+        
         if (hasTexture)
         {
             const vb2 = new VertexBuffer(textureCoordinates);

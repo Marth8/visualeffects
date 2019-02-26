@@ -143,7 +143,7 @@ class Renderer
         }
     }
 
-    renderDepthScene(elements, light, left = -10.0, right = 10.0, bottom = 10.0, top = 10.0, nearPlane = 1.0, farPlane = 7.5)
+    renderDepthScene(elements, light, left = -100.0, right = 100.0, bottom = 100.0, top = 100.0, nearPlane = 0.1, farPlane = 100.5)
     {
         let lightProjection = mat4.create();
         mat4.ortho(lightProjection, left, right, bottom, top, nearPlane, farPlane);  
@@ -168,6 +168,12 @@ class Renderer
             this.gl.uniformMatrix4fv(this.gl.getUniformLocation(newProgram, "uTransform"), false, uTransform);
             element.gameObject.draw(false);
         };
+    }
+
+    renderDepthPlane(plane)
+    {
+        plane.shader.bind();
+        plane.gameObject.draw();
     }
 
     clear()

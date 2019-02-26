@@ -38,17 +38,20 @@ const vsSourceString =
     uniform mat4 uNormalMatrix;
     uniform mat4 uModelViewMatrix;
     uniform mat4 uModelMatrix; 
+    uniform mat4 lightSpaceMatrix;
 
     varying vec2 vTexcoord;
     varying vec3 vNormal;
     varying vec3 vPosition;
     varying vec3 xPosition;
+    varying vec4 vPositionLightSpace;
 
     void main() { 
         vNormal = (uNormalMatrix * vec4(aNormal, 0.0)).xyz;
         vPosition = (uModelViewMatrix * vec4(aPosition, 1.0)).xyz;
         xPosition = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
         vTexcoord = aTexCoord;
+        vPositionLightSpace = lightSpaceMatrix * vec4(aPosition, 1.0);
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
     }`;
@@ -57,14 +60,10 @@ const vsTexString =
     attribute vec3 aPosition;
     attribute vec2 aTexCoord;
     varying vec2 vTexcoord;
-    attribute vec3 aNormal;
-    varying vec3 vNormal;
 
-    uniform mat4 uTransform;
     void main() { 
-        vNormal = aNormal;
         vTexcoord = aTexCoord;
-        gl_Position = uTransform * vec4(aPosition, 1.0);
+        gl_Position = vec4(aPosition.xy, 0.0, 1.0);
     }`;
 
 const fsSourceString =
@@ -77,7 +76,7 @@ const fsSourceString =
     varying vec2 vTexcoord;
     uniform sampler2D uTexture;
     void main() {
-        gl_FragColor = texture2D(uTexture, vTexcoord);
+        gl_FragColor = vec4(vec3(texture2D(uTexture, vTexcoord).x), 1.0);
     }`;
 
 const fsColorSourceString =
@@ -91,6 +90,8 @@ const fsColorSourceString =
     varying vec3 vNormal;
     varying vec3 vPosition;
     varying vec3 xPosition;
+    varying vec4 vPositionLightSpace;
+    uniform sampler2D shadowMap;
     struct DirectionalLight
     {
         vec3 position;
@@ -138,9 +139,12 @@ const fsColorSourceString =
     uniform DirectionalLight dLight;
     uniform PointLight pLight;
     uniform HeadLight hLight;
+
     vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
     vec3 GetPointLight(PointLight pLight, vec3 normal);
     vec3 GetHeadLight(HeadLight hLight, vec3 normal);
+    float ShadowCalculation(vec4 fragPosLightSpace);
+
     void main() {
         vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
         result += GetPointLight(pLight, normalize(vNormal));
@@ -221,6 +225,20 @@ const fsColorSourceString =
         {
             return hLight.ambient * material.ambient;
         }
+    }
+    
+    float ShadowCalculation(vec4 fragPosLightSpace)
+    {
+        // perform perspective divide
+        vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;    
+        projCoords = projCoords * 0.5 + 0.5;
+    
+        float closestDepth = texture2D(shadowMap, projCoords.xy).r; 
+        float currentDepth = projCoords.z;
+    
+        float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+
+        return shadow;
     }`;
 
 let renderer = new Renderer();
@@ -332,7 +350,7 @@ plane.gameObject.transform.setScale([10, 0.1, 10]);
 plane.gameObject.transform.move([0, -1.1, 0]);
 
 let objects = [plane, capsule2, cube3];
-let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [0, 20, 0], [-5, 2, 0]);
+let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0], [-5, 2, 0]);
 renderer.addLight(dLight);
 let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017);
 renderer.addLight(pLight);
@@ -378,8 +396,8 @@ function animate()
     let depthShader = new Shader(program4, vsTexString, fsSourceString);
     depthShader.bind();
     let depthTexture = new DepthTexture("uTexture", depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
-    let depthPlane = new Plane(depthShader, true, null, depthTexture);
-    renderer.drawElementWithoutLight(depthPlane, camera);
+    let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
+    renderer.renderDepthPlane(depthPlane, camera);
 
     requestAnimationFrame(animate);
 }

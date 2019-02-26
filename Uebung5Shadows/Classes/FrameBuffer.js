@@ -45,13 +45,13 @@ class FrameBuffer {
         this.gl.viewport(0, 0, this.width, this.height);
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
 
-        this.gl.clearColor(1, 1, 1, 1);
-        this.gl.clearDepth(1);
+        //this.gl.clearColor(1, 1, 1, 1);
+        //this.gl.clearDepth(1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-        this.gl.enable(this.gl.DEPTH_TEST);
-        this.gl.depthFunc(this.gl.LEQUAL);
-        this.gl.enable(this.gl.CULL_FACE);
+        //this.gl.enable(this.gl.DEPTH_TEST);
+        //this.gl.depthFunc(this.gl.LEQUAL);
+        // this.gl.enable(this.gl.CULL_FACE);
     }
 
     unbind()
