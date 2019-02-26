@@ -558,7 +558,7 @@ cube2.gameObject.transform.move([-3, 0, 2]);
 let program = gl.createProgram();
 let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
 objShader2.bind();
-let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
+let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.7, 0.1);
 let object = new Object(objShader2, 'res/mobster.obj', 1, null, color);
 object.gameObject.transform.move([-3, 2, 2]);
 
