@@ -96,10 +96,33 @@ const fsColorSourceString =
 
         int isOn;
     };
+    struct HeadLight
+    {
+        vec3 direction;
+        vec3 position;
+
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
+
+        float cutOff;
+
+        int isOn;
+    };
+    struct Material
+    {
+        vec3 ambient;
+        vec3 diffuse;
+        vec3 specular;
+        float shininess;
+    };
+    uniform Material material;
     uniform DirectionalLight dLight;
     uniform PointLight pLight;
+    uniform HeadLight hLight;
     vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
     vec3 GetPointLight(PointLight pLight, vec3 normal);
+    vec3 GetHeadLight(HeadLight hLight, vec3 normal);
     void main() {
         vec3 result = GetDirectionalLight(dLight, normalize(vNormal)) * uColor;
         result += GetPointLight(pLight, normalize(vNormal)) * uColor;
@@ -112,17 +135,16 @@ const fsColorSourceString =
             return vec3(0,0,0);
         }
 
-        vec3 ambient = dLight.ambient;
+        vec3 ambient = dLight.ambient * material.ambient;
 
         vec3 lightDir = normalize(dLight.direction);
         float nDotL = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = dLight.diffuse * nDotL;
+        vec3 diffuse = dLight.diffuse * (nDotL * material.diffuse);
 
         vec3 viewDir = normalize(-vPosition);
         vec3 halfway = normalize(lightDir + viewDir);
-        float spec = pow(max(dot(normal, halfway), 0.0), 16.0);
-
-        vec3 specular = (dLight.specular * spec);
+        float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+        vec3 specular = dLight.specular * (spec * material.specular);
         
         return (diffuse + ambient + specular);
     }
@@ -133,16 +155,16 @@ const fsColorSourceString =
             return vec3(0,0,0);
         }
 
-        vec3 ambient = pLight.ambient;
+        vec3 ambient = pLight.ambient * material.ambient;
 
         vec3 lightDir = normalize(pLight.position - vPosition);
         float nDotL = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = dLight.diffuse * nDotL;
+        vec3 diffuse = pLight.diffuse * (nDotL * material.diffuse);
 
         vec3 viewDir = normalize(-vPosition);
         vec3 halfway = normalize(lightDir + viewDir);
-        float spec = pow(max(dot(normal, halfway), 0.0), 16.0);
-        vec3 specular = (dLight.specular * spec);
+        float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+        vec3 specular = pLight.specular * (spec * material.specular);
 
         float distance = length(pLight.position - vPosition);
         float attenuation = 1.0 / (pLight.constant + pLight.linear * distance + pLight.quadratic * (distance * distance));
@@ -152,6 +174,35 @@ const fsColorSourceString =
         specular *= attenuation;
 
         return (diffuse + ambient + specular);
+    }
+    
+    vec3 GetHeadLight(HeadLight hLight, vec3 normal)
+    {
+        if(hLight.isOn != 1) {
+            return vec3(0,0,0);
+        }
+        vec3 lightDir = normalize(hLight.position - vPosition);
+
+
+        if (true)
+        {
+            vec3 ambient = hLight.ambient * material.ambient;
+
+            vec3 lightDir = normalize(hLight.direction);
+            float nDotL = max(dot(normal, lightDir), 0.0);
+            vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse);
+    
+            vec3 viewDir = normalize(-vPosition);
+            vec3 halfway = normalize(lightDir + viewDir);
+            float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+            vec3 specular = hLight.specular * (spec * material.specular);
+            
+            return (diffuse + ambient + specular);
+        }
+        else
+        {
+            return hLight.ambient * material.ambient;
+        }
     }`;
 
 const fsHalfColorSourceString =
@@ -247,14 +298,14 @@ camera.move([0, 0, -15]);
 let program3 = gl.createProgram();
 let objShader = new Shader(program3, vsSourceString, fsSourceString);
 objShader.bind();
-let texture4 = new Texture("uTexture", objShader, path + "res/capsule0.jpg", 0);
+let texture4 = new Texture("uTexture", objShader, [1, 1, 1], [1, 1, 1], [1, 1, 1], 32, path + "res/capsule0.jpg", 0);
 let capsule = new Object(objShader, 'res/capsule.obj', 1, null, null, texture4);
 
 // Draw capsule2
 let program = gl.createProgram();
 let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
 objShader2.bind();
-let color = new Color("uColor", objShader2, 1, 0.5, 0);
+let color = new Color("uColor", objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 1, 0.5, 0);
 let capsule2 = new Object(objShader2, 'res/capsule.obj', 1, null, color, null);
 capsule2.gameObject.transform.move([-3, 0, 2]);
 
@@ -262,7 +313,7 @@ capsule2.gameObject.transform.move([-3, 0, 2]);
 let program2 = gl.createProgram();
 let objShader3 = new Shader(program2, vsSourceString, fsColorSourceString);
 objShader3.bind();
-let color2 = new Color("uColor", objShader3, 0, 0.5, 0);
+let color2 = new Color("uColor", objShader3, [1, 1, 1], [1, 1, 1], [1, 1, 1], 77, 0, 0.5, 0);
 let cube3 = new Cube(objShader3, false, color2, null);
 cube3.gameObject.transform.move([3, 0, -2]);
 
@@ -270,7 +321,7 @@ cube3.gameObject.transform.move([3, 0, -2]);
 let program4 = gl.createProgram();
 let objShader4 = new Shader(program4, vsSourceString, fsColorSourceString);
 objShader4.bind();
-let color3 = new Color("uColor", objShader4, 0.9, 0.1, 0.1);
+let color3 = new Color("uColor", objShader4, [0, 0, 0], [0.5, 0, 0], [0.7, 0.6, 0.6], 32, 0.9, 0.1, 0.1);
 let plane = new Cube(objShader4, false, color3, null);
 plane.gameObject.transform.setScale([10, 0.1, 10]);
 plane.gameObject.transform.move([0, -1.1, 0]);
@@ -278,17 +329,31 @@ plane.gameObject.transform.move([0, -1.1, 0]);
 let objects = [plane, capsule2, cube3];
 let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [5, 2, 0]);
 renderer.addLight(dLight);
-let pLight = new PointLight("pLight", 0.1, 0.4, 0.3, [3, 0, -2], 1.0, 0.09, 0.032);
+let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017);
 renderer.addLight(pLight);
 
 $("#point").change((e) => {
-    console.log(e);
-    pLight.isOn = (pLight.isOn + 1) % 2;
+    if(document.getElementById('point').checked) {
+        pLight.isOn = true;
+    } else {
+        pLight.isOn = false;
+    }
 });
 
 $("#directional").change((e) => {
-    console.log(e);
-    dLight.isOn = (dLight.isOn + 1) % 2;
+    if(document.getElementById('directional').checked) {
+        dLight.isOn = true;
+    } else {
+        dLight.isOn = false;
+    }
+});
+
+$("#headlight").change((e) => {
+    if(document.getElementById('headlight').checked) {
+        hLight.isOn = true;
+    } else {
+        hLight.isOn = false;
+    }
 });
 
 requestAnimationFrame(() => animate());

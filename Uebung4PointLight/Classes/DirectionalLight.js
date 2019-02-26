@@ -6,6 +6,7 @@ class DirectionalLight extends Light {
     {
         super(colorUniform, ambient, diffuse, specular)
         this.direction = direction;
+        this.type = "d";
     }
 
     bind(shader)

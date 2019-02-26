@@ -2,9 +2,9 @@ import GL from "./GL.js";
 import Material from './Material.js';
 
 class Texture extends Material{
-    constructor(uniformName, shader, path, slot)
+    constructor(uniformName, shader, ambient, diffuse, specular, shininess, path, slot)
     {
-        super(uniformName, shader);
+        super(uniformName, shader, ambient, diffuse, specular, shininess);
         const gl = this.gl = GL.getGL();
         this.path = path;
         this.slot = slot;

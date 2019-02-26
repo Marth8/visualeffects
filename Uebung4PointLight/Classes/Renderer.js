@@ -27,22 +27,25 @@ class Renderer
     drawGameObject(gameObject, shader, camera)
     {
         shader.bind();
+
         this.lights.forEach(value => value.bind(shader));
-        gameObject.draw();
+
         let matrix = camera.getViewProjectionMatrix();
         mat4.multiply(matrix, matrix, gameObject.transform.getWorldMatrix());
         shader.setUniformMatrix4fv("uTransform", false, matrix);
+
         let normalMatrix = mat4.create();
         mat4.invert(normalMatrix, modelMatrix);
         mat4.transpose(normalMatrix, normalMatrix);
         element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+        gameObject.draw();
     }
     
     drawElement(element, camera)
     {
         element.shader.bind();
+
         this.lights.forEach(value => value.bind(element.shader));
-        element.gameObject.draw();
 
         let modelViewMatrix = mat4.create();
         mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
@@ -57,6 +60,20 @@ class Renderer
         let modelMatrix = element.gameObject.transform.getWorldMatrix();
         mat4.multiply(matrix, matrix, modelMatrix);
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        element.gameObject.draw();
+    }
+
+    drawElementWithoutLight(element, camera)
+    {
+        element.shader.bind();
+
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.gameObject.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        element.gameObject.draw();
     }
 
     drawElements(elements, camera, zSorting)
@@ -91,6 +108,17 @@ class Renderer
                     this.drawElement(element, camera);
                 }
             }
+        }
+
+        for(let light of this.lights)
+        {
+            if(light.type == "p")
+            {
+                let lightCube = light.getLightCube();
+                lightCube.gameObject.transform.setScale([0.3, 0.3, 0.3]);
+                lightCube.gameObject.transform.move(light.position);
+                this.drawElementWithoutLight(lightCube, camera);
+            } 
         }
     }
 

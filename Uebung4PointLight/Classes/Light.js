@@ -8,6 +8,7 @@ class Light {
         this.diffuse = diffuse;
         this.specular = specular;
         this.isOn = 1;
+        this.type = null;
     }
 
     bind(shader)
