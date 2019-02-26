@@ -34,7 +34,6 @@ if (enableBlending)
 
 gl.enable(gl.DEPTH_TEST);
 gl.depthFunc(gl.LEQUAL);
-gl.enable(gl.CULL_FACE);
 
 const vsDepthPlane = 
     `
@@ -540,12 +539,20 @@ let capsule = new Object(objShader, 'res/capsule.obj', 1, null, null, texture4);
 capsule.gameObject.transform.move([-1, 0, -3]);
 
 // Draw capsule2
+/*
 let program = gl.createProgram();
 let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
 objShader2.bind();
 let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 1, 0.5, 0);
 let capsule2 = new Object(objShader2, 'res/capsule.obj', 1, null, color, null);
 capsule2.gameObject.transform.move([-3, 0, 2]);
+*/
+let program = gl.createProgram();
+let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
+objShader2.bind();
+let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
+let cube2 = new Cube(objShader2, false, color, null);
+cube2.gameObject.transform.move([-3, 0, 2]);
 
 // Draw cube3
 let program2 = gl.createProgram();
@@ -564,12 +571,12 @@ let plane = new Cube(objShader4, false, color3, null);
 plane.gameObject.transform.setScale([40, 0.1, 100]);
 plane.gameObject.transform.move([0, -1.5, 0]);
 
-let objects = [plane, capsule2, cube3, capsule];
-let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [0, 10, 0], [-5, 2, 0]);
+let objects = [plane, cube2, cube3, capsule];
+let dLight = new DirectionalLight("dLight", 0.1, 0.7, 0.6, [0, 10, 0], [0, 2, 0]);
 renderer.addLight(dLight);
-let pLight = new PointLight("pLight", 0.4, 0.9, 0.7, 1.0, 0.07, 0.017, [0, 1, 0], [1.0, 1.0, 1.0]);
+let pLight = new PointLight("pLight", 0.4, 0.9, 0.7, 1.0, 0.07, 0.017, [0, 1, 2], [1.0, 1.0, 1.0]);
 renderer.addLight(pLight);
-let hLight = new HeadLight("hLight", 0.0, 0.4, 0.3, [2, 2, 3], [0, -1, -0], 12);
+let hLight = new HeadLight("hLight", 0.0, 0.4, 0.3, [2, 2, 4], [0, -1, -0], 12);
 renderer.addLight(hLight);
 
 $("#point").change((e) => {
