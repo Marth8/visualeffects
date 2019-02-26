@@ -579,7 +579,15 @@ let plane = new Cube(objShader4, false, color3, null);
 plane.gameObject.transform.setScale([40, 0.1, 100]);
 plane.gameObject.transform.move([0, -1.5, 0]);
 
-let objects = [plane, object, cube3, capsule];
+// Draw cube3
+let program5 = gl.createProgram();
+let objShader5 = new Shader(program5, vsSourceString, fsColorSourceString);
+objShader5.bind();
+let color5 = new Color(objShader5, [1, 1, 1], [1, 1, 1], [1, 1, 1], 77, 0, 0.5, 0);
+let sphere = new Sphere(objShader5, false, color5, null);
+sphere.gameObject.transform.move([4, 0, 2]);
+
+let objects = [plane, sphere, object, cube3, capsule];
 let dLight = new DirectionalLight("dLight", 0.1, 0.7, 0.6, [0, 10, 0], [0, 2, 0]);
 renderer.addLight(dLight);
 let pLight = new PointLight("pLight", 0.3, 0.6, 0.5, 1.0, 0.07, 0.017, [0, 1, 2], [1.0, 1.0, 1.0]);

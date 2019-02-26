@@ -18,6 +18,9 @@ class Sphere
         const vb1 = new VertexBuffer(this.vertices);
         let posAttribLocation = shader.getParameter("aPosition");
         vertexArray.addBuffer(vb1, [posAttribLocation], 3);
+        const vb2 = new VertexBuffer(this.vertices);
+        let normalAttribLocation = shader.getParameter("aNormal");
+        vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
 
         if (hasTexture)
         {
