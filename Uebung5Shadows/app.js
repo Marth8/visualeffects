@@ -85,7 +85,7 @@ const vsSourceString =
         vTexCoord = aTexCoord;
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
-        vPositionLightSpace = lightSpaceMatrix * vec4(aPosition, 1.0);
+        vPositionLightSpace = lightSpaceMatrix * vec4(xPosition, 1.0);
     }`;
 
 const fsSourceString =
@@ -273,7 +273,7 @@ const fsColorSourceString =
     
         float closestDepth = texture2D(shadowMap, projCoords.xy).r; 
         float currentDepth = projCoords.z;
-    
+
         float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
 
         return shadow;
@@ -444,14 +444,13 @@ vec3 GetHeadLight(HeadLight hLight, vec3 normal)
 
 float ShadowCalculation(vec4 vPositionLightSpace)
 {
-    // perform perspective divide
     vec3 projCoords = vPositionLightSpace.xyz / vPositionLightSpace.w;    
     projCoords = projCoords * 0.5 + 0.5;
-
+    
     float closestDepth = texture2D(shadowMap, projCoords.xy).r; 
     float currentDepth = projCoords.z;
 
-    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+    float shadow = (currentDepth) > closestDepth ? 1.0 : 0.0;
 
     return shadow;
 }`;
@@ -554,7 +553,7 @@ let objShader3 = new Shader(program2, vsSourceString, fsColorSourceString);
 objShader3.bind();
 let color2 = new Color(objShader3, [1, 1, 1], [1, 1, 1], [1, 1, 1], 77, 0, 0.5, 0);
 let cube3 = new Cube(objShader3, false, color2, null);
-cube3.gameObject.transform.move([3, 0, -2]);
+cube3.gameObject.transform.move([3, 4, -2]);
 
 // Draw cube4
 let program4 = gl.createProgram();
@@ -609,13 +608,17 @@ function animate()
     renderer.renderDepthScene(objects, dLight);
     frameBuffer.unbind();
 
+    /*
+    // Tiefenbild anzeigen
     let program4 = gl.createProgram();
     let depthShader = new Shader(program4, vsDepthPlane, fsDepthPlane);
     depthShader.bind();
     let depthTexture = new DepthTexture(depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
     let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
-    //renderer.renderDepthPlane(depthPlane, camera);
+    renderer.renderDepthPlane(depthPlane, camera);
+    */
 
+    gl.enable(gl.CULL_FACE);
     renderer.drawElementsWithShadow(objects, camera, frameBuffer.depthMap, dLight);
     requestAnimationFrame(animate);
 }

@@ -52,10 +52,12 @@ class FrameBuffer {
         //this.gl.enable(this.gl.DEPTH_TEST);
         //this.gl.depthFunc(this.gl.LEQUAL);
         // this.gl.enable(this.gl.CULL_FACE);
+        this.gl.cullFace(this.gl.FRONT); 
     }
 
     unbind()
     {
+        this.gl.cullFace(this.gl.BACK);
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
     }
 }

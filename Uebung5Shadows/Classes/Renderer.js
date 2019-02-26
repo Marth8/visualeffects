@@ -134,9 +134,9 @@ class Renderer
         element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
 
         // Shadow-Zeug setzen
-        this.gl.activeTexture(this.gl.TEXTURE0 + 1);
+        this.gl.activeTexture(this.gl.TEXTURE0 + 0);
         this.gl.bindTexture(this.gl.TEXTURE_2D, shadowMap);
-        element.shader.setUniform1i("shadowMap", 1); // TODO: NOCH DAS ZEUG IM SHADER DRAUFRECHNEN
+        element.shader.setUniform1i("shadowMap", 0); 
         element.gameObject.draw();
     }
     
