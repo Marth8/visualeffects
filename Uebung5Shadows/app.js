@@ -205,7 +205,7 @@ const fsColorSourceString =
         float shadow = ShadowCalculation(vPositionLightSpace);       
         vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
 
-        return (diffuse + ambient + specular) * uColor;
+        return lighting * uColor;
     }
     
     vec3 GetPointLight(PointLight pLight, vec3 normal)
@@ -382,7 +382,7 @@ vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
     float shadow = ShadowCalculation(vPositionLightSpace);       
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
 
-    return (diffuse + ambient + specular);
+    return lighting;
 }
 
 vec3 GetPointLight(PointLight pLight, vec3 normal)
