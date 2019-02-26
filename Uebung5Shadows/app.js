@@ -1,22 +1,16 @@
 import GL from './Classes/GL.js';
 import Renderer from './Classes/Renderer.js';
 import Shader from './Classes/Shader.js';
-import VertexArray from './Classes/VertexArray.js';
-import VertexBuffer from './Classes/VertexBuffer.js';
-import IndexBuffer from './Classes/IndexBuffer.js';
-import GameObject from './Classes/GameObject.js';
 import Color from './Classes/Color.js';
 import Texture from './Classes/Texture.js';
 import ViewCamera from './Classes/ViewCamera.js';
 import Cube from './Classes/Cube.js';
-import Transform from './Classes/Transform.js';
-import Tree from './Classes/Tree.js';
-import Sphere from './Classes/Sphere.js';
 import Object from './Classes/Object.js';
 import Plane from './Classes/Plane.js';
 import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
 import FrameBuffer from './Classes/FrameBuffer.js';
+import DepthTexture from './Classes/DepthTexture.js';
 
 const canvas = document.getElementById('c');
 const gl = GL.loadGL(canvas);
@@ -58,6 +52,20 @@ const vsSourceString =
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
     }`;
+const vsTexString = 
+    `
+    attribute vec3 aPosition;
+    attribute vec2 aTexCoord;
+    varying vec2 vTexcoord;
+    attribute vec3 aNormal;
+    varying vec3 vNormal;
+
+    uniform mat4 uTransform;
+    void main() { 
+        vNormal = aNormal;
+        vTexcoord = aTexCoord;
+        gl_Position = uTransform * vec4(aPosition, 1.0);
+    }`;
 
 const fsSourceString =
     `
@@ -66,7 +74,6 @@ const fsSourceString =
     #else
     precision mediump float;
     #endif
-    varying vec3 vNormal;
     varying vec2 vTexcoord;
     uniform sampler2D uTexture;
     void main() {
@@ -361,6 +368,18 @@ requestAnimationFrame(() => animate());
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    renderer.drawElements(objects, camera, zSorting);
+
+    frameBuffer.bind();
+    gl.depthMask(true);
+    renderer.renderDepthScene(objects, dLight);
+    frameBuffer.unbind();
+
+    let program4 = gl.createProgram();
+    let depthShader = new Shader(program4, vsTexString, fsSourceString);
+    depthShader.bind();
+    let depthTexture = new DepthTexture("uTexture", depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
+    let depthPlane = new Plane(depthShader, true, null, depthTexture);
+    renderer.drawElementWithoutLight(depthPlane, camera);
+
     requestAnimationFrame(animate);
 }

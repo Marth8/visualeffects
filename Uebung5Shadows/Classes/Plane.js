@@ -41,7 +41,7 @@ class Plane
         const vb2 = new VertexBuffer(normals);
         let normalAttribLocation = shader.getParameter("aNormal");
         vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
-        
+
         if (hasTexture)
         {
             const vb2 = new VertexBuffer(textureCoordinates);

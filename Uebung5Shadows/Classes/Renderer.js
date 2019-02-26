@@ -1,22 +1,23 @@
 import GL from './GL.js';
 import Shader from "./Shader.js";
-import GameObject from "./Gameobject.js"
+
 const vertexShaderShadow = `
 uniform mat4 uTransform;
 attribute vec3 aPosition;
 varying vec4 vProjCoord;
 
 void main() {
-    vProjCoord  = uTransform * vec4(position, 1.0);
-    gl_Position = vProjCoord;
+    gl_Position = uTransform * vec4(aPosition, 1.0);;
 }
 `;
 const fragmentShaderShadow = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
 varying vec4 vProjCoord;
-
 void main() {
-    vec3 proj = (vProjCoord.xyz / vProjCoord.w + 1.0) / 2.0;
-    gl_FragColor = vec4(proj, 1.0);
 }
 `;
 class Renderer
@@ -151,21 +152,21 @@ class Renderer
         mat4.multiply(lightViewProjection, lightProjection, lightView);
 
         // Das neue Programm mit dem neuen Shader hinterlegen
-        const newProgram = gl.createProgram();
-        let vertexshader = Shader.getShader(vsShaderString, "vertex");
-        let fragmentShader = Shader.getShader(fsShaderString, "fragment");
-        gl.attachShader(newProgram, vertexshader);
-        gl.attachShader(newProgram, fragmentShader);
+        const newProgram = this.gl.createProgram();
+        let vertexshader = Shader.getShader(vertexShaderShadow, "vertex");
+        let fragmentShader = Shader.getShader(fragmentShaderShadow, "fragment");
+        this.gl.attachShader(newProgram, vertexshader);
+        this.gl.attachShader(newProgram, fragmentShader);
         this.gl.linkProgram(newProgram);
         this.gl.useProgram(newProgram);
 
         for(let element of elements)
         {
-            let matrix = light.getViewProjectionMatrix();
+            let uTransform = mat4.create();
             let modelMatrix = element.gameObject.transform.getWorldMatrix();
-            mat4.multiply(matrix, matrix, modelMatrix);
-            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(newProgram, "uTransform"));
-            element.draw(false);
+            mat4.multiply(uTransform, lightViewProjection, modelMatrix);
+            this.gl.uniformMatrix4fv(this.gl.getUniformLocation(newProgram, "uTransform"), false, uTransform);
+            element.gameObject.draw(false);
         };
     }
 

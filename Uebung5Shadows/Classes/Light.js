@@ -25,6 +25,7 @@ class Light {
     {
         let viewMatrix = mat4.create();
         mat4.lookAt(viewMatrix, this.position, [0.001, 0.001, 0.001], [0, 1, 0]);
+        return viewMatrix;
     }
 }
 
