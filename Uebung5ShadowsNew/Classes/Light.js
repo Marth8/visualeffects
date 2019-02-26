@@ -38,7 +38,7 @@ const fsSourceString =
     }`;
 
 class Light {
-    constructor(colorUniform, ambient, diffuse, specular, color = [1, 1, 1])
+    constructor(colorUniform, ambient, diffuse, specular, position, color = [1, 1, 1])
     {
         this.gl = GL.getGL();
         this.colorUniform = colorUniform;
@@ -47,11 +47,13 @@ class Light {
         this.specular = specular;
         this.isOn = 1;
         this.type = null;
+        this.position = position;
         this.color = color;
     }
 
     bind(shader)
     {
+        shader.setUniform3f(this.colorUniform + ".position", this.position[0], this.position[1], this.position[2]);
         shader.setUniform3f(this.colorUniform + ".ambient", this.ambient, this.ambient, this.ambient);
         shader.setUniform3f(this.colorUniform + ".diffuse", this.diffuse, this.diffuse, this.diffuse);
         shader.setUniform3f(this.colorUniform + ".specular", this.specular, this.specular, this.specular);
@@ -59,6 +61,13 @@ class Light {
         shader.setUniform3f(this.colorUniform + ".color", this.color[0], this.color[1], this.color[2])
     }
 
+    getViewMatrix()
+    {
+        let viewMatrix = mat4.create();
+        mat4.lookAt(viewMatrix, this.position, [0.001, 0.001, 0.001], [0, 1, 0]);
+        return viewMatrix;
+    }
+    
     getLightCube()
     {
         let program = this.gl.createProgram();

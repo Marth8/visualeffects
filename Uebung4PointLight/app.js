@@ -517,7 +517,6 @@ requestAnimationFrame(() => animate());
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    let cameraPosition = camera.getWorldMatrix();
     renderer.drawElements(objects, camera, zSorting);
     requestAnimationFrame(animate);
 }

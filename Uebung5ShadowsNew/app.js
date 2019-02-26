@@ -17,6 +17,8 @@ import Plane from './Classes/Plane.js';
 import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
 import HeadLight from './Classes/HeadLight.js';
+import FrameBuffer from './Classes/FrameBuffer.js';
+import DepthTexture from './Classes/DepthTexture.js';
 
 const canvas = document.getElementById('c');
 const gl = GL.loadGL(canvas);
@@ -30,6 +32,34 @@ if (enableBlending)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 }
 
+gl.enable(gl.DEPTH_TEST);
+gl.depthFunc(gl.LEQUAL);
+gl.enable(gl.CULL_FACE);
+
+const vsDepthPlane = 
+    `
+    attribute vec3 aPosition;
+    attribute vec2 aTexCoord;
+    varying vec2 vTexcoord;
+
+    void main() { 
+        vTexcoord = aTexCoord;
+        gl_Position = vec4(aPosition.xy, 0.0, 1.0);
+    }`;
+
+const fsDepthPlane =
+    `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    varying vec2 vTexcoord;
+    uniform sampler2D uTexture;
+    void main() {
+        gl_FragColor = vec4(vec3(texture2D(uTexture, vTexcoord).x), 1.0);
+    }`;
+
 const vsSourceString =
     `
     attribute vec3 aPosition;
@@ -40,11 +70,13 @@ const vsSourceString =
     uniform mat4 uNormalMatrix;
     uniform mat4 uModelViewMatrix;
     uniform mat4 uModelMatrix; 
+    uniform mat4 lightSpaceMatrix;
 
     varying vec2 vTexCoord;
     varying vec3 vNormal;
     varying vec3 vPosition;
     varying vec3 xPosition;
+    varying vec4 vPositionLightSpace;
 
     void main() { 
         vNormal = (uNormalMatrix * vec4(aNormal, 0.0)).xyz;
@@ -53,6 +85,7 @@ const vsSourceString =
         vTexCoord = aTexCoord;
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
+        vPositionLightSpace = lightSpaceMatrix * vec4(aPosition, 1.0);
     }`;
 
 const fsSourceString =
@@ -80,11 +113,15 @@ const fsColorSourceString =
     varying vec3 vNormal;
     varying vec3 vPosition;
     varying vec3 xPosition;
+    varying vec4 vPositionLightSpace;
+    uniform sampler2D shadowMap;
     struct DirectionalLight
     {
         vec3 color;
 
+        vec3 position;
         vec3 direction;
+
         vec3 ambient;
         vec3 diffuse;
         vec3 specular;
@@ -129,13 +166,17 @@ const fsColorSourceString =
         vec3 specular;
         float shininess;
     };
+
     uniform Material material;
     uniform DirectionalLight dLight;
     uniform PointLight pLight;
     uniform HeadLight hLight;
+    
     vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
     vec3 GetPointLight(PointLight pLight, vec3 normal);
     vec3 GetHeadLight(HeadLight hLight, vec3 normal);
+    float ShadowCalculation(vec4 vPositionLightSpace);
+
     void main() {
         vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
         result += GetPointLight(pLight, normalize(vNormal));
@@ -160,6 +201,10 @@ const fsColorSourceString =
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = dLight.specular * (spec * material.specular * dLight.color);
         
+        // calculate shadow
+        float shadow = ShadowCalculation(vPositionLightSpace);       
+        vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
+
         return (diffuse + ambient + specular) * uColor;
     }
     
@@ -218,6 +263,20 @@ const fsColorSourceString =
         {
             return hLight.ambient * material.ambient * hLight.color * uColor;
         }
+    }
+    
+    float ShadowCalculation(vec4 vPositionLightSpace)
+    {
+        // perform perspective divide
+        vec3 projCoords = vPositionLightSpace.xyz / vPositionLightSpace.w;    
+        projCoords = projCoords * 0.5 + 0.5;
+    
+        float closestDepth = texture2D(shadowMap, projCoords.xy).r; 
+        float currentDepth = projCoords.z;
+    
+        float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+        return shadow;
     }`;
 
 const fsTexSourceString =
@@ -231,11 +290,15 @@ varying vec3 vNormal;
 varying vec3 vPosition;
 varying vec3 xPosition;
 varying vec2 vTexCoord;
+varying vec4 vPositionLightSpace;
+uniform sampler2D shadowMap;
 struct DirectionalLight
 {
     vec3 color;
 
+    vec3 position;
     vec3 direction;
+
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -280,13 +343,17 @@ struct Material
     vec3 ambient;
     float shininess;
 };
+
 uniform Material material;
 uniform DirectionalLight dLight;
 uniform PointLight pLight;
 uniform HeadLight hLight;
+
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
 vec3 GetPointLight(PointLight pLight, vec3 normal);
 vec3 GetHeadLight(HeadLight hLight, vec3 normal);
+float ShadowCalculation(vec4 vPositionLightSpace);
+
 void main() {
     vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
     result += GetPointLight(pLight, normalize(vNormal));
@@ -311,6 +378,10 @@ vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
     float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
     vec3 specular = dLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * dLight.color);
     
+    // calculate shadow
+    float shadow = ShadowCalculation(vPositionLightSpace);       
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
+
     return (diffuse + ambient + specular);
 }
 
@@ -369,6 +440,20 @@ vec3 GetHeadLight(HeadLight hLight, vec3 normal)
     {
         return hLight.ambient * material.ambient * hLight.color;
     }
+}
+
+float ShadowCalculation(vec4 vPositionLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = vPositionLightSpace.xyz / vPositionLightSpace.w;    
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture2D(shadowMap, projCoords.xy).r; 
+    float currentDepth = projCoords.z;
+
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
 }`;
 
 let renderer = new Renderer();
@@ -481,9 +566,9 @@ plane.gameObject.transform.setScale([40, 0.1, 100]);
 plane.gameObject.transform.move([0, -1.1, 0]);
 
 let objects = [plane, capsule2, cube3, capsule];
-let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
+let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [0, 10, 0], [-5, 2, 0]);
 renderer.addLight(dLight);
-let pLight = new PointLight("pLight", 0.4, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
+let pLight = new PointLight("pLight", 0.4, 0.9, 0.7, 1.0, 0.07, 0.017, [0, 1, 0], [1.0, 1.0, 1.0]);
 renderer.addLight(pLight);
 let hLight = new HeadLight("hLight", 0.0, 0.4, 0.3, [2, 2, 3], [0, -1, -0], 12);
 renderer.addLight(hLight);
@@ -512,12 +597,27 @@ $("#headlight").change((e) => {
     }
 });
 
+let frameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
+
 requestAnimationFrame(() => animate());
 
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    let cameraPosition = camera.getWorldMatrix();
-    renderer.drawElements(objects, camera, zSorting);
+
+    frameBuffer.bind();
+    renderer.renderDepthScene(objects, dLight);
+    frameBuffer.unbind();
+
+    let program4 = gl.createProgram();
+    let depthShader = new Shader(program4, vsDepthPlane, fsDepthPlane);
+    depthShader.bind();
+    let depthTexture = new DepthTexture("uTexture", depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
+    let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
+    renderer.renderDepthPlane(depthPlane, camera);
+
+    //renderer.drawElementsWithShadow(objects, camera, frameBuffer.depthMap, dLight);
+    
+
     requestAnimationFrame(animate);
 }
