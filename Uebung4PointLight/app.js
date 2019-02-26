@@ -203,7 +203,7 @@ const fsColorSourceString =
         {
             vec3 ambient = hLight.ambient * material.ambient * hLight.color;
 
-            vec3 lightDir = normalize(hLight.direction);
+            vec3 lightDir = normalize(-hLight.direction);
             float nDotL = max(dot(normal, lightDir), 0.0);
             vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse * hLight.color);
     
@@ -354,7 +354,7 @@ vec3 GetHeadLight(HeadLight hLight, vec3 normal)
     {
         vec3 ambient = hLight.ambient * vec3(texture2D(material.diffuse, vTexCoord)) * hLight.color;
 
-        vec3 lightDir = normalize(hLight.direction);
+        vec3 lightDir = normalize(-hLight.direction);
         float nDotL = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = hLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * hLight.color);
 
@@ -477,15 +477,15 @@ let objShader4 = new Shader(program4, vsSourceString, fsColorSourceString);
 objShader4.bind();
 let color3 = new Color("uColor", objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
 let plane = new Cube(objShader4, false, color3, null);
-plane.gameObject.transform.setScale([10, 0.1, 10]);
+plane.gameObject.transform.setScale([40, 0.1, 100]);
 plane.gameObject.transform.move([0, -1.1, 0]);
 
 let objects = [plane, capsule2, cube3, capsule];
 let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
 renderer.addLight(dLight);
-let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
+let pLight = new PointLight("pLight", 0.1, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
 renderer.addLight(pLight);
-let hLight = new HeadLight("hLight", 0.1, 0.4, 0.3, [1, 1, 1], [1, 1, 1], 12.5);
+let hLight = new HeadLight("hLight", 0.1, 0.4, 0.3, [2, 2, 3], [0, -1, -0], 12);
 renderer.addLight(hLight);
 
 $("#point").change((e) => {
@@ -517,9 +517,6 @@ requestAnimationFrame(() => animate());
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    hLight.position = -camera.position;
-    let cameraWorld = camera.worldMatrix;
-    hLight.direction = [cameraWorld[2], cameraWorld[6], cameraWorld[10]];
     renderer.drawElements(objects, camera, zSorting);
     requestAnimationFrame(animate);
 }

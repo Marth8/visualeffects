@@ -7,7 +7,7 @@ class HeadLight extends Light {
         super(colorUniform, ambient, diffuse, specular)
         this.direction = direction;
         this.position = position;
-        this.cutoff = (Math.cos(cutoff) / 180) * Math.PI;
+        this.cutoff = Math.cos(cutoff * (Math.PI / 180));
         this.type = "h";
     }
 

@@ -40,7 +40,7 @@ class Texture extends Material{
         //super.bind();
         this.shader.bind();
         this.shader.setUniform3f("material.ambient", this.ambient[0], this.ambient[1], this.ambient[2]);
-        this.shader.setUniform3f("material.specular", this.slot);
+        this.shader.setUniform1i("material.specular", this.slot);
         this.shader.setUniform1f("material.shininess", this.shininess);
         this.gl.activeTexture(this.gl.TEXTURE0 + this.slot);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
