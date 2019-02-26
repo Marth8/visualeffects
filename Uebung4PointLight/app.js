@@ -16,6 +16,7 @@ import Object from './Classes/Object.js';
 import Plane from './Classes/Plane.js';
 import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
+import HeadLight from './Classes/HeadLight.js';
 
 const canvas = document.getElementById('c');
 const gl = GL.loadGL(canvas);
@@ -138,6 +139,7 @@ const fsColorSourceString =
     void main() {
         vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
         result += GetPointLight(pLight, normalize(vNormal));
+        result += GetHeadLight(hLight, normalize(vNormal));
         gl_FragColor = vec4(result, 1.0);
     }
     
@@ -193,9 +195,11 @@ const fsColorSourceString =
         if(hLight.isOn != 1) {
             return vec3(0,0,0);
         }
-        vec3 lightDir = normalize(hLight.position - vPosition);
+        vec3 lightDir = normalize(hLight.position - xPosition);
 
-        if (true)
+        float theta = dot(lightDir, normalize(-hLight.direction));
+
+        if (theta > hLight.cutOff)
         {
             vec3 ambient = hLight.ambient * material.ambient * hLight.color;
 
@@ -203,16 +207,16 @@ const fsColorSourceString =
             float nDotL = max(dot(normal, lightDir), 0.0);
             vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse * hLight.color);
     
-            vec3 viewDir = normalize(-vPosition);
+            vec3 viewDir = normalize(-xPosition);
             vec3 halfway = normalize(lightDir + viewDir);
             float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
             vec3 specular = hLight.specular * (spec * material.specular * hLight.color);
             
-            return (diffuse + ambient + specular);
+            return (diffuse + ambient + specular) * uColor;
         }
         else
         {
-            return hLight.ambient * material.ambient;
+            return hLight.ambient * material.ambient * hLight.color * uColor;
         }
     }`;
 
@@ -329,6 +333,8 @@ let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
 renderer.addLight(dLight);
 let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
 renderer.addLight(pLight);
+let hLight = new HeadLight("hLight", 0.05, 0.4, 0.1, [1, 1, 1], [1, 1, 1], 12.5);
+renderer.addLight(hLight);
 
 $("#point").change((e) => {
     if(document.getElementById('point').checked) {
@@ -359,6 +365,9 @@ requestAnimationFrame(() => animate());
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    hLight.position = -camera.position;
+    let cameraWorld = camera.worldMatrix;
+    hLight.direction = [cameraWorld[2], cameraWorld[6], cameraWorld[10]];
     renderer.drawElements(objects, camera, zSorting);
     requestAnimationFrame(animate);
 }

@@ -7,7 +7,8 @@ class HeadLight extends Light {
         super(colorUniform, ambient, diffuse, specular)
         this.direction = direction;
         this.position = position;
-        this.cutoff = cutoff;
+        this.cutoff = (Math.cos(cutoff) / 180) * Math.PI;
+        this.type = "h";
     }
 
     bind(shader)
@@ -15,7 +16,7 @@ class HeadLight extends Light {
         super.bind(shader)
         shader.setUniform3f(this.colorUniform + ".direction", this.direction[0], this.direction[1], this.direction[2]);
         shader.setUniform3f(this.colorUniform + ".position", this.position[0], this.position[1], this.position[2]);
-        shader.setUniform1f(this.colorUniform + ".cutoff", this.cutoff);
+        shader.setUniform1f(this.colorUniform + ".cutOff", this.cutoff);
     }
 }
 

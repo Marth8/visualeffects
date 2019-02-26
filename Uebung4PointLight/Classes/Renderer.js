@@ -114,7 +114,7 @@ class Renderer
 
         for(let light of this.lights)
         {
-            if(light.type == "p")
+            if(light.type == "p" || light.type == "h")
             {
                 let lightCube = light.getLightCube();
                 lightCube.gameObject.transform.setScale([0.3, 0.3, 0.3]);
