@@ -81,14 +81,19 @@ const fsColorSourceString =
     varying vec3 xPosition;
     struct DirectionalLight
     {
+        vec3 color;
+
         vec3 direction;
         vec3 ambient;
         vec3 diffuse;
         vec3 specular;
+
         int isOn;
     };
     struct PointLight
     {
+        vec3 color;
+
         vec3 position;
 
         vec3 ambient;
@@ -103,6 +108,8 @@ const fsColorSourceString =
     };
     struct HeadLight
     {
+        vec3 color;
+
         vec3 direction;
         vec3 position;
 
@@ -140,16 +147,16 @@ const fsColorSourceString =
             return vec3(0,0,0);
         }
 
-        vec3 ambient = dLight.ambient * material.ambient;
+        vec3 ambient = dLight.ambient * material.ambient * dLight.color;
 
         vec3 lightDir = normalize(dLight.direction);
         float nDotL = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = dLight.diffuse * (nDotL * material.diffuse);
+        vec3 diffuse = dLight.diffuse * (nDotL * material.diffuse * dLight.color);
 
         vec3 viewDir = normalize(-vPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-        vec3 specular = dLight.specular * (spec * material.specular);
+        vec3 specular = dLight.specular * (spec * material.specular * dLight.color);
         
         return (diffuse + ambient + specular) * uColor;
     }
@@ -160,16 +167,16 @@ const fsColorSourceString =
             return vec3(0,0,0);
         }
 
-        vec3 ambient = pLight.ambient * material.ambient;
+        vec3 ambient = pLight.ambient * material.ambient * pLight.color;
 
         vec3 lightDir = normalize(pLight.position - xPosition);
         float nDotL = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = pLight.diffuse * (nDotL * material.diffuse);
+        vec3 diffuse = pLight.diffuse * (nDotL * material.diffuse * pLight.color);
 
         vec3 viewDir = normalize(-xPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-        vec3 specular = pLight.specular * (spec * material.specular);
+        vec3 specular = pLight.specular * (spec * material.specular * pLight.color);
 
         float distance = length(pLight.position - xPosition);
         float attenuation = 1.0 / (pLight.constant + pLight.linear * distance + pLight.quadratic * (distance * distance));
@@ -188,19 +195,18 @@ const fsColorSourceString =
         }
         vec3 lightDir = normalize(hLight.position - vPosition);
 
-
         if (true)
         {
-            vec3 ambient = hLight.ambient * material.ambient;
+            vec3 ambient = hLight.ambient * material.ambient * hLight.color;
 
             vec3 lightDir = normalize(hLight.direction);
             float nDotL = max(dot(normal, lightDir), 0.0);
-            vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse);
+            vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse * hLight.color);
     
             vec3 viewDir = normalize(-vPosition);
             vec3 halfway = normalize(lightDir + viewDir);
             float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-            vec3 specular = hLight.specular * (spec * material.specular);
+            vec3 specular = hLight.specular * (spec * material.specular * hLight.color);
             
             return (diffuse + ambient + specular);
         }
@@ -321,7 +327,7 @@ plane.gameObject.transform.move([0, -1.1, 0]);
 let objects = [plane, capsule2, cube3];
 let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
 renderer.addLight(dLight);
-let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017);
+let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
 renderer.addLight(pLight);
 
 $("#point").change((e) => {

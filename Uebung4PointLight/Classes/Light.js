@@ -1,7 +1,7 @@
 import GL from "./GL.js";
 
 class Light {
-    constructor(colorUniform, ambient, diffuse, specular)
+    constructor(colorUniform, ambient, diffuse, specular, color = [1, 1, 1])
     {
         this.colorUniform = colorUniform;
         this.ambient = ambient;
@@ -9,6 +9,7 @@ class Light {
         this.specular = specular;
         this.isOn = 1;
         this.type = null;
+        this.color = color;
     }
 
     bind(shader)
@@ -17,6 +18,7 @@ class Light {
         shader.setUniform3f(this.colorUniform + ".diffuse", this.diffuse, this.diffuse, this.diffuse);
         shader.setUniform3f(this.colorUniform + ".specular", this.specular, this.specular, this.specular);
         shader.setUniform1i(this.colorUniform + ".isOn", this.isOn);
+        shader.setUniform3f(this.colorUniform + ".color", this.color[0], this.color[1], this.color[2])
     }
 }
 

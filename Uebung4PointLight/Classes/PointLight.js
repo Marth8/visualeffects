@@ -39,9 +39,9 @@ const fsSourceString =
     }`;
 
 class PointLight extends Light {
-    constructor(colorUniform, ambient, diffuse, specular, position, constant, linear, quadratic)
+    constructor(colorUniform, ambient, diffuse, specular, position, constant, linear, quadratic, color = [1.0, 1.0, 1.0])
     {
-        super(colorUniform, ambient, diffuse, specular)
+        super(colorUniform, ambient, diffuse, specular, color)
         this.position = position;
         this.constant = constant;
         this.linear = linear;
