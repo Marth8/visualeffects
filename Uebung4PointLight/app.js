@@ -41,7 +41,7 @@ const vsSourceString =
     uniform mat4 uModelViewMatrix;
     uniform mat4 uModelMatrix; 
 
-    varying vec2 vTexcoord;
+    varying vec2 vTexCoord;
     varying vec3 vNormal;
     varying vec3 vPosition;
     varying vec3 xPosition;
@@ -50,7 +50,7 @@ const vsSourceString =
         vNormal = (uNormalMatrix * vec4(aNormal, 0.0)).xyz;
         vPosition = (uModelViewMatrix * vec4(aPosition, 1.0)).xyz;
         xPosition = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
-        vTexcoord = aTexCoord;
+        vTexCoord = aTexCoord;
         gl_PointSize = 10.0;
         gl_Position = uTransform * vec4(aPosition, 1.0);
     }`;
@@ -220,6 +220,157 @@ const fsColorSourceString =
         }
     }`;
 
+const fsTexSourceString =
+`
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying vec3 vNormal;
+varying vec3 vPosition;
+varying vec3 xPosition;
+varying vec2 vTexCoord;
+struct DirectionalLight
+{
+    vec3 color;
+
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    int isOn;
+};
+struct PointLight
+{
+    vec3 color;
+
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
+
+    int isOn;
+};
+struct HeadLight
+{
+    vec3 color;
+
+    vec3 direction;
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+
+    float cutOff;
+
+    int isOn;
+};
+struct Material
+{
+    sampler2D diffuse;
+    sampler2D specular;
+    vec3 ambient;
+    float shininess;
+};
+uniform Material material;
+uniform DirectionalLight dLight;
+uniform PointLight pLight;
+uniform HeadLight hLight;
+vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
+vec3 GetPointLight(PointLight pLight, vec3 normal);
+vec3 GetHeadLight(HeadLight hLight, vec3 normal);
+void main() {
+    vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
+    result += GetPointLight(pLight, normalize(vNormal));
+    result += GetHeadLight(hLight, normalize(vNormal));
+    gl_FragColor = vec4(result, 1.0);
+}
+
+vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
+{
+    if(dLight.isOn != 1) {
+        return vec3(0,0,0);
+    }
+
+    vec3 ambient = dLight.ambient * vec3(texture2D(material.diffuse, vTexCoord))  * dLight.color;
+
+    vec3 lightDir = normalize(dLight.direction);
+    float nDotL = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = dLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * dLight.color);
+
+    vec3 viewDir = normalize(-vPosition);
+    vec3 halfway = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+    vec3 specular = dLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * dLight.color);
+    
+    return (diffuse + ambient + specular);
+}
+
+vec3 GetPointLight(PointLight pLight, vec3 normal)
+{
+    if(pLight.isOn != 1) {
+        return vec3(0,0,0);
+    }
+
+    vec3 ambient = pLight.ambient * vec3(texture2D(material.diffuse, vTexCoord)) * pLight.color;
+
+    vec3 lightDir = normalize(pLight.position - xPosition);
+    float nDotL = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = pLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * pLight.color);
+
+    vec3 viewDir = normalize(-xPosition);
+    vec3 halfway = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+    vec3 specular = pLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * pLight.color);
+
+    float distance = length(pLight.position - xPosition);
+    float attenuation = 1.0 / (pLight.constant + pLight.linear * distance + pLight.quadratic * (distance * distance));
+
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+
+    return (diffuse + ambient + specular);
+}
+
+vec3 GetHeadLight(HeadLight hLight, vec3 normal)
+{
+    if(hLight.isOn != 1) {
+        return vec3(0,0,0);
+    }
+    vec3 lightDir = normalize(hLight.position - xPosition);
+
+    float theta = dot(lightDir, normalize(-hLight.direction));
+
+    if (theta > hLight.cutOff)
+    {
+        vec3 ambient = hLight.ambient * vec3(texture2D(material.diffuse, vTexCoord)) * hLight.color;
+
+        vec3 lightDir = normalize(hLight.direction);
+        float nDotL = max(dot(normal, lightDir), 0.0);
+        vec3 diffuse = hLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * hLight.color);
+
+        vec3 viewDir = normalize(-xPosition);
+        vec3 halfway = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
+        vec3 specular = hLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * hLight.color);
+        
+        return (diffuse + ambient + specular);
+    }
+    else
+    {
+        return hLight.ambient * material.ambient * hLight.color;
+    }
+}`;
+
 let renderer = new Renderer();
 
 // Setzt den Ansichtsbereich, welcher die Transformation
@@ -298,10 +449,11 @@ camera.move([0, 0, -15]);
 
 // Draw object
 let program3 = gl.createProgram();
-let objShader = new Shader(program3, vsSourceString, fsSourceString);
+let objShader = new Shader(program3, vsSourceString, fsTexSourceString);
 objShader.bind();
 let texture4 = new Texture("uTexture", objShader, [1, 1, 1], [1, 1, 1], [1, 1, 1], 32, path + "res/capsule0.jpg", 0);
 let capsule = new Object(objShader, 'res/capsule.obj', 1, null, null, texture4);
+capsule.gameObject.transform.move([-1, 0, -3]);
 
 // Draw capsule2
 let program = gl.createProgram();
@@ -328,7 +480,7 @@ let plane = new Cube(objShader4, false, color3, null);
 plane.gameObject.transform.setScale([10, 0.1, 10]);
 plane.gameObject.transform.move([0, -1.1, 0]);
 
-let objects = [plane, capsule2, cube3];
+let objects = [plane, capsule2, cube3, capsule];
 let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
 renderer.addLight(dLight);
 let pLight = new PointLight("pLight", 0.5, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
