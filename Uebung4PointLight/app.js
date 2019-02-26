@@ -483,9 +483,9 @@ plane.gameObject.transform.move([0, -1.1, 0]);
 let objects = [plane, capsule2, cube3, capsule];
 let dLight = new DirectionalLight("dLight", 0.1, 0.4, 0.3, [-5, 2, 0]);
 renderer.addLight(dLight);
-let pLight = new PointLight("pLight", 0.1, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
+let pLight = new PointLight("pLight", 0.4, 0.9, 0.7, [0, 1, 0], 1.0, 0.07, 0.017, [1.0, 1.0, 1.0]);
 renderer.addLight(pLight);
-let hLight = new HeadLight("hLight", 0.1, 0.4, 0.3, [2, 2, 3], [0, -1, -0], 12);
+let hLight = new HeadLight("hLight", 0.0, 0.4, 0.3, [2, 2, 3], [0, -1, -0], 12);
 renderer.addLight(hLight);
 
 $("#point").change((e) => {
@@ -517,6 +517,7 @@ requestAnimationFrame(() => animate());
 function animate()
 {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    let cameraPosition = camera.getWorldMatrix();
     renderer.drawElements(objects, camera, zSorting);
     requestAnimationFrame(animate);
 }

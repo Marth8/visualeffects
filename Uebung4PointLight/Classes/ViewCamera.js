@@ -28,8 +28,6 @@ class ViewCamera extends Transform
     {
         return this.getWorldMatrix();
     }
-
-    
 }
 
 export default ViewCamera
