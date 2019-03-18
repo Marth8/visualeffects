@@ -49,13 +49,14 @@ class Renderer
     {
         shader.bind();
 
-        this.lights.forEach(value => value.bind(shader));
+        this.lights.forEach(value => value.bind(shader, camera));
 
         let matrix = camera.getViewProjectionMatrix();
         mat4.multiply(matrix, matrix, gameObject.transform.getWorldMatrix());
         shader.setUniformMatrix4fv("uTransform", false, matrix);
 
         let normalMatrix = mat4.create();
+        let modelMatrix = element.gameObject.transform.getWorldMatrix();
         mat4.invert(normalMatrix, modelMatrix);
         mat4.transpose(normalMatrix, normalMatrix);
         element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
@@ -66,7 +67,7 @@ class Renderer
     {
         element.shader.bind();
 
-        this.lights.forEach(value => value.bind(element.shader));
+        this.lights.forEach(value => value.bind(element.shader, camera));
 
         let modelViewMatrix = mat4.create();
         mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
@@ -105,22 +106,23 @@ class Renderer
 
         for(let zElement of sorting)
         {
-            this.drawElementWithShadow(zElement.element, camera, shadowMap, light);
+            this.drawElementWithShadow(zElement.element, camera, shadowMap);
         }
     }
 
-    drawElementWithShadow(element, camera, shadowMap, light)
+    drawElementWithShadow(element, camera, shadowMap)
     {
         element.shader.bind();
 
-        this.lights.forEach(value => value.bind(element.shader));
+        this.lights.forEach(value => value.bind(element.shader, camera));
 
         let modelViewMatrix = mat4.create();
-        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+        let modelWorldMatrix = element.gameObject.transform.getWorldMatrix();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), modelWorldMatrix);
         element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
 
         let normalMatrix = mat4.create();
-        mat4.invert(normalMatrix, modelViewMatrix);
+        mat4.invert(normalMatrix, modelWorldMatrix);
         mat4.transpose(normalMatrix, normalMatrix);
         element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
 
@@ -132,6 +134,8 @@ class Renderer
         element.shader.setUniformMatrix4fv("uModelMatrix", false, element.gameObject.transform.getWorldMatrix());
 
         element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
+
+        element.shader.setUniform3f("uEyePosition", false, camera.getEyePosition());
 
         // Shadow-Zeug setzen
         this.gl.activeTexture(this.gl.TEXTURE0 + 0);

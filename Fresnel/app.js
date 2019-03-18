@@ -87,20 +87,6 @@ const vsSourceString =
         vPositionLightSpace = lightSpaceMatrix * vec4(xPosition, 1.0);
     }`;
 
-const fsSourceString =
-    `
-    #ifdef GL_FRAGMENT_PRECISION_HIGH
-    precision highp float;
-    #else
-    precision mediump float;
-    #endif
-    varying vec3 vNormal;
-    varying vec2 vTexcoord;
-    uniform sampler2D uTexture;
-    void main() {
-        gl_FragColor = texture2D(uTexture, vTexcoord);
-    }`;
-
 const fsColorSourceString =
     `
     #ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -114,6 +100,8 @@ const fsColorSourceString =
     varying vec3 xPosition;
     varying vec4 vPositionLightSpace;
     uniform sampler2D shadowMap;
+    uniform vec3 uEyePosition;
+    
     struct DirectionalLight
     {
         vec3 color;
@@ -177,9 +165,10 @@ const fsColorSourceString =
     float ShadowCalculation(vec4 vPositionLightSpace);
 
     void main() {
-        vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
-        result += GetPointLight(pLight, normalize(vNormal));
-        result += GetHeadLight(hLight, normalize(vNormal));
+        vec3 normal = normalize(vNormal);
+        vec3 result = GetDirectionalLight(dLight, normal);
+        result += GetPointLight(pLight, normal);
+        result += GetHeadLight(hLight, normal);
         gl_FragColor = vec4(result, 1.0);
     }
     
@@ -195,7 +184,7 @@ const fsColorSourceString =
         float nDotL = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = dLight.diffuse * (nDotL * material.diffuse * dLight.color);
 
-        vec3 viewDir = normalize(-vPosition);
+        vec3 viewDir = normalize(uEyePosition - vPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = dLight.specular * (spec * material.specular * dLight.color);
@@ -291,6 +280,8 @@ varying vec3 xPosition;
 varying vec2 vTexCoord;
 varying vec4 vPositionLightSpace;
 uniform sampler2D shadowMap;
+uniform vec3 uEyePosition;
+
 struct DirectionalLight
 {
     vec3 color;

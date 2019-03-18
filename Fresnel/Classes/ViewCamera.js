@@ -28,6 +28,15 @@ class ViewCamera extends Transform
     {
         return this.getWorldMatrix();
     }
+
+    getEyePosition()
+    {
+        let viewMatrix = this.getViewMatrix();
+        let cameraMatrix = mat4.create();
+        mat4.invert(cameraMatrix, viewMatrix);
+        let eye = vec3.fromValues(cameraMatrix[12], cameraMatrix[13], cameraMatrix[14]);
+        return eye;
+    }
 }
 
 export default ViewCamera
