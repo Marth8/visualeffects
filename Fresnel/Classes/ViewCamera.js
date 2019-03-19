@@ -37,6 +37,35 @@ class ViewCamera extends Transform
         let eye = vec3.fromValues(cameraMatrix[12], cameraMatrix[13], cameraMatrix[14]);
         return eye;
     }
+
+    getInverseTransformLocation(location) 
+    {
+        const translatedLocation = vec3.create();
+        vec3.subtract(translatedLocation, location, this.position);
+
+        const invertedRotation = quat.create();
+        quat.invert(invertedRotation, this.rotationQuarternion);
+
+        const rotatedLocation = vec3.create();
+        vec3.transformQuat(rotatedLocation, translatedLocation, invertedRotation);
+
+        const scaledLocation = vec3.create();
+        vec3.multiply(scaledLocation, rotatedLocation, this.scale);
+
+        return scaledLocation;
+    }
+
+    getInverseTransformDirection(direction) 
+    {
+        // Invert Rotation
+        const invertedQuat = quat.create();
+        quat.invert(invertedQuat, this.rotationQuarternion);
+
+        // Transform Direction
+        const transformedDirection = vec3.create();
+        vec3.transformQuat(transformedDirection, direction, invertedQuat);
+        return transformedDirection;
+    }
 }
 
 export default ViewCamera

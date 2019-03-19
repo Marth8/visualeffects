@@ -101,7 +101,7 @@ const fsColorSourceString =
     varying vec4 vPositionLightSpace;
     uniform sampler2D shadowMap;
     uniform vec3 uEyePosition;
-    
+
     struct DirectionalLight
     {
         vec3 color;
@@ -184,7 +184,7 @@ const fsColorSourceString =
         float nDotL = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = dLight.diffuse * (nDotL * material.diffuse * dLight.color);
 
-        vec3 viewDir = normalize(uEyePosition - vPosition);
+        vec3 viewDir = normalize(uEyePosition - xPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = dLight.specular * (spec * material.specular * dLight.color);
@@ -208,7 +208,7 @@ const fsColorSourceString =
         float nDotL = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = pLight.diffuse * (nDotL * material.diffuse * pLight.color);
 
-        vec3 viewDir = normalize(-xPosition);
+        vec3 viewDir = normalize(-vPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = pLight.specular * (spec * material.specular * pLight.color);
@@ -363,7 +363,7 @@ vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
     float nDotL = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = dLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * dLight.color);
 
-    vec3 viewDir = normalize(-vPosition);
+    vec3 viewDir = normalize(uEyePosition - xPosition);
     vec3 halfway = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
     vec3 specular = dLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * dLight.color);

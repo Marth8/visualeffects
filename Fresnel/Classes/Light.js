@@ -51,7 +51,7 @@ class Light {
         this.color = color;
     }
 
-    bind(shader)
+    bind(shader, camera)
     {
         shader.setUniform3f(this.colorUniform + ".position", this.position[0], this.position[1], this.position[2]);
         shader.setUniform3f(this.colorUniform + ".ambient", this.ambient, this.ambient, this.ambient);

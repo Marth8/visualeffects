@@ -10,7 +10,7 @@ class HeadLight extends Light {
         this.type = "h";
     }
 
-    bind(shader)
+    bind(shader, camera)
     {
         super.bind(shader)
         shader.setUniform3f(this.colorUniform + ".direction", this.direction[0], this.direction[1], this.direction[2]);

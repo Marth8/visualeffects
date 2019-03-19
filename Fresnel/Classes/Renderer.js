@@ -135,7 +135,8 @@ class Renderer
 
         element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
 
-        element.shader.setUniform3f("uEyePosition", false, camera.getEyePosition());
+        let eyePosition = camera.getEyePosition();
+        element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
 
         // Shadow-Zeug setzen
         this.gl.activeTexture(this.gl.TEXTURE0 + 0);

@@ -12,7 +12,7 @@ class PointLight extends Light {
         this.gl = GL.getGL();
     }
 
-    bind(shader)
+    bind(shader, camera)
     {
         super.bind(shader)
         shader.setUniform1f(this.colorUniform + ".constant", this.constant);
