@@ -208,7 +208,7 @@ const fsColorSourceString =
         float nDotL = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = pLight.diffuse * (nDotL * material.diffuse * pLight.color);
 
-        vec3 viewDir = normalize(-vPosition);
+        vec3 viewDir = normalize(uEyePosition - xPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = pLight.specular * (spec * material.specular * pLight.color);
@@ -240,7 +240,7 @@ const fsColorSourceString =
             float nDotL = max(dot(normal, lightDir), 0.0);
             vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse * hLight.color);
     
-            vec3 viewDir = normalize(-xPosition);
+            vec3 viewDir = normalize(uEyePosition - xPosition);
             vec3 halfway = normalize(lightDir + viewDir);
             float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
             vec3 specular = hLight.specular * (spec * material.specular * hLight.color);
@@ -387,7 +387,7 @@ vec3 GetPointLight(PointLight pLight, vec3 normal)
     float nDotL = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = pLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * pLight.color);
 
-    vec3 viewDir = normalize(-xPosition);
+    vec3 viewDir = normalize(uEyePosition - xPosition);
     vec3 halfway = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
     vec3 specular = pLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * pLight.color);
@@ -419,7 +419,7 @@ vec3 GetHeadLight(HeadLight hLight, vec3 normal)
         float nDotL = max(dot(normal, lightDir), 0.0);
         vec3 diffuse = hLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * hLight.color);
 
-        vec3 viewDir = normalize(-xPosition);
+        vec3 viewDir = normalize(uEyePosition - xPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = hLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * hLight.color);
