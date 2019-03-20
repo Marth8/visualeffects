@@ -525,32 +525,15 @@ camera.move([0, 0, -15]);
 let program3 = gl.createProgram();
 let objShader = new Shader(program3, vsSourceString, fsTexSourceString);
 objShader.bind();
-let texture4 = new Texture(objShader, [1, 1, 1], [1, 1, 1], [1, 1, 1], 32, path + "res/capsule0.jpg", 0);
-let capsule = new Object(objShader, 'res/capsule.obj', 1, null, null, texture4);
+let texture4 = new Texture(objShader, [1, 1, 1], [1, 1, 1], [1, 1, 1], 32, path + "Resources/capsule0.jpg", 0);
+let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, null, texture4);
 capsule.gameObject.transform.move([-1, 0, -3]);
 
-// Draw capsule2
-/*
-let program = gl.createProgram();
-let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
-objShader2.bind();
-let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 1, 0.5, 0);
-let capsule2 = new Object(objShader2, 'res/capsule.obj', 1, null, color, null);
-capsule2.gameObject.transform.move([-3, 0, 2]);
-*/
-/*
-let program = gl.createProgram();
-let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
-objShader2.bind();
-let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
-let cube2 = new Cube(objShader2, false, color, null);
-cube2.gameObject.transform.move([-3, 0, 2]);
-*/
 let program = gl.createProgram();
 let objShader2 = new Shader(program, vsSourceString, fsColorSourceString);
 objShader2.bind();
 let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.7, 0.1);
-let object = new Object(objShader2, 'res/mobster.obj', 1, null, color);
+let object = new Object(objShader2, 'Resources/mobster.obj', 1, null, color);
 object.gameObject.transform.move([-3, 2, 2]);
 
 // Draw cube3
