@@ -99,10 +99,10 @@ let objects = [plane, sphere, object, cube3, capsule];
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", 0.1, 0.7, 0.6, [0, 10, 0], [0, 2, 0]);
 let pLight = new PointLight("pLight", 0.3, 0.6, 0.5, 1.0, 0.07, 0.017, [0, 1, 2], [1.0, 1.0, 1.0]);
-let hLight = new SpotLight("hLight", 0.0, 0.4, 0.3, [2, 2, 5], [0, -1, -0], 12);
+let sLight = new SpotLight("sLight", 0.0, 0.4, 0.3, [2, 2, 5], [0, -1, -0], 12);
 renderer.addLight(dLight);
 renderer.addLight(pLight);
-renderer.addLight(hLight);
+renderer.addLight(sLight);
 
 // Den Framebuffer erstellen
 let frameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
@@ -165,11 +165,11 @@ function prepareCheckboxEvents()
         }
     });
 
-    $("#headlight").change((e) => {
-        if(document.getElementById('headlight').checked) {
-            hLight.isOn = true;
+    $("#spotlight").change((e) => {
+        if(document.getElementById('spotlight').checked) {
+            sLight.isOn = true;
         } else {
-            hLight.isOn = false;
+            sLight.isOn = false;
         }
     });
 }

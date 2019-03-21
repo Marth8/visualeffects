@@ -42,7 +42,7 @@ struct PointLight
 
     int isOn;
 };
-struct HeadLight
+struct SpotLight
 {
     vec3 color;
 
@@ -68,18 +68,18 @@ struct Material
 uniform Material material;
 uniform DirectionalLight dLight;
 uniform PointLight pLight;
-uniform HeadLight hLight;
+uniform SpotLight sLight;
 
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
 vec3 GetPointLight(PointLight pLight, vec3 normal);
-vec3 GetHeadLight(HeadLight hLight, vec3 normal);
+vec3 GetSpotLight(SpotLight sLight, vec3 normal);
 float ShadowCalculation(vec4 vPositionLightSpace);
 
 void main() {
     vec3 normal = normalize(vNormal);
     vec3 result = GetDirectionalLight(dLight, normal);
     result += GetPointLight(pLight, normal);
-    result += GetHeadLight(hLight, normal);
+    result += GetSpotLight(sLight, normal);
     gl_FragColor = vec4(result, 1.0);
 }
 
@@ -134,33 +134,33 @@ vec3 GetPointLight(PointLight pLight, vec3 normal)
     return (diffuse + ambient + specular) * uColor;
 }
 
-vec3 GetHeadLight(HeadLight hLight, vec3 normal)
+vec3 GetSpotLight(SpotLight sLight, vec3 normal)
 {
-    if(hLight.isOn != 1) {
+    if(sLight.isOn != 1) {
         return vec3(0,0,0);
     }
-    vec3 lightDir = normalize(hLight.position - xPosition);
+    vec3 lightDir = normalize(sLight.position - xPosition);
 
-    float theta = dot(lightDir, normalize(-hLight.direction));
+    float theta = dot(lightDir, normalize(-sLight.direction));
 
-    if (theta > hLight.cutOff)
+    if (theta > sLight.cutOff)
     {
-        vec3 ambient = hLight.ambient * material.ambient * hLight.color;
+        vec3 ambient = sLight.ambient * material.ambient * sLight.color;
 
-        vec3 lightDir = normalize(-hLight.direction);
+        vec3 lightDir = normalize(-sLight.direction);
         float nDotL = max(dot(normal, lightDir), 0.0);
-        vec3 diffuse = hLight.diffuse * (nDotL * material.diffuse * hLight.color);
+        vec3 diffuse = sLight.diffuse * (nDotL * material.diffuse * sLight.color);
 
         vec3 viewDir = normalize(uEyePosition - xPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-        vec3 specular = hLight.specular * (spec * material.specular * hLight.color);
+        vec3 specular = sLight.specular * (spec * material.specular * sLight.color);
         
         return (diffuse + ambient + specular) * uColor;
     }
     else
     {
-        return hLight.ambient * material.ambient * hLight.color * uColor;
+        return sLight.ambient * material.ambient * sLight.color * uColor;
     }
 }
 
