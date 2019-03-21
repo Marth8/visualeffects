@@ -7,9 +7,9 @@ class Material
     /**
      * Klasse zum Erstellen eines Materials
      * @param {Shader} shader Der Shader.
-     * @param {float} ambient Der Ambientanteil.
-     * @param {float} diffuse Der Diffuseanteil.
-     * @param {float} specular Der Specularanteil.
+     * @param {vec3} ambient Der Ambientanteil.
+     * @param {vec3} diffuse Der Diffuseanteil.
+     * @param {vec3} specular Der Specularanteil.
      * @param {float} shininess Das Glänzen.
      */
     constructor(shader, ambient, diffuse, specular, shininess)

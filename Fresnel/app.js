@@ -81,9 +81,10 @@ let cube3 = new Cube(objShader3, false, color2, null);
 cube3.gameObject.transform.move([3, 4, -2]);
 
 // Erstelle die Groundplane
-let objShader4 = new Shader(vertexShaderString, fragmentShaderColorString);
+let objShader4 = new Shader(vertexShaderString, fragmentShaderTextureString);
 let color3 = new Color(objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
-let plane = new Cube(objShader4, false, color3, null);
+let textureGround = new Texture(objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, "Resources/woodGround.jpg", 0);
+let plane = new Cube(objShader4, true, null, textureGround);
 plane.gameObject.transform.setScale([40, 0.1, 100]);
 plane.gameObject.transform.move([0, -1.5, 0]);
 

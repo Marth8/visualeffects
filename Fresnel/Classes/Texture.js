@@ -5,9 +5,9 @@ class Texture extends Material{
     /**
      * Konstruktor zum Erstellen der Textur.
      * @param {Shader} shader Der Shader.
-     * @param {float} ambient Der Ambientanteil.
-     * @param {float} diffuse Der Diffuseanteil.
-     * @param {float} specular Der Specularanteil.
+     * @param {vec3} ambient Der Ambientanteil.
+     * @param {vec3} diffuse Der Diffuseanteil.
+     * @param {vec3} specular Der Specularanteil.
      * @param {float} shininess Das Glänzen.
      * @param {string} path Der Pfad zur Textur.
      * @param {int} slot Der Texturslot.

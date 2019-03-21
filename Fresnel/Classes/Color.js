@@ -8,10 +8,10 @@ class Color extends Material
     /**
      * Konstruktor zum Erstellen einer Farbe.
      * @param {Shader} shader Der Shader.
-     * @param {float} ambient Der Ambientanteil.
-     * @param {float} diffuse Der Diffuseanteil.
-     * @param {float} specular Der Specularanteil.
-     * @param {int} shininess Das Glänzen. 
+     * @param {vec3} ambient Der Ambientanteil.
+     * @param {vec3} diffuse Der Diffuseanteil.
+     * @param {vec3} specular Der Specularanteil.
+     * @param {float} shininess Das Glänzen. 
      * @param {float} v0 Der erste Farbwert.
      * @param {float} v1 Der zweite Farbwert.
      * @param {float} v2 Der dritte Farbwert.

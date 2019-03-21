@@ -14,7 +14,6 @@ class Tree extends Transform{
         const gl = this.gl = GL.getGL();
 
         // Den Cube mit Textur erstellen
-        let program = gl.createProgram();
         this.shader = new Shader(vsSourceString, fsSourceString);
         this.shader.bind();
         let texture = new Texture("uTexture", this.shader, window.location.href + "res/woodWall.jpg", 0);
@@ -23,7 +22,6 @@ class Tree extends Transform{
         this.root.gameObject.transform.move([0, -1, 0]);
 
         // Erster Ast
-        let program2 = gl.createProgram();
         this.shader2 = new Shader(vsSourceString, fsSourceString);
         this.shader2.bind();
         let texture2 = new Texture("uTexture", this.shader2, window.location.href + "res/woodWall.jpg", 0);
@@ -38,7 +36,6 @@ class Tree extends Transform{
         branch1Rotator.rotateZ(60);
 
         // Zweiter Ast
-        let program3 = gl.createProgram();
         this.shader3 = new Shader(vsSourceString, fsSourceString);
         this.shader3.bind();
         let texture3 = new Texture("uTexture", this.shader3, window.location.href + "res/woodWall.jpg", 0);
@@ -53,8 +50,7 @@ class Tree extends Transform{
         branch2Rotator.rotateZ(60);
 
         // Dritter Ast
-        let program4 = gl.createProgram();
-        this.shader4 = new Shader(program4, vsSourceString, fsSourceString);
+        this.shader4 = new Shader(vsSourceString, fsSourceString);
         this.shader4.bind();
         let texture4 = new Texture("uTexture", this.shader4, window.location.href + "res/woodWall.jpg", 0);
         this.branch3 = new Cube(this.shader4, true, null, texture4);
