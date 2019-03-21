@@ -3,41 +3,69 @@ import VertexArray from './VertexArray.js';
 import VertexBuffer from './VertexBuffer.js';
 import GameObject from './GameObject.js';
 
+/**
+ * Klasse repräsentiert eine Kugel.
+ */
 class Sphere
 {
+    /**
+     * Konstruktor zum Erstellen der Kugel.
+     * @param {Shader} shader Der Shader.
+     * @param {boolean} hasTexture Ob die Kugel eine Textur hat.
+     * @param {Color} color Die Farbe der Kugel.
+     * @param {Texture} texture Die Textur der Kugel.
+     */
     constructor(shader, hasTexture, color, texture)
     {
+        // Die Sphere initialisieren
         this.initSphere();
+
+        // Parameter merken
         this.shader = shader;
         this.color = color;
         this.texture = texture;
         this.canBeDrawn = true;
         this.hasTexture = this.hasTexture;
+
+        // Den Shader binden
+        this.shader.bind();
+
+        // Den Indexbuffer erstellen
         this.ib = new IndexBuffer(this.indices);
         let vertexArray = new VertexArray();
+
+        // Die Vertexbuffer für die Normalen und Positionen erstellen
         const vb1 = new VertexBuffer(this.vertices);
         let posAttribLocation = shader.getParameter("aPosition");
-        vertexArray.addBuffer(vb1, [posAttribLocation], 3);
         const vb2 = new VertexBuffer(this.vertices);
         let normalAttribLocation = shader.getParameter("aNormal");
+
+        // Die Buffer hinzufügen
+        vertexArray.addBuffer(vb1, [posAttribLocation], 3);
         vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
 
+        // Falls eine Textur vorliegt, noch den BUffer für die Texturkoordinaten hinzufügen
         if (hasTexture)
         {
             const vb2 = new VertexBuffer(textureCoordinates);
             let texCoordsAttribLocation = shader.getParameter("aTexCoord");
-            vertexArray.addBuffer(vb2, [0], 2);
+            vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
+
+            // Das Element erstellen
             this.gameObject = new GameObject(vertexArray, this.ib, texture);
         }
         else
         {
+            // Das Element erstellen
             this.gameObject = new GameObject(vertexArray, this.ib, color);
         }
     }
 
+    /**
+     * Methode zum Erstellen der Kugel.
+     */
     initSphere()
     {
-      // Nochmal Jung Code angucken
       let SPHERE_DIV = 12;
       let i, ai, si, ci;
       let j, aj, sj, cj;

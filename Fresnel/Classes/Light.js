@@ -3,6 +3,7 @@ import Shader from "./Shader.js";
 import Color from "./Color.js";
 import Cube from "./Cube.js";
 
+// Den vsString für das Licht anlegen
 const vsSourceString =
     `
     struct Material
@@ -25,6 +26,7 @@ const vsSourceString =
         gl_Position = uTransform * vec4(aPosition, 1.0);
     }`;
 
+// Den fsString für das Licht anlegen
 const fsSourceString =
     `
     #ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -37,11 +39,24 @@ const fsSourceString =
         gl_FragColor = vec4(uColor, 1.0);
     }`;
 
-class Light {
-    constructor(colorUniform, ambient, diffuse, specular, position, color = [1, 1, 1])
+/**
+ * Klasse repräsentiert ein Licht.
+ */
+class Light 
+{
+    /**
+     * Konstruktor zum Erstellen eines Lichtes.
+     * @param {string} lightUniform Der Uniformname des Lichts.
+     * @param {float} ambient Der Ambientanteil.
+     * @param {float} diffuse Der Diffuseanteil.
+     * @param {float} specular Der Specularanteil.
+     * @param {vec3} position Der Positionsanteil.
+     * @param {vec3} color Die Farbe des Lichtes.
+     */
+    constructor(lightUniform, ambient, diffuse, specular, position, color = [1, 1, 1])
     {
         this.gl = GL.getGL();
-        this.colorUniform = colorUniform;
+        this.lightUniform = lightUniform;
         this.ambient = ambient;
         this.diffuse = diffuse;
         this.specular = specular;
@@ -51,16 +66,25 @@ class Light {
         this.color = color;
     }
 
+    /**
+     * Methode zum Binden des Lichts.
+     * @param {Shader} shader Der Shader.
+     * @param {ViewCamera} camera Die Kamera.
+     */
     bind(shader, camera)
     {
-        shader.setUniform3f(this.colorUniform + ".position", this.position[0], this.position[1], this.position[2]);
-        shader.setUniform3f(this.colorUniform + ".ambient", this.ambient, this.ambient, this.ambient);
-        shader.setUniform3f(this.colorUniform + ".diffuse", this.diffuse, this.diffuse, this.diffuse);
-        shader.setUniform3f(this.colorUniform + ".specular", this.specular, this.specular, this.specular);
-        shader.setUniform1i(this.colorUniform + ".isOn", this.isOn);
-        shader.setUniform3f(this.colorUniform + ".color", this.color[0], this.color[1], this.color[2])
+        // Die Uniforms setzen
+        shader.setUniform3f(this.lightUniform + ".position", this.position[0], this.position[1], this.position[2]);
+        shader.setUniform3f(this.lightUniform + ".ambient", this.ambient, this.ambient, this.ambient);
+        shader.setUniform3f(this.lightUniform + ".diffuse", this.diffuse, this.diffuse, this.diffuse);
+        shader.setUniform3f(this.lightUniform + ".specular", this.specular, this.specular, this.specular);
+        shader.setUniform1i(this.lightUniform + ".isOn", this.isOn);
+        shader.setUniform3f(this.lightUniform + ".color", this.color[0], this.color[1], this.color[2])
     }
 
+    /**
+     * Methode zum ermitteln der Viewmatrix des Lichtes.
+     */
     getViewMatrix()
     {
         let viewMatrix = mat4.create();
@@ -68,6 +92,9 @@ class Light {
         return viewMatrix;
     }
     
+    /**
+     * Methode zum Erstellen eines Lightcubes an der Stelle des Lichtes.
+     */
     getLightCube()
     {
         let program = this.gl.createProgram();

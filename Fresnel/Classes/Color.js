@@ -1,6 +1,22 @@
 import Material from './Material.js';
 
-class Color extends Material{
+/**
+ * Klasse repräsentiert die Farbe eines Objektes.
+ */
+class Color extends Material
+{
+    /**
+     * Konstruktor zum Erstellen einer Farbe.
+     * @param {Shader} shader Der Shader.
+     * @param {float} ambient Der Ambientanteil.
+     * @param {float} diffuse Der Diffuseanteil.
+     * @param {float} specular Der Specularanteil.
+     * @param {int} shininess Das Glänzen. 
+     * @param {float} v0 Der erste Farbwert.
+     * @param {float} v1 Der zweite Farbwert.
+     * @param {float} v2 Der dritte Farbwert.
+     * @param {float} v3 Der vierte Farbwert.
+     */
     constructor(shader, ambient, diffuse, specular, shininess, v0, v1, v2, v3)
     {
         super(shader, ambient, diffuse, specular, shininess);
@@ -10,10 +26,14 @@ class Color extends Material{
         this.v3 = v3;
     }
 
+    /**
+     * Bindet die Farbe auf den aktuellen Shader und setzt die Uniforms.
+     */
     bind()
     {
         super.bind();
         
+        // Je nach Anzahl der Parameter die Farbe setzen.
         if(!this.v3)
         {
             this.shader.setUniform3f("uColor", this.v0, this.v1, this.v2);

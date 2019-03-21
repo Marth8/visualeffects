@@ -1,6 +1,17 @@
 import GL from "./GL.js";
+/**
+ * Klasse repräsentiert das Material eines Objektes.
+ */
 class Material
 {
+    /**
+     * Klasse zum Erstellen eines Materials
+     * @param {Shader} shader Der Shader.
+     * @param {float} ambient Der Ambientanteil.
+     * @param {float} diffuse Der Diffuseanteil.
+     * @param {float} specular Der Specularanteil.
+     * @param {float} shininess Das Glänzen.
+     */
     constructor(shader, ambient, diffuse, specular, shininess)
     {
         this.gl = GL.getGL();
@@ -11,8 +22,12 @@ class Material
         this.shininess = shininess;
     }
 
+    /**
+     * Methode zum Binden des Materials.
+     */
     bind()
     {
+        // Shader binden und die Uniforms setzen.
         this.shader.bind();
         this.shader.setUniform3f("material.ambient", this.ambient[0], this.ambient[1], this.ambient[2]);
         this.shader.setUniform3f("material.diffuse", this.diffuse[0], this.diffuse[1], this.diffuse[2]);

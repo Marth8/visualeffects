@@ -1,10 +1,25 @@
 import GL from "./GL.js";
 import Light from "./Light.js";
 
+/**
+ * Klasse repräsentiert ein Punktlicht.
+ */
 class PointLight extends Light {
-    constructor(colorUniform, ambient, diffuse, specular, constant, linear, quadratic, position, color = [1.0, 1.0, 1.0])
+    /**
+     * Konstruktor zum Erstellen des Punktlichtes.
+     * @param {string} lightUniform Der Uniformname des Lichtes.
+     * @param {float} ambient Der Ambientanteil.
+     * @param {float} diffuse Der Diffuseanteil.
+     * @param {float} specular Der Specularanteil.
+     * @param {float} constant Die Konstante des Punktlichtes.
+     * @param {float} linear Der Linearanteil des Punktlichtes.
+     * @param {float} quadratic Der quadratische Anteil des Punktlichtes.
+     * @param {vec3} position Die Position des Punktlichtes.
+     * @param {vec3} color Die Farbe des Punktlichtes.
+     */
+    constructor(lightUniform, ambient, diffuse, specular, constant, linear, quadratic, position, color = [1.0, 1.0, 1.0])
     {
-        super(colorUniform, ambient, diffuse, specular, position, color)
+        super(lightUniform, ambient, diffuse, specular, position, color)
         this.constant = constant;
         this.linear = linear;
         this.quadratic = quadratic;
@@ -12,12 +27,19 @@ class PointLight extends Light {
         this.gl = GL.getGL();
     }
 
+    /**
+     * Methode zum Binden des Punktlichtes.
+     * @param {Shader} shader Der Shader.
+     * @param {ViewCamera} camera Die Kamera.
+     */
     bind(shader, camera)
     {
         super.bind(shader)
-        shader.setUniform1f(this.colorUniform + ".constant", this.constant);
-        shader.setUniform1f(this.colorUniform + ".linear", this.linear);
-        shader.setUniform1f(this.colorUniform + ".quadratic", this.quadratic);
+
+        // Die Uniforms setzen
+        shader.setUniform1f(this.lightUniform + ".constant", this.constant);
+        shader.setUniform1f(this.lightUniform + ".linear", this.linear);
+        shader.setUniform1f(this.lightUniform + ".quadratic", this.quadratic);
     }
 }
 

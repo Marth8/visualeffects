@@ -4,6 +4,9 @@ import Shader from "./Shader.js";
 import Texture from "./Texture.js";
 import Cube from "./Cube.js";
 
+/**
+ * Klasse repräsentiert einen Baum mit drei Ästen.
+ */
 class Tree extends Transform{
 
     constructor(vsSourceString, fsSourceString) {
@@ -12,7 +15,7 @@ class Tree extends Transform{
 
         // Den Cube mit Textur erstellen
         let program = gl.createProgram();
-        this.shader = new Shader(program, vsSourceString, fsSourceString);
+        this.shader = new Shader(vsSourceString, fsSourceString);
         this.shader.bind();
         let texture = new Texture("uTexture", this.shader, window.location.href + "res/woodWall.jpg", 0);
         this.root = new Cube(this.shader, true, null, texture);
@@ -21,7 +24,7 @@ class Tree extends Transform{
 
         // Erster Ast
         let program2 = gl.createProgram();
-        this.shader2 = new Shader(program2, vsSourceString, fsSourceString);
+        this.shader2 = new Shader(vsSourceString, fsSourceString);
         this.shader2.bind();
         let texture2 = new Texture("uTexture", this.shader2, window.location.href + "res/woodWall.jpg", 0);
         this.branch1 = new Cube(this.shader2, true, null, texture2);
@@ -36,7 +39,7 @@ class Tree extends Transform{
 
         // Zweiter Ast
         let program3 = gl.createProgram();
-        this.shader3 = new Shader(program3, vsSourceString, fsSourceString);
+        this.shader3 = new Shader(vsSourceString, fsSourceString);
         this.shader3.bind();
         let texture3 = new Texture("uTexture", this.shader3, window.location.href + "res/woodWall.jpg", 0);
         this.branch2 = new Cube(this.shader3, true, null, texture3);
@@ -64,14 +67,21 @@ class Tree extends Transform{
         branch3Rotator.rotateY(240);
         branch3Rotator.rotateZ(60);
 
+        // Die Parents setzen
         this.root.gameObject.transform.setParent(this);
         branch1Rotator.setParent(this);
         branch2Rotator.setParent(this);
         branch3Rotator.setParent(this);
     }
 
+    /**
+     * Methode zum Zeichnen des Baumes.
+     * @param {Renderer} renderer Der Renderer.
+     * @param {ViewCamera} camera Die Camera.
+     */
     draw(renderer, camera)
     {
+        // Die Elemente zeichnen
         renderer.drawElement(this.root, this.shader, camera);
         renderer.drawElement(this.branch1, this.shader2, camera);
         renderer.drawElement(this.branch2, this.shader3, camera);

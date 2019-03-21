@@ -1,24 +1,33 @@
 import GL from "./GL.js";
-const gl = GL.getGL();
 
+/**
+ * Klasse repräsentiert einen VertexBuffer.
+ */
 class VertexBuffer {
+    /**
+     * Konstruktor zum Erstellen des VertexBuffers.
+     * @param {array} data Die Daten des VertexBuffers.
+     */
     constructor(data)
     {
+        // Kontext holen
         const gl = this.gl = GL.getGL();
-        this.buffer = gl.createBuffer();
+        
+        // Parameter merken        
         this.data = data;
+
+        // Buffer erstellen
+        this.buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.data), gl.STATIC_DRAW);
     }
 
+    /**
+     * Methode zum Binden des Buffers.
+     */
     bind()
     {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
-    }
-
-    cleanup()
-    {
-        this.gl.deleteBuffer(this.buffer);
     }
 }
 

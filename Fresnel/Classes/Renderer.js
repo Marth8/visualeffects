@@ -1,7 +1,8 @@
 import GL from './GL.js';
 import Shader from "./Shader.js";
-import GameObject from "./Gameobject.js";
+import DirectionalLight from './DirectionalLight.js';
 
+// Der vsString für das Tiefenbild
 const vertexShaderShadow = `
     uniform mat4 uTransform;
     attribute vec3 aPosition;
@@ -11,6 +12,8 @@ const vertexShaderShadow = `
         gl_Position = uTransform * vec4(aPosition, 1.0);;
     }
 `;
+
+// Der fsString für das Tiefenbild
 const fragmentShaderShadow = `
     #ifdef GL_FRAGMENT_PRECISION_HIGH
     precision highp float;
@@ -22,145 +25,78 @@ const fragmentShaderShadow = `
     }
 `;
 
+/**
+ * Klasse repräsentiert den Renderer.
+ */
 class Renderer
 {
+    /**
+     * Konstruktor zum Erstellen des Renderers.
+     */
     constructor()
     {
        this.gl = GL.getGL();
        this.lights = [];
     }
 
+    /**
+     * Methode zum Hinzufügen eines lichtes.
+     * @param {Light} light Das Licht.
+     */
     addLight(light)
     {
         this.lights.push(light);
     }
 
-    draw(vertexArray, indexBuffer, shader)
-    {
-        shader.bind();
-        vertexArray.bind();
-        indexBuffer.bind();
-
-        // Zeichnen der Elemente
-        this.gl.drawElements(this.gl.TRIANGLES, indexBuffer.count, this.gl.UNSIGNED_SHORT, 0);
-    }
-
-    drawGameObject(gameObject, shader, camera)
-    {
-        shader.bind();
-
-        this.lights.forEach(value => value.bind(shader, camera));
-
-        let matrix = camera.getViewProjectionMatrix();
-        mat4.multiply(matrix, matrix, gameObject.transform.getWorldMatrix());
-        shader.setUniformMatrix4fv("uTransform", false, matrix);
-
-        let normalMatrix = mat4.create();
-        let modelMatrix = element.gameObject.transform.getWorldMatrix();
-        mat4.invert(normalMatrix, modelMatrix);
-        mat4.transpose(normalMatrix, normalMatrix);
-        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
-        gameObject.draw();
-    }
-    
+    /**
+     * Methode zum Zeichnen eines Elementes.
+     * @param {*} element Das Element (Object, Cube, Plane, Sphere, ..)
+     * @param {ViewCamera} camera Die Kamera.
+     */
     drawElement(element, camera)
     {
+        // Den Shader binden
         element.shader.bind();
 
+        // Die Lichter binden
         this.lights.forEach(value => value.bind(element.shader, camera));
 
+        // Die ModelViewMatrix erstellen und setzen
         let modelViewMatrix = mat4.create();
         mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
         element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
 
+        // Die Normalenmatrix erstellen und setzen
         let normalMatrix = mat4.create();
         mat4.invert(normalMatrix, modelViewMatrix);
         mat4.transpose(normalMatrix, normalMatrix);
         element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
 
+        // Die ModelViewProjectionMatrix erstellen und setzen
         let matrix = camera.getViewProjectionMatrix();
         let modelMatrix = element.gameObject.transform.getWorldMatrix();
         mat4.multiply(matrix, matrix, modelMatrix);
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
 
+        // Die ModelMatrix setzen
         element.shader.setUniformMatrix4fv("uModelMatrix", false, element.gameObject.transform.getWorldMatrix());
 
+        // Das Objekt zeichnen
         element.gameObject.draw();
     }
 
-    drawElementsWithShadow(elements, camera, shadowMap, light)
-    {
-        const sorting = [];
-        for(let element of elements)
-        {
-            if(element.canBeDrawn)
-            {
-                let zMatrix = mat4.create();
-                mat4.multiply(zMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
-                let zPos = zMatrix[14];
-                sorting.push({element: element, z: zPos});
-            }
-        }
-
-        sorting.sort((a, b) => a.z - b.z);
-
-        for(let zElement of sorting)
-        {
-            this.drawElementWithShadow(zElement.element, camera, shadowMap);
-        }
-    }
-
-    drawElementWithShadow(element, camera, shadowMap)
-    {
-        element.shader.bind();
-
-        this.lights.forEach(value => value.bind(element.shader, camera));
-
-        let modelViewMatrix = mat4.create();
-        let modelWorldMatrix = element.gameObject.transform.getWorldMatrix();
-        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), modelWorldMatrix);
-        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
-
-        let normalMatrix = mat4.create();
-        mat4.invert(normalMatrix, modelWorldMatrix);
-        mat4.transpose(normalMatrix, normalMatrix);
-        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
-
-        let matrix = camera.getViewProjectionMatrix();
-        let modelMatrix = element.gameObject.transform.getWorldMatrix();
-        mat4.multiply(matrix, matrix, modelMatrix);
-        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
-
-        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.gameObject.transform.getWorldMatrix());
-
-        element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
-
-        let eyePosition = camera.getEyePosition();
-        element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
-
-        // Shadow-Zeug setzen
-        this.gl.activeTexture(this.gl.TEXTURE0 + 0);
-        this.gl.bindTexture(this.gl.TEXTURE_2D, shadowMap);
-        element.shader.setUniform1i("shadowMap", 0); 
-        element.gameObject.draw();
-    }
-    
-    drawElementWithoutLight(element, camera)
-    {
-        element.shader.bind();
-
-        let matrix = camera.getViewProjectionMatrix();
-        let modelMatrix = element.gameObject.transform.getWorldMatrix();
-        mat4.multiply(matrix, matrix, modelMatrix);
-        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
-
-        element.gameObject.draw();
-    }
-
+    /**
+     * Methode zum Zeichnen von mehreren Elementen
+     * @param {array} elements Die Elemente im Array.
+     * @param {ViewCamera} camera Die Kamera.
+     * @param {boolean} zSorting Ob zSorting durchgeführt werden soll.
+     */
     drawElements(elements, camera, zSorting)
     {
+        // Wenn z-Sorting durchgeführt werden soll.
         if (zSorting)
         {
+            // Den Elementen ihre zPosition zuordnen
             const sorting = [];
             for(let element of elements)
             {
@@ -173,8 +109,10 @@ class Renderer
                 }
             }
 
+            // Die Elemente sortieren
             sorting.sort((a, b) => a.z - b.z);
 
+            // Die Elemente anhand der Position zeichnen
             for(let zElement of sorting)
             {
                 this.drawElement(zElement.element, camera);
@@ -182,6 +120,7 @@ class Renderer
         }
         else
         {
+            // Die Elemente zeichnen
             for(let element of elements)
             {
                 if(element.canBeDrawn)
@@ -191,9 +130,10 @@ class Renderer
             }
         }
 
+        // Die Punkt- und Headlights noch als Cube zeichnen
         for(let light of this.lights)
         {
-            if(light.type == "p" || light.type == "h")
+            if(light.type == "p" || light.type == "s")
             {
                 let lightCube = light.getLightCube();
                 lightCube.gameObject.transform.setScale([0.3, 0.3, 0.3]);
@@ -203,10 +143,126 @@ class Renderer
         }
     }
 
+    /**
+     * Methode zum Zeichnen von Elementen mit Schatten.
+     * @param {array} elements Das Array der Elemente.
+     * @param {ViewCamera} camera Die Kamera.
+     * @param {*} shadowMap Die Texture der Tiefenmap.
+     */
+    drawElementsWithShadow(elements, camera, shadowMap)
+    {
+        // Den Elementen ein z-Position geben
+        const sorting = [];
+        for(let element of elements)
+        {
+            if(element.canBeDrawn)
+            {
+                let zMatrix = mat4.create();
+                mat4.multiply(zMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+                let zPos = zMatrix[14];
+                sorting.push({element: element, z: zPos});
+            }
+        }
+
+        // z-Sorting durchführen
+        sorting.sort((a, b) => a.z - b.z);
+
+        // Elemente anhand des z-Sortings zeichnen
+        for(let zElement of sorting)
+        {
+            this.drawElementWithShadow(zElement.element, camera, shadowMap);
+        }
+    }
+
+    /**
+     * Methode zum Zeichnen eines Elements mit Schatten.
+     * @param {*} element Das Element (Objekt, Cube, Sphere oder Plane).
+     * @param {ViewCamera} camera Die Kamera.
+     * @param {*} shadowMap Die Texture des Tiefenbildes.
+     */
+    drawElementWithShadow(element, camera, shadowMap)
+    {
+        // Den Shader binden
+        element.shader.bind();
+
+        // Die Lichter binden
+        this.lights.forEach(value => value.bind(element.shader, camera));
+
+        // Die ModelViewmatrix setzen
+        let modelViewMatrix = mat4.create();
+        let modelWorldMatrix = element.gameObject.transform.getWorldMatrix();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), modelWorldMatrix);
+        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+
+        // Die Normalenmatrix setzen
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelWorldMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+
+        // Die ModelViewProjectionMatrix setzen
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.gameObject.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        // Die ModelMatrix setzen
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.gameObject.transform.getWorldMatrix());
+
+        // Die LightSpaceMatrix setzen
+        element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
+
+        // Die Camera(Eye)-Position setzen
+        let eyePosition = camera.getEyePosition();
+        element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
+
+        // Das Tiefenbild setzen
+        this.gl.activeTexture(this.gl.TEXTURE0 + 0);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, shadowMap);
+        element.shader.setUniform1i("shadowMap", 0); 
+
+        // Zeichnen
+        element.gameObject.draw();
+    }
+    
+    /**
+     * Methode zum Zeichnen eines Elements ohne Licht (normalerweise LightCube)
+     * @param {Cube} element Das Element (normalerweise Cube).
+     * @param {ViewCamera} camera Die Camera.
+     */
+    drawElementWithoutLight(element, camera)
+    {
+        // Den Shader binden
+        element.shader.bind();
+
+        // Die ModelViewProjectionMatrix setzen
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.gameObject.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        // Das Objekt zeichnen
+        element.gameObject.draw();
+    }
+
+    /**
+     * Methode zum Rendern des Tiefenbildes.
+     * @param {*} elements Die Elemente (Cube, Sphere, Plane, Objects, ..).
+     * @param {DirectionalLight} light Das DirectionalLIght.
+     * @param {float} left Linker Anteil des Bereichs.
+     * @param {float} right Rechter Anteil des Bereichs.
+     * @param {float} bottom Unterer Anteil des Bereichs.
+     * @param {float} top Oberer Anteil des Bereichs.
+     * @param {float} nearPlane Die nearPlane der Clippingplane.
+     * @param {float} farPlane Die farPlane der Clippingplane.
+     */
     renderDepthScene(elements, light, left = -10.0, right = 10.0, bottom = -10.0, top = 10.0, nearPlane = 0.1, farPlane = 100)
     {
+        // Die Lightprojectionmatrix berechnen
         let lightProjection = mat4.create();
-        mat4.ortho(lightProjection, left, right, bottom, top, nearPlane, farPlane);  
+        mat4.ortho(lightProjection, left, right, bottom, top, nearPlane, farPlane); 
+        
+        // Die Viewmatrix holen und die LightViewProjectionmatrix berechnen
         let lightView = light.getViewMatrix();
         let lightViewProjection = mat4.create();
         mat4.multiply(lightViewProjection, lightProjection, lightView);
@@ -221,26 +277,37 @@ class Renderer
         this.gl.linkProgram(newProgram);
         this.gl.useProgram(newProgram);
 
+        // Die Elemente aus der Position des LIchtes zeichen
         for(let element of elements)
         {
+            // Die Matrix des Elements aus dem Blick des Lichtes erstellen und setzen
             let uTransform = mat4.create();
             let modelMatrix = element.gameObject.transform.getWorldMatrix();
             mat4.multiply(uTransform, lightViewProjection, modelMatrix);
             this.gl.uniformMatrix4fv(this.gl.getUniformLocation(newProgram, "uTransform"), false, uTransform);
+
+            // Die Elemente ohne Material zeichnen
             element.gameObject.draw(false);
         };
     }
 
+    /**
+     * Methode zum Rendern des Tiefenbildes (Einer Plane mit Texture).
+     * @param {Plane} plane Das Tiefenbild auf einer Plane.
+     */
     renderDepthPlane(plane)
     {
         plane.shader.bind();
         plane.gameObject.draw();
     }
 
+    /**
+     * Methode zum Resetten des Blickfeldes.
+     */
     clear()
     {
         // Clear the canvas (setting the background color)
-        this.gl.clearColor(0.47, 0.66, 0.25, 1.0)
+        this.gl.clearColor(0, 0, 0, 1)
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
         // Clear the depth buffer. Saves the depth for each pixel.

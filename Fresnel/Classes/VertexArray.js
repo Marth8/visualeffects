@@ -1,38 +1,53 @@
 import GL from "./GL.js";
 
+/**
+ * Klasse repräsentiert das vertexArray.
+ */
 class VertexArray {
-    constructor(program, stride)
+    /**
+     * Methode zum Erstellen des VertexArrays.
+     */
+    constructor()
     {
+        // Kontext holen und VertexArray erstellen
         const gl = this.gl = GL.getGL();
         this.vertexArray = gl.createVertexArray();
         gl.bindVertexArray(this.vertexArray);
     }
 
+    /**
+     * Methode zum Binden des VertexArrays.
+     */
     bind()
     {
         this.gl.bindVertexArray(this.vertexArray);
     }
 
+    /**
+     * Methode zum Hinzufügen des VertexArrays.
+     * @param {VertexBuffer} vb Der Vertexbuffer
+     * @param {array} vbElements Die Locationen des Attributes.
+     * @param {int} stride Die Anzahl der Elemente pro Position.
+     */
     addBuffer(vb, vbElements, stride)
     {
+        // Sich selber und den Buffer binden
         this.bind();
         vb.bind();
 
+        // Alle Attribute mit der übergebenen Stride dem VertexArray hinzufügen
         let offset = 0;
         for(let i = 0; i < vbElements.length; i++)
         {
             let element = vbElements[i];
 
-            // Tell WebGL how to take date from the buffer and supply it to
-            // the attribute in the shader. For that, its necessary to turn
-            // the attribute on.
+            // Attribut aktivieren
             this.gl.enableVertexAttribArray(element);
 
-            // Tell the attribute how to get data out of positionBuffer.
-            //this.gl.vertexAttribPointer(element, element.count, this.gl.FLOAT, element.normalized, stride * element.count, offset);
+            // Dem Attribut mitteilen, wie die Daten ermittelt werden
             this.gl.vertexAttribPointer(element, stride, this.gl.FLOAT, false, stride * i, offset);
 
-            // Nur floats
+            // Nur floats, Offset erhöhen
             offset += element.count * 4;
         }
         

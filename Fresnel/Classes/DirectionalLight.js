@@ -1,18 +1,38 @@
-import GL from "./GL.js";
 import Light from "./Light.js";
 
-class DirectionalLight extends Light {
-    constructor(colorUniform, ambient, diffuse, specular, position, direction, color = [1.0, 1.0, 1.0])
+/**
+ * Klasse repräsentiert ein direktionales Licht.
+ */
+class DirectionalLight extends Light 
+{
+    /**
+     * Konstruktor zum Erstellen eines direktionalen Lichtes.
+     * @param {string} lightUniform Das Uniform für das Licht.
+     * @param {float} ambient Der Ambientanteil.
+     * @param {float} diffuse Der Diffuseanteil.
+     * @param {float} specular Der Specularanteil.
+     * @param {vec3} position Die Position des Lichts.
+     * @param {vec3} direction Die Richtung des Lichts.
+     * @param {vec3} color Die Lichtfarbe.
+     */
+    constructor(lightUniform, ambient, diffuse, specular, position, direction, color = [1.0, 1.0, 1.0])
     {
-        super(colorUniform, ambient, diffuse, specular, position, color)
+        super(lightUniform, ambient, diffuse, specular, position, color)
         this.direction = direction;
         this.type = "d";
     }
 
+    /**
+     * Methode zum Binden des Lichtes.
+     * @param {Shader} shader Der Shader.
+     * @param {ViewCamera} camera Die Kamera.
+     */
     bind(shader, camera)
     {
         super.bind(shader)
-        shader.setUniform3f(this.colorUniform + ".direction", this.direction[0], this.direction[1], this.direction[2]);
+
+        // Die Richtung setzen
+        shader.setUniform3f(this.lightUniform + ".direction", this.direction[0], this.direction[1], this.direction[2]);
     }
 }
 

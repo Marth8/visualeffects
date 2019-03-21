@@ -1,6 +1,20 @@
 import Material from './Material.js';
 
-class DepthTexture extends Material{
+/**
+ * Klasse repräsentiert eine Tiefenbildtexture.
+ */
+class DepthTexture extends Material
+{
+    /**
+     * Konstruktor zum Erstellen der Tiefenbildtexture.
+     * @param {Shader} shader Der Shader.
+     * @param {float} ambient Der Ambientanteil.
+     * @param {float} diffuse Der Diffuseanteil.
+     * @param {float} specular Der Specularanteil.
+     * @param {float} shininess Der Glanzanteil.
+     * @param {int} slot Der Slot.
+     * @param {Texture} texture Die Texture des Tiefenbildes.
+     */
     constructor(shader, ambient, diffuse, specular, shininess, slot, texture)
     {
         super(shader, ambient, diffuse, specular, shininess);
@@ -8,8 +22,12 @@ class DepthTexture extends Material{
         this.texture = texture;
     }
 
+    /**
+     * Methode zum Binden der Tiefentexture.
+     */
     bind()
     {
+        // Den Shader binden und die Texture aktivieren/binden
         this.shader.bind();
         this.gl.activeTexture(this.gl.TEXTURE0 + this.slot);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);

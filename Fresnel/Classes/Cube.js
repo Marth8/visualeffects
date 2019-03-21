@@ -3,7 +3,8 @@ import VertexArray from "./VertexArray.js";
 import VertexBuffer from "./VertexBuffer.js";
 import IndexBuffer from "./IndexBuffer.js";
 
-const vertices = new Float32Array([   // Coordinates
+// Die Vertices anlegen
+const vertices = new Float32Array([   
     1.0, 1.0, 1.0,  -1.0, 1.0, 1.0,  -1.0,-1.0, 1.0,   1.0,-1.0, 1.0, // v0-v1-v2-v3 front
     1.0, 1.0, 1.0,   1.0,-1.0, 1.0,   1.0,-1.0,-1.0,   1.0, 1.0,-1.0, // v0-v3-v4-v5 right
     1.0, 1.0, 1.0,   1.0, 1.0,-1.0,  -1.0, 1.0,-1.0,  -1.0, 1.0, 1.0, // v0-v5-v6-v1 up
@@ -12,6 +13,7 @@ const vertices = new Float32Array([   // Coordinates
     1.0,-1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0, 1.0,-1.0,   1.0, 1.0,-1.0  // v4-v7-v6-v5 back
  ]);
 
+ //  Die Texturkoordinaten anlegen
 const textureCoordinates = new Float32Array([
     // Front
     0.0,  0.0,
@@ -45,6 +47,7 @@ const textureCoordinates = new Float32Array([
     0.0,  1.0,
 ]);
 
+// Die Indizes anlegen
 const indices = new Uint8Array([
     0, 1, 2,   0, 2, 3,    // front
     4, 5, 6,   4, 6, 7,    // right
@@ -54,6 +57,7 @@ const indices = new Uint8Array([
    20,21,22,  20,22,23     // back
 ]);
 
+// Die Normalen anlegen
 const normals = new Float32Array([    // Normal
     0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
     1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,  // v0-v3-v4-v5 right
@@ -63,32 +67,59 @@ const normals = new Float32Array([    // Normal
     0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0   // v4-v7-v6-v5 back
 ]);
 
+/**
+ * Klasse repräsentiert einen Cube.
+ */
 class Cube
 {
+    /**
+     * Konstruktor zum Erstellen eines Cubes.
+     * @param {Shader} shader Der Shader.
+     * @param {boolean} hasTexture Ob der Cube eine Texture hat.
+     * @param {Color} color Die Farbe des Cubes.
+     * @param {Texture} texture Die Texture des Cubes.
+     */
     constructor(shader, hasTexture, color, texture)
     {
+        // Den Indexbuffer erstellen
         this.ib = new IndexBuffer(indices);
+
+        // Die Parameter merken
         this.shader = shader;
         this.color = color;
         this.texture = texture;
+        this.hasTexture = hasTexture;
         this.canBeDrawn = true;
+
+        // Den Shader binden
+        this.shader.bind();
+        
+        // Das VertexArray erstellen
         let vertexArray = new VertexArray();
+
+        // Erstellen des Buffers für die Position und den Normalen
         const vb1 = new VertexBuffer(vertices);
         let posAttribLocation = shader.getParameter("aPosition");
-        vertexArray.addBuffer(vb1, [posAttribLocation], 3);
         const vb2 = new VertexBuffer(normals);
         let normalAttribLocation = shader.getParameter("aNormal");
+
+        // Hinzufügen der Buffer zum VertexArray.
+        vertexArray.addBuffer(vb1, [posAttribLocation], 3);
         vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
 
         if (hasTexture)
         {
+            // Einen weiteren Vertexbuffer für die Texturkoordinaten ergänzen
             const vb2 = new VertexBuffer(textureCoordinates);
             let texCoordsAttribLocation = shader.getParameter("aTexCoord");
             vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
+
+            // Das GameObject erstellen
             this.gameObject = new GameObject(vertexArray, this.ib, texture);
         }
         else
         {
+            // Das Gameobject erstellen
             this.gameObject = new GameObject(vertexArray, this.ib, color);
         }
     }    

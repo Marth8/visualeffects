@@ -1,21 +1,40 @@
 import GL from "./GL.js";
 import Transform from "./Transform.js";
 
+/**
+ * Klasse repräsentiert die Camera.
+ */
 class ViewCamera extends Transform
 {
+    /**
+     * Konstruktor zum Erstellen der Kamera.
+     * @param {mat4} projectionMatrix Die Projektionsmatrix.
+     */
     constructor(projectionMatrix)
     {
         super();
 
+        // Den Kontext holen
         this.gl = GL.getGL();
+
+        // Die benötigten Matrizen erstellen
         this.viewMatrix = mat4.create();
-        this.projectionMatrix = projectionMatrix;
         this.cameraMatrix = mat4.create();
         this.viewProjectionMatrix = mat4.create();
+
+        // Parameter merken
+        this.projectionMatrix = projectionMatrix;
+
+        // Das Transform erstellen
         this.cameraTransform = new Transform();
+
+        // Das Transform als Parent erstellen, um die Camera einfach zu verschieben
         this.setParent(this.cameraTransform);
     }
 
+    /**
+     * Methode zum Ermitteln der ViewProjectionMatrix.
+     */
     getViewProjectionMatrix()
     {
         this.viewMatrix = this.getWorldMatrix();
@@ -24,11 +43,17 @@ class ViewCamera extends Transform
         return this.viewProjectionMatrix;
     }
 
+    /**
+     * Methode zum Ermitteln der ViewMatrix.
+     */
     getViewMatrix()
     {
         return this.getWorldMatrix();
     }
 
+    /**
+     * Methode zum Ermitteln der Augenposition der Camera.
+     */
     getEyePosition()
     {
         let viewMatrix = this.getViewMatrix();
@@ -38,6 +63,10 @@ class ViewCamera extends Transform
         return eye;
     }
 
+    /**
+     * Methode zum Ermitteln der Lokation zur Kamera.
+     * @param {vec3} location Die Lokation.
+     */
     getInverseTransformLocation(location) 
     {
         const translatedLocation = vec3.create();
@@ -55,6 +84,10 @@ class ViewCamera extends Transform
         return scaledLocation;
     }
 
+    /**
+     * Methode zum Ermitteln der Richtung zur Kamera.
+     * @param {vec3} direction Die Richtung.
+     */
     getInverseTransformDirection(direction) 
     {
         // Invert Rotation
