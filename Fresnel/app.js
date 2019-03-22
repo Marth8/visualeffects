@@ -89,7 +89,7 @@ let objShader4 = new Shader(vertexShaderString, fragmentShaderTextureString);
 let color3 = new Color(objShader4, 0.9, 0.1, 0.1);
 let textureGround = new Texture(objShader4, "Resources/woodGround.jpg", 2);
 let plane = new Cube(objShader4, true, color3, textureGround);
-plane.gameObject.transform.setScale([40, 0.1, 100]);
+plane.gameObject.transform.setScale([15, 0.1, 15]);
 plane.gameObject.transform.move([0, -1.5, 0]);
 
 // Erstelle die Sphere

@@ -256,7 +256,7 @@ class Renderer
      * @param {float} nearPlane Die nearPlane der Clippingplane.
      * @param {float} farPlane Die farPlane der Clippingplane.
      */
-    renderDepthScene(elements, light, left = -10.0, right = 10.0, bottom = -10.0, top = 10.0, nearPlane = 0.1, farPlane = 100)
+    renderDepthScene(elements, light, left = -20.0, right = 20.0, bottom = -20.0, top = 20.0, nearPlane = 0.1, farPlane = 100)
     {
         // Die Lightprojectionmatrix berechnen
         let lightProjection = mat4.create();
