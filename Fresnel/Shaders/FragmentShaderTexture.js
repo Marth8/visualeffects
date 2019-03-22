@@ -72,7 +72,7 @@ uniform SpotLight sLight;
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
 vec3 GetPointLight(PointLight pLight, vec3 normal);
 vec3 GetSpotLight(SpotLight sLight, vec3 normal);
-float ShadowCalculation(vec4 vPositionLightSpace);
+float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir);
 
 void main() {
     vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
@@ -89,7 +89,7 @@ vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
 
     vec3 ambient = dLight.ambient * vec3(texture2D(material.diffuse, vTexCoord))  * dLight.color;
 
-    vec3 lightDir = normalize(dLight.direction);
+    vec3 lightDir = normalize(-dLight.direction);
     float nDotL = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = dLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * dLight.color);
 
@@ -99,7 +99,7 @@ vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
     vec3 specular = dLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * dLight.color);
     
     // calculate shadow
-    float shadow = ShadowCalculation(vPositionLightSpace);       
+    float shadow = ShadowCalculation(vPositionLightSpace, normal, lightDir);       
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
 
     return lighting;
@@ -162,7 +162,7 @@ vec3 GetSpotLight(SpotLight sLight, vec3 normal)
     }
 }
 
-float ShadowCalculation(vec4 vPositionLightSpace)
+float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir)
 {
     vec3 projCoords = vPositionLightSpace.xyz / vPositionLightSpace.w;    
     projCoords = projCoords * 0.5 + 0.5;
@@ -170,7 +170,10 @@ float ShadowCalculation(vec4 vPositionLightSpace)
     float closestDepth = texture2D(shadowMap, projCoords.xy).r; 
     float currentDepth = projCoords.z;
 
-    float shadow = (currentDepth) > closestDepth ? 1.0 : 0.0;
+    // prevent shadow acne with bias
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+
+    float shadow = (currentDepth) - bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;
 }`;

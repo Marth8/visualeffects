@@ -34,6 +34,16 @@ class DirectionalLight extends Light
         // Die Richtung setzen
         shader.setUniform3f(this.lightUniform + ".direction", this.direction[0], this.direction[1], this.direction[2]);
     }
+
+    /**
+     * Methode zum ermitteln der Viewmatrix des Lichtes. [0.001, 0.001, 0.001]
+     */
+    getViewMatrix()
+    {
+        let viewMatrix = mat4.create();
+        mat4.lookAt(viewMatrix, this.position, this.direction, [0, 1, 0]);
+        return viewMatrix;
+    }
 }
 
 export default DirectionalLight

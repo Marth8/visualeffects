@@ -66,7 +66,7 @@ prepareCheckboxEvents();
 let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
 let texture4 = new Texture(objShader, [1, 1, 1], [1, 1, 1], [1, 1, 1], 32, path + "Resources/capsule0.jpg", 0);
 let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, null, texture4);
-capsule.gameObject.transform.move([-1, 0, -3]);
+capsule.gameObject.transform.move([-1, 0.5, -3]);
 
 // Erstelle den Mobster
 let objShader2 = new Shader(vertexShaderString, fragmentShaderColorString);
@@ -81,10 +81,10 @@ let cube3 = new Cube(objShader3, false, color2, null);
 cube3.gameObject.transform.move([3, 4, -2]);
 
 // Erstelle die Groundplane
-let objShader4 = new Shader(vertexShaderString, fragmentShaderTextureString);
+let objShader4 = new Shader(vertexShaderString, fragmentShaderColorString);
 let color3 = new Color(objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
 let textureGround = new Texture(objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, "Resources/woodGround.jpg", 0);
-let plane = new Cube(objShader4, true, null, textureGround);
+let plane = new Cube(objShader4, false, color3, textureGround);
 plane.gameObject.transform.setScale([40, 0.1, 100]);
 plane.gameObject.transform.move([0, -1.5, 0]);
 
@@ -92,13 +92,13 @@ plane.gameObject.transform.move([0, -1.5, 0]);
 let objShader5 = new Shader(vertexShaderString, fragmentShaderColorString);
 let color5 = new Color(objShader5, [1, 1, 1], [1, 1, 1], [1, 1, 1], 77, 0, 0.5, 0);
 let sphere = new Sphere(objShader5, false, color5, null);
-sphere.gameObject.transform.move([4, 0, 2]);
+sphere.gameObject.transform.move([4, 0.5, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden
 let objects = [plane, sphere, object, cube3, capsule];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
-let dLight = new DirectionalLight("dLight", 0.1, 0.7, 0.6, [0, 10, 0], [0, 2, 0]);
+let dLight = new DirectionalLight("dLight", 0.1, 0.7, 0.6, [-3, 10, -3], [1, -3, -1]);
 let pLight = new PointLight("pLight", 0.3, 0.6, 0.5, 1.0, 0.07, 0.017, [0, 1, 2], [1.0, 1.0, 1.0]);
 let sLight = new SpotLight("sLight", 0.0, 0.4, 0.3, [2, 2, 5], [0, -1, -0], 12);
 renderer.addLight(dLight);
