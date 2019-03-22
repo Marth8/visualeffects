@@ -53,7 +53,7 @@ class Light
      * @param {vec3} position Der Positionsanteil.
      * @param {vec3} color Die Farbe des Lichtes.
      */
-    constructor(lightUniform, ambient, diffuse, specular, position, color = [1, 1, 1])
+    constructor(lightUniform, position, ambient= [1, 0.5, 0.31], diffuse = [1, 0.5, 0.31], specular = [0.5, 0.5, 0.5], color = [1.9, 1.0, 1.0])
     {
         this.gl = GL.getGL();
         this.lightUniform = lightUniform;

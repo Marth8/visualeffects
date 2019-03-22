@@ -59,7 +59,6 @@ struct SpotLight
 struct Material
 {
     sampler2D diffuse;
-    sampler2D specular;
     vec3 ambient;
     float shininess;
 };
@@ -75,9 +74,10 @@ vec3 GetSpotLight(SpotLight sLight, vec3 normal);
 float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir);
 
 void main() {
-    vec3 result = GetDirectionalLight(dLight, normalize(vNormal));
-    result += GetPointLight(pLight, normalize(vNormal));
-    result += GetSpotLight(sLight, normalize(vNormal));
+    vec3 normal = normalize(vNormal);
+    vec3 result = GetDirectionalLight(dLight, normal);
+    result += GetPointLight(pLight, normal);
+    result += GetSpotLight(sLight, normal);
     gl_FragColor = vec4(result, 1.0);
 }
 
@@ -87,20 +87,21 @@ vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
         return vec3(0,0,0);
     }
 
-    vec3 ambient = dLight.ambient * vec3(texture2D(material.diffuse, vTexCoord))  * dLight.color;
+    vec3 color = vec3(texture2D(material.diffuse, vTexCoord));
+    vec3 ambient = dLight.ambient * dLight.color * color;
 
     vec3 lightDir = normalize(-dLight.direction);
     float nDotL = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = dLight.diffuse * (nDotL * vec3(texture2D(material.diffuse, vTexCoord)) * dLight.color);
+    vec3 diffuse = dLight.diffuse * nDotL * dLight.color;
 
     vec3 viewDir = normalize(uEyePosition - xPosition);
     vec3 halfway = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-    vec3 specular = dLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * dLight.color);
+    vec3 specular = dLight.specular * spec * dLight.color;
     
     // calculate shadow
     float shadow = ShadowCalculation(vPositionLightSpace, normal, lightDir);       
-    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
+    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;  
 
     return lighting;
 }
@@ -120,7 +121,7 @@ vec3 GetPointLight(PointLight pLight, vec3 normal)
     vec3 viewDir = normalize(uEyePosition - xPosition);
     vec3 halfway = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-    vec3 specular = pLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * pLight.color);
+    vec3 specular = pLight.specular * (spec * vec3(texture2D(material.diffuse, vTexCoord)) * pLight.color);
 
     float distance = length(pLight.position - xPosition);
     float attenuation = 1.0 / (pLight.constant + pLight.linear * distance + pLight.quadratic * (distance * distance));
@@ -152,7 +153,7 @@ vec3 GetSpotLight(SpotLight sLight, vec3 normal)
         vec3 viewDir = normalize(uEyePosition - xPosition);
         vec3 halfway = normalize(lightDir + viewDir);
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
-        vec3 specular = sLight.specular * (spec * vec3(texture2D(material.specular, vTexCoord)) * sLight.color);
+        vec3 specular = sLight.specular * (spec * vec3(texture2D(material.diffuse, vTexCoord)) * sLight.color);
         
         return (diffuse + ambient + specular);
     }
@@ -174,6 +175,9 @@ float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir)
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
 
     float shadow = (currentDepth) - bias > closestDepth ? 1.0 : 0.0;
+
+    if (projCoords.z > 1.0)
+        shadow = 0.0;
 
     return shadow;
 }`;

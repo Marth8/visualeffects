@@ -64,33 +64,37 @@ prepareCheckboxEvents();
 
 // Erstelle die Kapsel
 let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
-let texture4 = new Texture(objShader, [1, 1, 1], [1, 1, 1], [1, 1, 1], 32, path + "Resources/capsule0.jpg", 0);
+let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 1);
 let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, null, texture4);
 capsule.gameObject.transform.move([-1, 0.5, -3]);
 
 // Erstelle den Mobster
 let objShader2 = new Shader(vertexShaderString, fragmentShaderColorString);
-let color = new Color(objShader2, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.7, 0.1);
+let color = new Color(objShader2, 0.9, 0.7, 0.1);
 let object = new Object(objShader2, 'Resources/mobster.obj', 1, null, color);
 object.gameObject.transform.move([-3, 2, 2]);
 
 // Erstelle den Cube
 let objShader3 = new Shader(vertexShaderString, fragmentShaderColorString);
-let color2 = new Color(objShader3, [1, 1, 1], [1, 1, 1], [1, 1, 1], 77, 0, 0.5, 0);
+let color2 = new Color(objShader3, 0, 0.5, 0);
+color2.ambient = [1, 1, 1];
+color2.diffuse = [1, 1, 1];
+color2.specular = [1, 1, 1];
+color2.shininess = 77;
 let cube3 = new Cube(objShader3, false, color2, null);
 cube3.gameObject.transform.move([3, 4, -2]);
 
 // Erstelle die Groundplane
-let objShader4 = new Shader(vertexShaderString, fragmentShaderColorString);
-let color3 = new Color(objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, 0.9, 0.1, 0.1);
-let textureGround = new Texture(objShader4, [1, 0.5, 0.31], [1, 0.5, 0.31], [0.5, 0.5, 0.5], 32, "Resources/woodGround.jpg", 0);
-let plane = new Cube(objShader4, false, color3, textureGround);
+let objShader4 = new Shader(vertexShaderString, fragmentShaderTextureString);
+let color3 = new Color(objShader4, 0.9, 0.1, 0.1);
+let textureGround = new Texture(objShader4, "Resources/woodGround.jpg", 2);
+let plane = new Cube(objShader4, true, color3, textureGround);
 plane.gameObject.transform.setScale([40, 0.1, 100]);
 plane.gameObject.transform.move([0, -1.5, 0]);
 
 // Erstelle die Sphere
 let objShader5 = new Shader(vertexShaderString, fragmentShaderColorString);
-let color5 = new Color(objShader5, [1, 1, 1], [1, 1, 1], [1, 1, 1], 77, 0, 0.5, 0);
+let color5 = new Color(objShader5, 0, 0.5, 0);
 let sphere = new Sphere(objShader5, false, color5, null);
 sphere.gameObject.transform.move([4, 0.5, 2]);
 
@@ -98,9 +102,9 @@ sphere.gameObject.transform.move([4, 0.5, 2]);
 let objects = [plane, sphere, object, cube3, capsule];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
-let dLight = new DirectionalLight("dLight", 0.1, 0.7, 0.6, [-3, 10, -3], [1, -3, -1]);
-let pLight = new PointLight("pLight", 0.3, 0.6, 0.5, 1.0, 0.07, 0.017, [0, 1, 2], [1.0, 1.0, 1.0]);
-let sLight = new SpotLight("sLight", 0.0, 0.4, 0.3, [2, 2, 5], [0, -1, -0], 12);
+let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);
+let pLight = new PointLight("pLight", [0, 1, 2], 1, 0.07, 0.17, 0.05, 0.5, 0.5);
+let sLight = new SpotLight("sLight", [2, 2, 5], [0, -1, -0], 12);
 renderer.addLight(dLight);
 renderer.addLight(pLight);
 renderer.addLight(sLight);

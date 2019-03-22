@@ -12,7 +12,7 @@ class Texture extends Material{
      * @param {string} path Der Pfad zur Textur.
      * @param {int} slot Der Texturslot.
      */
-    constructor(shader, ambient, diffuse, specular, shininess, path, slot)
+    constructor(shader, path, slot = 0, ambient= [1.0, 0.5, 0.31], diffuse = [1.0, 0.5, 0.31], specular = [0.5, 0.5, 0.5], shininess = 32.0)
     {
         super(shader, ambient, diffuse, specular, shininess);
 
@@ -60,15 +60,14 @@ class Texture extends Material{
         // Den Shader binden
         this.shader.bind();
 
-        // Die Uniforms setzen
-        this.shader.setUniform3f("material.ambient", this.ambient[0], this.ambient[1], this.ambient[2]);
-        this.shader.setUniform1i("material.diffuse", this.slot);
-        this.shader.setUniform1i("material.specular", this.slot);
-        this.shader.setUniform1f("material.shininess", this.shininess);
-
         // Die Textur aktivieren
         this.gl.activeTexture(this.gl.TEXTURE0 + this.slot);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+
+        // Die Uniforms setzen
+        this.shader.setUniform3f("material.ambient", this.ambient[0], this.ambient[1], this.ambient[2]);
+        this.shader.setUniform1i("material.diffuse", this.slot);
+        this.shader.setUniform1f("material.shininess", this.shininess);
     }
 
 }

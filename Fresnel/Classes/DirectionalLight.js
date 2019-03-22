@@ -15,9 +15,9 @@ class DirectionalLight extends Light
      * @param {vec3} direction Die Richtung des Lichts.
      * @param {vec3} color Die Lichtfarbe.
      */
-    constructor(lightUniform, ambient, diffuse, specular, position, direction, color = [1.0, 1.0, 1.0])
+    constructor(lightUniform, position, direction, ambient = 0.3, diffuse = 0.6, specular = 0.7, color = [1.0, 1.0, 1.0])
     {
-        super(lightUniform, ambient, diffuse, specular, position, color)
+        super(lightUniform, position, ambient, diffuse, specular, color)
         this.direction = direction;
         this.type = "d";
     }

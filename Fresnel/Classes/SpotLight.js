@@ -16,9 +16,9 @@ class SpotLight extends Light {
      * @param {float} cutoff Der Cutoff-Angle.
      * @param {Color} color Die Farbe des Lichts.
      */
-    constructor(lightUniform, ambient, diffuse, specular, position, direction, cutoff, color = [1, 1, 1])
+    constructor(lightUniform, position, direction, cutoff, ambient = 0.0, diffuse = 0.4, specular = 0.3, color = [1, 1, 1])
     {
-        super(lightUniform, ambient, diffuse, specular, position, color)
+        super(lightUniform, position, ambient, diffuse, specular, color)
         this.direction = direction;
         this.cutoff = Math.cos(cutoff * (Math.PI / 180));
         this.type = "s";

@@ -12,7 +12,7 @@ class Material
      * @param {vec3} specular Der Specularanteil.
      * @param {float} shininess Das Glänzen.
      */
-    constructor(shader, ambient, diffuse, specular, shininess)
+    constructor(shader, ambient= [1.0, 0.5, 0.31], diffuse = [1.0, 0.5, 0.31], specular = [0.5, 0.5, 0.5], shininess = 32.0)
     {
         this.gl = GL.getGL();
         this.shader = shader;

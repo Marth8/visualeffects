@@ -17,9 +17,9 @@ class PointLight extends Light {
      * @param {vec3} position Die Position des Punktlichtes.
      * @param {vec3} color Die Farbe des Punktlichtes.
      */
-    constructor(lightUniform, ambient, diffuse, specular, constant, linear, quadratic, position, color = [1.0, 1.0, 1.0])
+    constructor(lightUniform, position, constant = 1.0, linear = 0.07, quadratic = 0.017, ambient = 0.1, diffuse = 0.6, specular = 0.5, color = [1.0, 1.0, 1.0])
     {
-        super(lightUniform, ambient, diffuse, specular, position, color)
+        super(lightUniform, position, ambient, diffuse, specular, color)
         this.constant = constant;
         this.linear = linear;
         this.quadratic = quadratic;
