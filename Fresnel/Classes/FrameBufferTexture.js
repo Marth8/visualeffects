@@ -1,12 +1,12 @@
 import Material from './Material.js';
 
 /**
- * Klasse repräsentiert eine Tiefenbildtexture.
+ * Klasse repräsentiert eine Texture eines FrameBufferObjektes.
  */
-class DepthTexture extends Material
+class FrameBufferTexture extends Material
 {
     /**
-     * Konstruktor zum Erstellen der Tiefenbildtexture.
+     * Konstruktor zum Erstellen der Textur des FrameBufferObjektes.
      * @param {Shader} shader Der Shader.
      * @param {vec3} ambient Der Ambientanteil.
      * @param {vec3} diffuse Der Diffuseanteil.
@@ -23,7 +23,7 @@ class DepthTexture extends Material
     }
 
     /**
-     * Methode zum Binden der Tiefentexture.
+     * Methode zum Binden der Texture des FrameBufferObjektes.
      */
     bind()
     {
@@ -35,4 +35,4 @@ class DepthTexture extends Material
     }
 }
 
-export default DepthTexture
+export default FrameBufferTexture

@@ -1,29 +1,8 @@
 import GL from './GL.js';
 import Shader from "./Shader.js";
 import DirectionalLight from './DirectionalLight.js';
-
-// Der vsString für das Tiefenbild
-const vertexShaderShadow = `
-    uniform mat4 uTransform;
-    attribute vec3 aPosition;
-    varying vec4 vProjCoord;
-
-    void main() {
-        gl_Position = uTransform * vec4(aPosition, 1.0);;
-    }
-`;
-
-// Der fsString für das Tiefenbild
-const fragmentShaderShadow = `
-    #ifdef GL_FRAGMENT_PRECISION_HIGH
-    precision highp float;
-    #else
-    precision mediump float;
-    #endif
-    varying vec4 vProjCoord;
-    void main() {
-    }
-`;
+import vertexShaderShadowString from './../Shaders/VertexShaderShadow.js';
+import fragmentShaderShadowString from './../Shaders/FragmentShaderShadow.js';
 
 /**
  * Klasse repräsentiert den Renderer.
@@ -270,8 +249,8 @@ class Renderer
 
         // Das neue Programm mit dem neuen Shader hinterlegen
         const newProgram = this.gl.createProgram();
-        let vertexshader = Shader.getShader(vertexShaderShadow, "vertex");
-        let fragmentShader = Shader.getShader(fragmentShaderShadow, "fragment");
+        let vertexshader = Shader.getShader(vertexShaderShadowString, "vertex");
+        let fragmentShader = Shader.getShader(fragmentShaderShadowString, "fragment");
         this.gl.attachShader(newProgram, vertexshader);
         this.gl.attachShader(newProgram, fragmentShader);
         this.gl.linkProgram(newProgram);

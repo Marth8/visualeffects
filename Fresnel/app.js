@@ -133,7 +133,7 @@ function animate()
     let program4 = gl.createProgram();
     let depthShader = new Shader(program4, vsDepthPlane, fsDepthPlane);
     depthShader.bind();
-    let depthTexture = new DepthTexture(depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
+    let depthTexture = new FrameBufferTexture(depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
     let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
     renderer.renderDepthPlane(depthPlane, camera);
     */
