@@ -19,6 +19,7 @@ import fragmentShaderTextureString from './Shaders/FragmentShaderTexture.js';
 import vertexShaderDepthMapString from './Shaders/VertexShaderDepthPlane.js';
 import fragmentShaderDepthMapString from './Shaders/FragmentShaderDepthPlane.js';
 import fragmentShaderReflectivePlaneString from './Shaders/FragmentShaderReflectivePlane.js';
+import fragmentShaderEmpricialFresnelString from './Shaders/FragmentShaderEmpricalFresnel.js';
 
 // Das Canvas holen, GL laden, Blending aktivieren und den aktuellen Path ermitteln
 const canvas = document.getElementById('c');
@@ -98,7 +99,7 @@ plane.transform.setScale([15, 0.1, 15]);
 plane.transform.move([0, -1.5, 0]);
 
 // Erstelle die Sphere
-let objShader5 = new Shader(vertexShaderString, fragmentShaderColorString);
+let objShader5 = new Shader(vertexShaderString, fragmentShaderEmpricialFresnelString);
 let color5 = new Color(objShader5, 0, 0.5, 0);
 let sphere = new Sphere(objShader5, false, color5, null);
 sphere.transform.move([4, 0.5, 2]);
@@ -160,16 +161,14 @@ function animate()
     renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
     reflectionFrameBuffer.unbind();
     
-    /**
     // Reflektionsbild anzeigen
     let reflectiveShader = new Shader(vertexShaderDepthMapString, fragmentShaderReflectivePlaneString);
     let reflectiveTexture = new FrameBufferTexture(reflectiveShader, 1, 1, 1 ,32, 0, reflectionFrameBuffer.colorMap);
     let reflectivePlane = new Plane(reflectiveShader, true, null, reflectiveTexture, false);
     renderer.renderDepthPlane(reflectivePlane, camera);
-    */
     
     // Die Elemente zeichnen
-    renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
+    //renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
 
     // neu animieren
     requestAnimationFrame(animate);
