@@ -21,6 +21,7 @@ void main() {
     vPosition = (uModelViewMatrix * vec4(aPosition, 1.0)).xyz;
     xPosition = (uModelMatrix * vec4(aPosition, 1.0)).xyz;
     vTexCoord = (uModelMatrix * vec4(aTexCoord, 1.0, 1.0)).xy;
+    
     gl_PointSize = 10.0;
     gl_Position = uTransform * vec4(aPosition, 1.0);
     vPositionLightSpace = lightSpaceMatrix * vec4(xPosition, 1.0);

@@ -9,7 +9,7 @@ class FrameBuffer {
      * @param {float} height Die Höhe des gespeicherten Bildes.
      * @param {float} width Die Breite des gespeicherten Bildes.
      */
-    constructor(height, width)
+    constructor(height, width, slot = 0)
     {
         // GL holen und die Parameter merken
         const gl = this.gl = GL.getGL();
@@ -65,9 +65,6 @@ class FrameBuffer {
         // Den Framebuffer binden und das Bild clearen
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-
-        // Cull-Frace auf Front setzen
-        this.gl.cullFace(this.gl.FRONT); 
     }
 
     /**
@@ -75,9 +72,6 @@ class FrameBuffer {
      */
     unbind()
     {
-        // Cull-Face auf Back setzen
-        this.gl.cullFace(this.gl.BACK);
-
         // Den Framebuffer unbinden
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
     }

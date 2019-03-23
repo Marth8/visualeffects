@@ -11,9 +11,14 @@ import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
 import SpotLight from './Classes/SpotLight.js';
 import FrameBuffer from './Classes/FrameBuffer.js';
+import FrameBufferTexture from './Classes/FrameBufferTexture.js';
+import Plane from './Classes/Plane.js';
 import vertexShaderString from './Shaders/VertexShader.js';
 import fragmentShaderColorString from './Shaders/FragmentShaderColor.js';
 import fragmentShaderTextureString from './Shaders/FragmentShaderTexture.js';
+import vertexShaderDepthMapString from './Shaders/VertexShaderDepthPlane.js';
+import fragmentShaderDepthMapString from './Shaders/FragmentShaderDepthPlane.js';
+import fragmentShaderReflectivePlaneString from './Shaders/FragmentShaderReflectivePlane.js';
 
 // Das Canvas holen, GL laden, Blending aktivieren und den aktuellen Path ermitteln
 const canvas = document.getElementById('c');
@@ -64,7 +69,7 @@ prepareCheckboxEvents();
 
 // Erstelle die Kapsel
 let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
-let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 1);
+let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 4);
 let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, null, texture4);
 capsule.gameObject.transform.move([-1, 0.5, -3]);
 
@@ -87,7 +92,7 @@ cube3.gameObject.transform.move([3, 4, -2]);
 // Erstelle die Groundplane
 let objShader4 = new Shader(vertexShaderString, fragmentShaderTextureString);
 let color3 = new Color(objShader4, 0.9, 0.1, 0.1);
-let textureGround = new Texture(objShader4, "Resources/woodGround.jpg", 2);
+let textureGround = new Texture(objShader4, "Resources/woodGround.jpg", 5);
 let plane = new Cube(objShader4, true, color3, textureGround);
 plane.gameObject.transform.setScale([15, 0.1, 15]);
 plane.gameObject.transform.move([0, -1.5, 0]);
@@ -109,8 +114,11 @@ renderer.addLight(dLight);
 renderer.addLight(pLight);
 renderer.addLight(sLight);
 
-// Den Framebuffer erstellen
-let frameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
+// Den depthFrameBuffer erstellen
+let depthFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
+
+// Den reflectionFrameBuffer erstellen
+let reflectionFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth,);
 
 // Die Szene animieren
 requestAnimationFrame(() => animate());
@@ -124,16 +132,21 @@ function animate()
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // Das Tiefenbild erzeugen
-    frameBuffer.bind();
+    depthFrameBuffer.bind();
+
+    // Cull-Frace auf Front setzen
+    gl.cullFace(gl.FRONT); 
+
     renderer.renderDepthScene(objects, dLight);
-    frameBuffer.unbind();
+    depthFrameBuffer.unbind();
+
+    // Cull-Face auf Back setzen
+    gl.cullFace(gl.BACK);
 
     /*
     // Tiefenbild anzeigen
-    let program4 = gl.createProgram();
-    let depthShader = new Shader(program4, vsDepthPlane, fsDepthPlane);
-    depthShader.bind();
-    let depthTexture = new FrameBufferTexture(depthShader, 1, 1, 1, 32, 0, frameBuffer.depthMap);
+    let depthShader = new Shader(vertexShaderDepthMapString, fragmentShaderDepthMapString);
+    let depthTexture = new FrameBufferTexture(depthShader, 1, 1, 1, 32, 0, depthFrameBuffer.depthMap);
     let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
     renderer.renderDepthPlane(depthPlane, camera);
     */
@@ -141,8 +154,20 @@ function animate()
     // Cull-Face akitivieren
     gl.enable(gl.CULL_FACE);
 
+    // Reflektionsbild erzeugen
+    reflectionFrameBuffer.bind();
+    renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
+    reflectionFrameBuffer.unbind();
+    
+    // Reflektionsbild anzeigen
+    let reflectiveShader = new Shader(vertexShaderDepthMapString, fragmentShaderReflectivePlaneString);
+    let reflectiveTexture = new FrameBufferTexture(reflectiveShader, 1, 1, 1 ,32, 0, reflectionFrameBuffer.colorMap);
+    let reflectivePlane = new Plane(reflectiveShader, true, null, reflectiveTexture, false);
+    renderer.renderDepthPlane(reflectivePlane, camera);
+
+    
     // Die Elemente zeichnen
-    renderer.drawElementsWithShadow(objects, camera, frameBuffer.depthMap);
+    //renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
 
     // neu animieren
     requestAnimationFrame(animate);

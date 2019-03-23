@@ -109,6 +109,7 @@ class Renderer
             }
         }
 
+        /*
         // Die Punkt- und Headlights noch als Cube zeichnen
         for(let light of this.lights)
         {
@@ -120,6 +121,7 @@ class Renderer
                 this.drawElementWithoutLight(lightCube, camera);
             } 
         }
+        */
     }
 
     /**
@@ -221,7 +223,7 @@ class Renderer
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
 
         // Das Objekt zeichnen
-        element.gameObject.draw();
+        element.gameObject.draw(false);
     }
 
     /**
@@ -256,7 +258,7 @@ class Renderer
         this.gl.linkProgram(newProgram);
         this.gl.useProgram(newProgram);
 
-        // Die Elemente aus der Position des LIchtes zeichen
+        // Die Elemente aus der Position des Lichtes zeichen
         for(let element of elements)
         {
             // Die Matrix des Elements aus dem Blick des Lichtes erstellen und setzen
@@ -278,6 +280,17 @@ class Renderer
     {
         plane.shader.bind();
         plane.gameObject.draw();
+    }
+
+    /**
+     * Methode zum Rendern der Reflektionsszene anhand des Elements, welches aktuell betrachtet wird.
+     * @param {*} elements Die Elemente, die gerendert werden
+     * @param {*} camera Die Kamera.
+     * @param {*} element Das Element.
+     */
+    renderReflectiveSceneForElement(elements, camera, element)
+    {
+        this.drawElements(elements, camera);
     }
 
     /**

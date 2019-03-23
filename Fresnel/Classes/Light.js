@@ -97,8 +97,7 @@ class Light
      */
     getLightCube()
     {
-        let program = this.gl.createProgram();
-        let shader = new Shader(program, vsSourceString, fsSourceString);
+        let shader = new Shader(vsSourceString, fsSourceString);
         shader.bind();
         let color = new Color("uColor", shader, 1, 1, 1, 32, 1, 1, 1);
         let lightCube = new Cube(shader, false, color, null);
