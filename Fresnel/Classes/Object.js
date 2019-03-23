@@ -1,4 +1,3 @@
-import GL from "./GL.js";
 import Transform from "./Transform.js";
 import VertexArray from "./VertexArray.js";
 import VertexBuffer from "./VertexBuffer.js";
@@ -8,7 +7,7 @@ import GameObject from "./Gameobject.js";
 /**
  * Klasse repräsentiert ein Objekt einer .obj-Datei.
  */
-class Object
+class Object extends GameObject
 {
     /**
      * Konstruktor zum Erstellen des Objektes.
@@ -19,11 +18,10 @@ class Object
      * @param {Color} color Die Farbe.
      * @param {Texture} texture Die Texture.
      */
-    constructor(shader, file, scaleFac, transform = new Transform(), color = null, texture = null)
+    constructor(shader, file, scaleFac, color = null, texture = null, transform = new Transform())
     {
-        // Den GL-Kontext holen
-        this.gl = GL.getGL();
-
+        super();
+        
         // Parameter merken
         this.transform  = transform;
         this.canBeDrawn = false;
@@ -34,14 +32,14 @@ class Object
         // Shader binden
         this.shader.bind();
 
-        // Erstmal ein leeres Gameobject erstellen
+        // Das Material erstellen
         if(!this.texture)
         {
-            this.gameObject = new GameObject(new VertexArray(), new IndexBuffer([]), this.color);
+            this.material = this.color;
         }
         else
         {
-            this.gameObject = new GameObject(new VertexArray(), new IndexBuffer([]), this.texture);
+            this.material = this.texture;
         }
 
         // XMLHttpRequest für das Objekt erstellen
@@ -69,7 +67,7 @@ class Object
 
             // Den Indexbuffer erstellen
             this.normalsAttribLocation = shader.getParameter("aNormal");
-            this.ib = new IndexBuffer(geo.indices);
+            this.indexBuffer = new IndexBuffer(geo.indices);
 
             // Die Veertexbuffer hinzufügen
             this.vertexArray.addBuffer(this.vb1, [this.posAttribLocation], 3);
@@ -84,18 +82,8 @@ class Object
             }
 
             // Die Sachen dem GameObject setzen und signalisieren, dass das Objekt gezeichnet werden kann
-            this.gameObject.vertexArray = this.vertexArray;
-            this.gameObject.indexBuffer = this.ib;
             this.canBeDrawn = true;
         };
-    }
-
-    /**
-     * Methode zum Zeichnen des Objektes.
-     */
-    draw()
-    {
-        this.gameObject.draw();
     }
 }
 export default Object

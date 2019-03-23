@@ -1,5 +1,7 @@
 import GL from "./GL.js";
 import Transform from "./Transform.js";
+import VertexArray from "./VertexArray.js";
+import IndexBuffer from "./IndexBuffer.js";
 
 /**
  * Die Klasse repräsentiert ein GameObject.
@@ -8,16 +10,13 @@ class GameObject
 {
     /**
      * Konstruktor zum Erstellen des GameObjektes.
-     * @param {VertexArray} va Das VertexArray.
-     * @param {IndexBuffer} ib Der Indexbuffer.
-     * @param {Material} material Das Material des Gameobjekts.
      */
-    constructor(va, ib, material)
+    constructor()
     {
         this.gl = GL.getGL();
-        this.vertexArray = va;
-        this.indexBuffer = ib;
-        this.material = material
+        this.vertexArray = new VertexArray();
+        this.indexBuffer = new IndexBuffer([]);
+        this.material = null;
         this.transform  = new Transform();
     }
 

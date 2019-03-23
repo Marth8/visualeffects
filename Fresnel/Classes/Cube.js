@@ -70,7 +70,7 @@ const normals = new Float32Array([    // Normal
 /**
  * Klasse repräsentiert einen Cube.
  */
-class Cube
+class Cube extends GameObject
 {
     /**
      * Konstruktor zum Erstellen eines Cubes.
@@ -81,8 +81,10 @@ class Cube
      */
     constructor(shader, hasTexture, color, texture)
     {
+        super();
+        
         // Den Indexbuffer erstellen
-        this.ib = new IndexBuffer(indices);
+        this.indexBuffer = new IndexBuffer(indices);
 
         // Die Parameter merken
         this.shader = shader;
@@ -95,7 +97,7 @@ class Cube
         this.shader.bind();
         
         // Das VertexArray erstellen
-        let vertexArray = new VertexArray();
+        this.vertexArray = new VertexArray();
 
         // Erstellen des Buffers für die Position und den Normalen
         const vb1 = new VertexBuffer(vertices);
@@ -104,23 +106,23 @@ class Cube
         let normalAttribLocation = shader.getParameter("aNormal");
 
         // Hinzufügen der Buffer zum VertexArray.
-        vertexArray.addBuffer(vb1, [posAttribLocation], 3);
-        vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
+        this.vertexArray.addBuffer(vb1, [posAttribLocation], 3);
+        this.vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
 
         if (hasTexture)
         {
             // Einen weiteren Vertexbuffer für die Texturkoordinaten ergänzen
             const vb2 = new VertexBuffer(textureCoordinates);
             let texCoordsAttribLocation = shader.getParameter("aTexCoord");
-            vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
+            this.vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
 
-            // Das GameObject erstellen
-            this.gameObject = new GameObject(vertexArray, this.ib, texture);
+            // Die Textur als Material setzen
+            this.material = texture;
         }
         else
         {
-            // Das Gameobject erstellen
-            this.gameObject = new GameObject(vertexArray, this.ib, color);
+            // Die Farbe setzen
+            this.material = color;
         }
     }    
 }

@@ -6,7 +6,7 @@ import GameObject from './GameObject.js';
 /**
  * Klasse repräsentiert eine Kugel.
  */
-class Sphere
+class Sphere extends GameObject
 {
     /**
      * Konstruktor zum Erstellen der Kugel.
@@ -17,6 +17,8 @@ class Sphere
      */
     constructor(shader, hasTexture, color, texture)
     {
+        super();
+        
         // Die Sphere initialisieren
         this.initSphere();
 
@@ -31,8 +33,8 @@ class Sphere
         this.shader.bind();
 
         // Den Indexbuffer erstellen
-        this.ib = new IndexBuffer(this.indices);
-        let vertexArray = new VertexArray();
+        this.indexBuffer = new IndexBuffer(this.indices);
+        this.vertexArray = new VertexArray();
 
         // Die Vertexbuffer für die Normalen und Positionen erstellen
         const vb1 = new VertexBuffer(this.vertices);
@@ -41,23 +43,23 @@ class Sphere
         let normalAttribLocation = shader.getParameter("aNormal");
 
         // Die Buffer hinzufügen
-        vertexArray.addBuffer(vb1, [posAttribLocation], 3);
-        vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
+        this.vertexArray.addBuffer(vb1, [posAttribLocation], 3);
+        this.vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
 
         // Falls eine Textur vorliegt, noch den BUffer für die Texturkoordinaten hinzufügen
         if (hasTexture)
         {
             const vb2 = new VertexBuffer(textureCoordinates);
             let texCoordsAttribLocation = shader.getParameter("aTexCoord");
-            vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
+            this.vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
 
-            // Das Element erstellen
-            this.gameObject = new GameObject(vertexArray, this.ib, texture);
+            // Das Material setzen
+            this.material = this.texture;
         }
         else
         {
-            // Das Element erstellen
-            this.gameObject = new GameObject(vertexArray, this.ib, color);
+            // Das Material setzen
+            this.material = this.color;
         }
     }
 

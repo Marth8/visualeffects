@@ -32,7 +32,7 @@ const normals = new Float32Array([
 /**
  * Klasse repäsentiert eine ebene Fläche.
  */
-class Plane
+class Plane extends GameObject
 {
     /**
      * Konstruktor zum Erstellen der Plane.
@@ -44,8 +44,10 @@ class Plane
      */
     constructor(shader, hasTexture, color, texture, hasNormals = true)
     {
+        super();
+
         // Parameter merken
-        this.ib = new IndexBuffer(indices);
+        this.indexBuffer = new IndexBuffer(indices);
         this.shader = shader;
         this.color = color;
         this.texture = texture;
@@ -55,17 +57,17 @@ class Plane
         this.shader.bind();
 
         // Vertexarray erstellen und VertexBuffer mit Positionen hinzufügen
-        let vertexArray = new VertexArray();
+        this.vertexArray = new VertexArray();
         const vb1 = new VertexBuffer(planePositions);
         let posAttribLocation = shader.getParameter("aPosition");
-        vertexArray.addBuffer(vb1, [posAttribLocation], 3);
+        this.vertexArray.addBuffer(vb1, [posAttribLocation], 3);
 
         // Falls die Normalen gefordert sind, diesen VertexBuffer erstellen und hinzufügen
         if (hasNormals)
         {
             const vb2 = new VertexBuffer(normals);
             let normalAttribLocation = shader.getParameter("aNormal");
-            vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
+            this.vertexArray.addBuffer(vb2, [normalAttribLocation], 3);
         }
         
         // Falls eine Texture gefordert ist, den Vertexbuffer für die Texturkoordinaten erstellen und hinzufügen
@@ -74,12 +76,15 @@ class Plane
         {
             const vb2 = new VertexBuffer(textureCoordinates);
             let texCoordsAttribLocation = shader.getParameter("aTexCoord");
-            vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
-            this.gameObject = new GameObject(vertexArray, this.ib, texture);
+            this.vertexArray.addBuffer(vb2, [texCoordsAttribLocation], 2);
+
+            // Das Material setzen
+            this.material = this.texture;
         }
         else
         {
-            this.gameObject = new GameObject(vertexArray, this.ib, color);
+            // Das Material setzen
+            this.material = this.color;
         }
     }    
 }

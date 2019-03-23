@@ -70,14 +70,14 @@ prepareCheckboxEvents();
 // Erstelle die Kapsel
 let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
 let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 4);
-let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, null, texture4);
-capsule.gameObject.transform.move([-1, 0.5, -3]);
+let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4);
+capsule.transform.move([-1, 0.5, -3]);
 
 // Erstelle den Mobster
 let objShader2 = new Shader(vertexShaderString, fragmentShaderColorString);
 let color = new Color(objShader2, 0.9, 0.7, 0.1);
-let object = new Object(objShader2, 'Resources/mobster.obj', 1, null, color);
-object.gameObject.transform.move([-3, 2, 2]);
+let object = new Object(objShader2, 'Resources/mobster.obj', 1, color);
+object.transform.move([-3, 2, 2]);
 
 // Erstelle den Cube
 let objShader3 = new Shader(vertexShaderString, fragmentShaderColorString);
@@ -87,21 +87,21 @@ color2.diffuse = [1, 1, 1];
 color2.specular = [1, 1, 1];
 color2.shininess = 77;
 let cube3 = new Cube(objShader3, false, color2, null);
-cube3.gameObject.transform.move([3, 4, -2]);
+cube3.transform.move([3, 4, -2]);
 
 // Erstelle die Groundplane
 let objShader4 = new Shader(vertexShaderString, fragmentShaderTextureString);
 let color3 = new Color(objShader4, 0.9, 0.1, 0.1);
 let textureGround = new Texture(objShader4, "Resources/woodGround.jpg", 5);
 let plane = new Cube(objShader4, true, color3, textureGround);
-plane.gameObject.transform.setScale([15, 0.1, 15]);
-plane.gameObject.transform.move([0, -1.5, 0]);
+plane.transform.setScale([15, 0.1, 15]);
+plane.transform.move([0, -1.5, 0]);
 
 // Erstelle die Sphere
 let objShader5 = new Shader(vertexShaderString, fragmentShaderColorString);
 let color5 = new Color(objShader5, 0, 0.5, 0);
 let sphere = new Sphere(objShader5, false, color5, null);
-sphere.gameObject.transform.move([4, 0.5, 2]);
+sphere.transform.move([4, 0.5, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden
 let objects = [plane, sphere, object, cube3, capsule];
@@ -154,20 +154,22 @@ function animate()
     // Cull-Face akitivieren
     gl.enable(gl.CULL_FACE);
 
+    
     // Reflektionsbild erzeugen
     reflectionFrameBuffer.bind();
     renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
     reflectionFrameBuffer.unbind();
     
+    /**
     // Reflektionsbild anzeigen
     let reflectiveShader = new Shader(vertexShaderDepthMapString, fragmentShaderReflectivePlaneString);
     let reflectiveTexture = new FrameBufferTexture(reflectiveShader, 1, 1, 1 ,32, 0, reflectionFrameBuffer.colorMap);
     let reflectivePlane = new Plane(reflectiveShader, true, null, reflectiveTexture, false);
     renderer.renderDepthPlane(reflectivePlane, camera);
-
+    */
     
     // Die Elemente zeichnen
-    //renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
+    renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
 
     // neu animieren
     requestAnimationFrame(animate);

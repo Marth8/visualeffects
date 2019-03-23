@@ -42,7 +42,7 @@ class Renderer
 
         // Die ModelViewMatrix erstellen und setzen
         let modelViewMatrix = mat4.create();
-        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.transform.getWorldMatrix());
         element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
 
         // Die Normalenmatrix erstellen und setzen
@@ -53,15 +53,15 @@ class Renderer
 
         // Die ModelViewProjectionMatrix erstellen und setzen
         let matrix = camera.getViewProjectionMatrix();
-        let modelMatrix = element.gameObject.transform.getWorldMatrix();
+        let modelMatrix = element.transform.getWorldMatrix();
         mat4.multiply(matrix, matrix, modelMatrix);
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
 
         // Die ModelMatrix setzen
-        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.gameObject.transform.getWorldMatrix());
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.transform.getWorldMatrix());
 
         // Das Objekt zeichnen
-        element.gameObject.draw();
+        element.draw();
     }
 
     /**
@@ -82,7 +82,7 @@ class Renderer
                 if(element.canBeDrawn)
                 {
                     let zMatrix = mat4.create();
-                    mat4.multiply(zMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+                    mat4.multiply(zMatrix, camera.getViewMatrix(), element.transform.getWorldMatrix());
                     let zPos = zMatrix[14];
                     sorting.push({element: element, z: zPos});
                 }
@@ -116,8 +116,8 @@ class Renderer
             if(light.type == "p" || light.type == "s")
             {
                 let lightCube = light.getLightCube();
-                lightCube.gameObject.transform.setScale([0.3, 0.3, 0.3]);
-                lightCube.gameObject.transform.move(light.position);
+                lightCube.transform.setScale([0.3, 0.3, 0.3]);
+                lightCube.transform.move(light.position);
                 this.drawElementWithoutLight(lightCube, camera);
             } 
         }
@@ -139,7 +139,7 @@ class Renderer
             if(element.canBeDrawn)
             {
                 let zMatrix = mat4.create();
-                mat4.multiply(zMatrix, camera.getViewMatrix(), element.gameObject.transform.getWorldMatrix());
+                mat4.multiply(zMatrix, camera.getViewMatrix(), element.transform.getWorldMatrix());
                 let zPos = zMatrix[14];
                 sorting.push({element: element, z: zPos});
             }
@@ -171,7 +171,7 @@ class Renderer
 
         // Die ModelViewmatrix setzen
         let modelViewMatrix = mat4.create();
-        let modelWorldMatrix = element.gameObject.transform.getWorldMatrix();
+        let modelWorldMatrix = element.transform.getWorldMatrix();
         mat4.multiply(modelViewMatrix, camera.getViewMatrix(), modelWorldMatrix);
         element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
 
@@ -183,12 +183,12 @@ class Renderer
 
         // Die ModelViewProjectionMatrix setzen
         let matrix = camera.getViewProjectionMatrix();
-        let modelMatrix = element.gameObject.transform.getWorldMatrix();
+        let modelMatrix = element.transform.getWorldMatrix();
         mat4.multiply(matrix, matrix, modelMatrix);
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
 
         // Die ModelMatrix setzen
-        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.gameObject.transform.getWorldMatrix());
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.transform.getWorldMatrix());
 
         // Die LightSpaceMatrix setzen
         element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
@@ -203,7 +203,7 @@ class Renderer
         element.shader.setUniform1i("shadowMap", 0); 
 
         // Zeichnen
-        element.gameObject.draw();
+        element.draw();
     }
     
     /**
@@ -218,12 +218,12 @@ class Renderer
 
         // Die ModelViewProjectionMatrix setzen
         let matrix = camera.getViewProjectionMatrix();
-        let modelMatrix = element.gameObject.transform.getWorldMatrix();
+        let modelMatrix = element.transform.getWorldMatrix();
         mat4.multiply(matrix, matrix, modelMatrix);
         element.shader.setUniformMatrix4fv("uTransform", false, matrix);
 
         // Das Objekt zeichnen
-        element.gameObject.draw(false);
+        element.draw(false);
     }
 
     /**
@@ -263,12 +263,12 @@ class Renderer
         {
             // Die Matrix des Elements aus dem Blick des Lichtes erstellen und setzen
             let uTransform = mat4.create();
-            let modelMatrix = element.gameObject.transform.getWorldMatrix();
+            let modelMatrix = element.transform.getWorldMatrix();
             mat4.multiply(uTransform, lightViewProjection, modelMatrix);
             this.gl.uniformMatrix4fv(this.gl.getUniformLocation(newProgram, "uTransform"), false, uTransform);
 
             // Die Elemente ohne Material zeichnen
-            element.gameObject.draw(false);
+            element.draw(false);
         };
     }
 
@@ -279,7 +279,7 @@ class Renderer
     renderDepthPlane(plane)
     {
         plane.shader.bind();
-        plane.gameObject.draw();
+        plane.draw();
     }
 
     /**
