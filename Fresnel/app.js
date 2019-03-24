@@ -20,6 +20,10 @@ import vertexShaderDepthMapString from './Shaders/VertexShaderDepthPlane.js';
 import fragmentShaderDepthMapString from './Shaders/FragmentShaderDepthPlane.js';
 import fragmentShaderReflectivePlaneString from './Shaders/FragmentShaderReflectivePlane.js';
 import fragmentShaderEmpricialFresnelString from './Shaders/FragmentShaderEmpricalFresnel.js';
+import CubeMap from './Classes/CubeMap.js';
+import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
+import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
+import Skybox from './Classes/Skybox.js';
 
 // Das Canvas holen, GL laden, Blending aktivieren und den aktuellen Path ermitteln
 const canvas = document.getElementById('c');
@@ -36,7 +40,6 @@ if (enableBlending)
 
 // Depthtest/Lequal aktivieren
 gl.enable(gl.DEPTH_TEST);
-gl.depthFunc(gl.LEQUAL);
 
 // Den Renderer erstellen
 let renderer = new Renderer();
@@ -56,11 +59,12 @@ const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
 const zNear = 0.1;
 const zFar = 1000.0;
 const projectionMatrix = mat4.create();
-mat4.perspective(projectionMatrix,
+/**mat4.perspective(projectionMatrix,
                  fieldOfView,
                  aspect,
                  zNear,
-                 zFar);
+                 zFar); */
+mat4.perspective(projectionMatrix, Math.PI/4, 1, 1, 100);
 let camera = new ViewCamera(projectionMatrix);
 camera.move([0, 0, -15]);
 
@@ -105,7 +109,7 @@ let sphere = new Sphere(objShader5, false, color5, null);
 sphere.transform.move([4, 0.5, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden
-let objects = [plane, sphere, object, cube3, capsule];
+let objects = [sphere, object, cube3, capsule];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);
@@ -119,7 +123,29 @@ renderer.addLight(sLight);
 let depthFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
 
 // Den reflectionFrameBuffer erstellen
-let reflectionFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth,);
+//let reflectionFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth,);
+
+// CubeMap erzeugen
+
+let paths = 
+[
+    "Resources/skybox/right.jpg",
+    "Resources/skybox/left.jpg",
+    "Resources/skybox/top.jpg",
+    "Resources/skybox/bottom.jpg",
+    "Resources/skybox/front.jpg",
+    "Resources/skybox/back.jpg",
+];
+/*
+let paths = [
+    "Resources/park/posx.jpg", "Resources/park/negx.jpg", 
+    "Resources/park/posy.jpg", "Resources/park/negy.jpg", 
+    "Resources/park/posz.jpg", "Resources/park/negz.jpg"
+];*/
+
+
+// Die Skybox erstellen
+let skybox = new Skybox(paths, 2);
 
 // Die Szene animieren
 requestAnimationFrame(() => animate());
@@ -132,6 +158,13 @@ function animate()
     // Die Szene clearen
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    if (!skybox.canBeDrawn())
+    {
+        // neu animieren
+        requestAnimationFrame(animate);
+        return;
+    }
+    
     // Das Tiefenbild erzeugen
     depthFrameBuffer.bind();
 
@@ -152,10 +185,10 @@ function animate()
     renderer.renderDepthPlane(depthPlane, camera);
     */
 
-    // Cull-Face akitivieren
+    // Cull-Face aktivieren
     gl.enable(gl.CULL_FACE);
 
-    
+    /*
     // Reflektionsbild erzeugen
     reflectionFrameBuffer.bind();
     renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
@@ -166,9 +199,13 @@ function animate()
     let reflectiveTexture = new FrameBufferTexture(reflectiveShader, 1, 1, 1 ,32, 0, reflectionFrameBuffer.colorMap);
     let reflectivePlane = new Plane(reflectiveShader, true, null, reflectiveTexture, false);
     renderer.renderDepthPlane(reflectivePlane, camera);
-    
+    */
+
     // Die Elemente zeichnen
-    //renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
+    renderer.drawElementsWithShadow(objects, camera, depthFrameBuffer.depthMap);
+
+    // Die Skybox zeichnen
+    renderer.renderSkybox(skybox, camera);
 
     // neu animieren
     requestAnimationFrame(animate);

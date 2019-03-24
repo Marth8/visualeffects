@@ -52,6 +52,14 @@ class ViewCamera extends Transform
     }
 
     /**
+     * Methode zum Ermitteln der ProjectionMatrix.
+     */
+    getProjectionMatrix()
+    {
+        return this.projectionMatrix;
+    }
+    
+    /**
      * Methode zum Ermitteln der Augenposition der Camera.
      */
     getEyePosition()

@@ -284,13 +284,46 @@ class Renderer
 
     /**
      * Methode zum Rendern der Reflektionsszene anhand des Elements, welches aktuell betrachtet wird.
-     * @param {*} elements Die Elemente, die gerendert werden
-     * @param {*} camera Die Kamera.
+     * @param {array} elements Die Elemente, die gerendert werden
+     * @param {ViewCamera} camera Die Kamera.
      * @param {*} element Das Element.
      */
     renderReflectiveSceneForElement(elements, camera, element)
     {
         this.drawElements(elements, camera);
+    }
+
+    /**
+     * Methode zum Rendern der Skybox.
+     * @param {Skybox} skybox Die Skybox.
+     * @param {ViewCamera} camera Die Camera.
+     */
+    renderSkybox(skybox, camera)
+    {
+        // Den shader binden
+        skybox.shader.bind();
+
+        // Die Viewmatrix holen und die Translation leer setzen
+        let cameraMatrix = camera.getViewMatrix();
+        let viewMatrix = mat4.create();
+        mat4.invert(viewMatrix, cameraMatrix);
+        viewMatrix[12] = 0;
+        viewMatrix[13] = 0;
+        viewMatrix[14] = 0;
+
+        // Die ViewDirectionProjectionMatrix neu zusammenabuen
+        let viewDirectionProjectionMatrix = mat4.create();
+        mat4.multiply(viewDirectionProjectionMatrix, camera.getProjectionMatrix(), viewMatrix);
+
+        // Die Rotation als mat4 setzen
+        skybox.shader.setUniformMatrix4fv("uTransform", false, viewDirectionProjectionMatrix);
+
+        // Die Camera(Eye)-Position setzen
+        let eyePosition = camera.getEyePosition();
+        //skybox.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
+
+        // Die Skybox zeichnen
+        skybox.draw();
     }
 
     /**
