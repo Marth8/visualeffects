@@ -68,6 +68,11 @@ class Renderer
         }
     }
 
+    drawReflectiveEnvMapElement(element, camera, envMap)
+    {
+        
+    }
+
     /**
      * Methode zum Zeichnen eines reflektiven Elements.
      * @param {*} element Das Element (Objekt, Cube, Sphere oder Plane).
