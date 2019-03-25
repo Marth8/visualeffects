@@ -78,10 +78,11 @@ class Cube extends GameObject
      * @param {boolean} hasTexture Ob der Cube eine Texture hat.
      * @param {Color} color Die Farbe des Cubes.
      * @param {Texture} texture Die Texture des Cubes.
+     * @param {int} type Der Typ des Objektes. (n = "normal", r = "full reflective").
      */
-    constructor(shader, hasTexture, color, texture)
+    constructor(shader, hasTexture, color, texture, type = "n")
     {
-        super();
+        super(type);
         
         // Den Indexbuffer erstellen
         this.indexBuffer = new IndexBuffer(indices);

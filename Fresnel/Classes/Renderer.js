@@ -28,109 +28,13 @@ class Renderer
     }
 
     /**
-     * Methode zum Zeichnen eines Elementes.
-     * @param {*} element Das Element (Object, Cube, Plane, Sphere, ..)
+     * Methode zum Rendern der Szene anhand des Typs der Objekte.
+     * @param {array} elements Die Elemente.
      * @param {ViewCamera} camera Die Kamera.
+     * @param {*} shadowMap Die Shadowmap
+     * @param {Skybox} skybox Die Skybox 
      */
-    drawElement(element, camera)
-    {
-        // Den Shader binden
-        element.shader.bind();
-
-        // Die Lichter binden
-        this.lights.forEach(value => value.bind(element.shader, camera));
-
-        // Die ModelViewMatrix erstellen und setzen
-        let modelViewMatrix = mat4.create();
-        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.transform.getWorldMatrix());
-        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
-
-        // Die Normalenmatrix erstellen und setzen
-        let normalMatrix = mat4.create();
-        mat4.invert(normalMatrix, modelViewMatrix);
-        mat4.transpose(normalMatrix, normalMatrix);
-        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
-
-        // Die ModelViewProjectionMatrix erstellen und setzen
-        let matrix = camera.getViewProjectionMatrix();
-        let modelMatrix = element.transform.getWorldMatrix();
-        mat4.multiply(matrix, matrix, modelMatrix);
-        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
-
-        // Die ModelMatrix setzen
-        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.transform.getWorldMatrix());
-
-        // Das Objekt zeichnen
-        element.draw();
-    }
-
-    /**
-     * Methode zum Zeichnen von mehreren Elementen
-     * @param {array} elements Die Elemente im Array.
-     * @param {ViewCamera} camera Die Kamera.
-     * @param {boolean} zSorting Ob zSorting durchgeführt werden soll.
-     */
-    drawElements(elements, camera, zSorting)
-    {
-        // Wenn z-Sorting durchgeführt werden soll.
-        if (zSorting)
-        {
-            // Den Elementen ihre zPosition zuordnen
-            const sorting = [];
-            for(let element of elements)
-            {
-                if(element.canBeDrawn)
-                {
-                    let zMatrix = mat4.create();
-                    mat4.multiply(zMatrix, camera.getViewMatrix(), element.transform.getWorldMatrix());
-                    let zPos = zMatrix[14];
-                    sorting.push({element: element, z: zPos});
-                }
-            }
-
-            // Die Elemente sortieren
-            sorting.sort((a, b) => a.z - b.z);
-
-            // Die Elemente anhand der Position zeichnen
-            for(let zElement of sorting)
-            {
-                this.drawElement(zElement.element, camera);
-            }
-        }
-        else
-        {
-            // Die Elemente zeichnen
-            for(let element of elements)
-            {
-                if(element.canBeDrawn)
-                {
-                    this.drawElement(element, camera);
-                }
-            }
-        }
-
-        /*
-        // Die Punkt- und Headlights noch als Cube zeichnen
-        for(let light of this.lights)
-        {
-            if(light.type == "p" || light.type == "s")
-            {
-                let lightCube = light.getLightCube();
-                lightCube.transform.setScale([0.3, 0.3, 0.3]);
-                lightCube.transform.move(light.position);
-                this.drawElementWithoutLight(lightCube, camera);
-            } 
-        }
-        */
-    }
-
-    /**
-     * Methode zum Zeichnen von Elementen mit Schatten.
-     * @param {array} elements Das Array der Elemente.
-     * @param {ViewCamera} camera Die Kamera.
-     * @param {*} shadowMap Die Texture der Tiefenmap.
-     */
-    drawElementsWithShadow(elements, camera, shadowMap, skybox)
+    render(elements, camera, shadowMap, skybox)
     {
         // Den Elementen ein z-Position geben
         const sorting = [];
@@ -151,8 +55,65 @@ class Renderer
         // Elemente anhand des z-Sortings zeichnen
         for(let zElement of sorting)
         {
-            this.drawElementWithShadow(zElement.element, camera, shadowMap, skybox);
+            switch(zElement.element.type)
+            {
+                case "r":
+                    this.drawReflectiveElement(zElement.element, camera, skybox);
+                    break;
+                case "n":
+                default: 
+                    this.drawElementWithShadow(zElement.element, camera, shadowMap, skybox);
+                    break;
+            }
         }
+    }
+
+    /**
+     * Methode zum Zeichnen eines reflektiven Elements.
+     * @param {*} element Das Element (Objekt, Cube, Sphere oder Plane).
+     * @param {ViewCamera} camera Die Kamera.
+     * @param {Skybox} skybox Die Skybox.
+     */
+    drawReflectiveElement(element, camera, skybox)
+    {
+        // Den Shader binden
+        element.shader.bind();
+
+        // Die ModelViewmatrix setzen
+        let modelViewMatrix = mat4.create();
+        let modelWorldMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), modelWorldMatrix);
+        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+
+        // Die Normalenmatrix setzen
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelWorldMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+
+        // Die ModelViewProjectionMatrix setzen
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        // Die ModelMatrix setzen
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.transform.getWorldMatrix());
+
+        // Die LightSpaceMatrix setzen
+        element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
+
+        // Die Camera(Eye)-Position setzen
+        let eyePosition = camera.getEyePosition();
+        element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
+
+        // Die Skybox setzen
+        this.gl.activeTexture(this.gl.TEXTURE0 + 2);
+        this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, skybox.cubeMap.texture);
+        element.shader.setUniform1i("skybox", 2);
+
+        // Zeichnen
+        element.draw(false);
     }
 
     /**
@@ -201,11 +162,6 @@ class Renderer
         this.gl.activeTexture(this.gl.TEXTURE0 + 0);
         this.gl.bindTexture(this.gl.TEXTURE_2D, shadowMap);
         element.shader.setUniform1i("shadowMap", 0); 
-
-        // Die Skybox setzen
-        this.gl.activeTexture(this.gl.TEXTURE0 + 2);
-        this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, skybox.cubeMap.texture);
-        element.shader.setUniform1i("skybox", 2);
 
         // Zeichnen
         element.draw();
@@ -329,6 +285,135 @@ class Renderer
 
         // Die Skybox zeichnen
         skybox.draw();
+    }
+
+    
+    /**
+     * Methode zum Zeichnen von Elementen mit Schatten.
+     * @param {array} elements Das Array der Elemente.
+     * @param {ViewCamera} camera Die Kamera.
+     * @param {*} shadowMap Die Texture der Tiefenmap.
+     */
+    drawElementsWithShadow(elements, camera, shadowMap, skybox)
+    {
+        // Den Elementen ein z-Position geben
+        const sorting = [];
+        for(let element of elements)
+        {
+            if(element.canBeDrawn)
+            {
+                let zMatrix = mat4.create();
+                mat4.multiply(zMatrix, camera.getViewMatrix(), element.transform.getWorldMatrix());
+                let zPos = zMatrix[14];
+                sorting.push({element: element, z: zPos});
+            }
+        }
+
+        // z-Sorting durchführen
+        sorting.sort((a, b) => a.z - b.z);
+
+        // Elemente anhand des z-Sortings zeichnen
+        for(let zElement of sorting)
+        {
+            this.drawElementWithShadow(zElement.element, camera, shadowMap, skybox);
+        }
+    }
+
+    /**
+     * Methode zum Zeichnen eines Elementes.
+     * @param {*} element Das Element (Object, Cube, Plane, Sphere, ..)
+     * @param {ViewCamera} camera Die Kamera.
+     */
+    drawElement(element, camera)
+    {
+        // Den Shader binden
+        element.shader.bind();
+
+        // Die Lichter binden
+        this.lights.forEach(value => value.bind(element.shader, camera));
+
+        // Die ModelViewMatrix erstellen und setzen
+        let modelViewMatrix = mat4.create();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), element.transform.getWorldMatrix());
+        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+
+        // Die Normalenmatrix erstellen und setzen
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelViewMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+
+        // Die ModelViewProjectionMatrix erstellen und setzen
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        // Die ModelMatrix setzen
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.transform.getWorldMatrix());
+
+        // Das Objekt zeichnen
+        element.draw();
+    }
+
+    /**
+     * Methode zum Zeichnen von mehreren Elementen
+     * @param {array} elements Die Elemente im Array.
+     * @param {ViewCamera} camera Die Kamera.
+     * @param {boolean} zSorting Ob zSorting durchgeführt werden soll.
+     */
+    drawElements(elements, camera, zSorting)
+    {
+        // Wenn z-Sorting durchgeführt werden soll.
+        if (zSorting)
+        {
+            // Den Elementen ihre zPosition zuordnen
+            const sorting = [];
+            for(let element of elements)
+            {
+                if(element.canBeDrawn)
+                {
+                    let zMatrix = mat4.create();
+                    mat4.multiply(zMatrix, camera.getViewMatrix(), element.transform.getWorldMatrix());
+                    let zPos = zMatrix[14];
+                    sorting.push({element: element, z: zPos});
+                }
+            }
+
+            // Die Elemente sortieren
+            sorting.sort((a, b) => a.z - b.z);
+
+            // Die Elemente anhand der Position zeichnen
+            for(let zElement of sorting)
+            {
+                this.drawElement(zElement.element, camera);
+            }
+        }
+        else
+        {
+            // Die Elemente zeichnen
+            for(let element of elements)
+            {
+                if(element.canBeDrawn)
+                {
+                    this.drawElement(element, camera);
+                }
+            }
+        }
+
+        /*
+        // Die Punkt- und Headlights noch als Cube zeichnen
+        for(let light of this.lights)
+        {
+            if(light.type == "p" || light.type == "s")
+            {
+                let lightCube = light.getLightCube();
+                lightCube.transform.setScale([0.3, 0.3, 0.3]);
+                lightCube.transform.move(light.position);
+                this.drawElementWithoutLight(lightCube, camera);
+            } 
+        }
+        */
     }
 
     /**

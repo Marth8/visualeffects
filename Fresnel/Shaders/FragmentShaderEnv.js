@@ -1,5 +1,4 @@
-const fragmentShaderSkyboxReflective =
-`
+const fragmentShaderEnvString = `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -9,14 +8,12 @@ uniform vec3 uColor;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying vec3 xPosition;
-varying vec4 vPositionLightSpace;
 uniform vec3 uEyePosition;
 uniform samplerCube skybox;
+
 void main() {
     vec3 normal = normalize(vNormal);
     vec3 I = normalize(xPosition - uEyePosition);
     vec3 R = reflect(I, normal);
     gl_FragColor = textureCube(skybox, R);
 }`;
-
-export default fragmentShaderSkyboxReflective

@@ -11,13 +11,14 @@ class GameObject
     /**
      * Konstruktor zum Erstellen des GameObjektes.
      */
-    constructor()
+    constructor(type = "r")
     {
         this.gl = GL.getGL();
         this.vertexArray = new VertexArray();
         this.indexBuffer = new IndexBuffer([]);
         this.material = null;
         this.transform  = new Transform();
+        this.type = type;
     }
 
     /**
