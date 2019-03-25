@@ -1,4 +1,4 @@
-const fragmentShaderEmpricialFresnelString =
+const fragmentShaderSkyboxReflective =
 `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -77,7 +77,6 @@ vec3 GetPointLight(PointLight pLight, vec3 normal);
 vec3 GetSpotLight(SpotLight sLight, vec3 normal);
 float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir);
 void main() {
-    float ratio = 1.00 / 1.52;
     vec3 normal = normalize(vNormal);
     vec3 result = GetDirectionalLight(dLight, normal);
     result += GetPointLight(pLight, normal);
@@ -191,4 +190,4 @@ float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir)
     return shadow;
 }`;
 
-export default fragmentShaderEmpricialFresnelString
+export default fragmentShaderSkyboxReflective

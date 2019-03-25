@@ -130,7 +130,7 @@ class Renderer
      * @param {ViewCamera} camera Die Kamera.
      * @param {*} shadowMap Die Texture der Tiefenmap.
      */
-    drawElementsWithShadow(elements, camera, shadowMap)
+    drawElementsWithShadow(elements, camera, shadowMap, skybox)
     {
         // Den Elementen ein z-Position geben
         const sorting = [];
@@ -151,7 +151,7 @@ class Renderer
         // Elemente anhand des z-Sortings zeichnen
         for(let zElement of sorting)
         {
-            this.drawElementWithShadow(zElement.element, camera, shadowMap);
+            this.drawElementWithShadow(zElement.element, camera, shadowMap, skybox);
         }
     }
 
@@ -161,7 +161,7 @@ class Renderer
      * @param {ViewCamera} camera Die Kamera.
      * @param {*} shadowMap Die Texture des Tiefenbildes.
      */
-    drawElementWithShadow(element, camera, shadowMap)
+    drawElementWithShadow(element, camera, shadowMap, skybox)
     {
         // Den Shader binden
         element.shader.bind();
@@ -201,6 +201,11 @@ class Renderer
         this.gl.activeTexture(this.gl.TEXTURE0 + 0);
         this.gl.bindTexture(this.gl.TEXTURE_2D, shadowMap);
         element.shader.setUniform1i("shadowMap", 0); 
+
+        // Die Skybox setzen
+        this.gl.activeTexture(this.gl.TEXTURE0 + 2);
+        this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, skybox.cubeMap.texture);
+        element.shader.setUniform1i("skybox", 2);
 
         // Zeichnen
         element.draw();

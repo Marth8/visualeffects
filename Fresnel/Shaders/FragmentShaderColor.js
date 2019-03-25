@@ -12,7 +12,6 @@ varying vec3 xPosition;
 varying vec4 vPositionLightSpace;
 uniform sampler2D shadowMap;
 uniform vec3 uEyePosition;
-
 struct DirectionalLight
 {
     vec3 color;
@@ -74,7 +73,6 @@ vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
 vec3 GetPointLight(PointLight pLight, vec3 normal);
 vec3 GetSpotLight(SpotLight sLight, vec3 normal);
 float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir);
-
 void main() {
     vec3 normal = normalize(vNormal);
     vec3 result = GetDirectionalLight(dLight, normal);
