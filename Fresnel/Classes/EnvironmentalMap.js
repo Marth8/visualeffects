@@ -1,45 +1,62 @@
+import FrameBuffer from './FrameBuffer.js';
+import GL from './GL.js';
 class EnvironmentalMap
 {
-    constructor(shader, slot, renderFunction)
+    constructor(slot, renderFunction, width, height)
     {
         // Kontext erstellen
         const gl = this.gl = GL.getGL();
 
         // Parameter merken
         this.slot = slot;
-        this.shader = shader;
+        this.renderFunction = renderFunction;
+        this.width = width;
+        this.height = height;
 
         // Textur erstellen und binden
-        this.texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.texture);
+        this.envMap = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.envMap);
 
-        // CubeMap erstmal mit roten Pixel füllen
-        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array([255, 0, 0, 255]));
-        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array([255, 0, 0, 255]));
-        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array([255, 0, 0, 255]));
-        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array([255, 0, 0, 255]));
-        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array([255, 0, 0, 255]));
-        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array([255, 0, 0, 255]));
+        for (let i = 0; i < 6; i++) {
+            gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, 512, 512, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        }
 
-        // Die Szene 6 mal anhand der Renderfunction rendern und die verschiedenen Bilder des von Framebuffer auf Cubemap speichern
-        /*
-        // Sobald geladen, das Bild auf die Textur setzen
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.texture);
-        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
-        */
+        this.rerender();
 
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.envMap);
+        
         gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
         gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+    }
+
+    /**
+     * Methode bindet die EnvMap.
+     */
+    bind()
+    {
+        // Die Textur aktivieren
+        this.gl.activeTexture(this.gl.TEXTURE0 + this.slot);
+        this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.envMap);
+    }
+
+    /**
+     * Methode zum erneuten rendern der envMap.
+     */
+    rerender()
+    {
+        // Die Szene 6 mal anhand der Renderfunction rendern und die verschiedenen Bilder des von Framebuffer auf Cubemap speichern
+        let framebuffer = new FrameBuffer(this.height, this.width);
+        for(let i = 0; i < 6; i++)
+        {
+            framebuffer.bind();
+            this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, this.envMap, 0);
+            this.renderFunction();
+            framebuffer.unbind();
+        }
     }
 }
 

@@ -60,6 +60,8 @@ class Renderer
                 case "r":
                     this.drawReflectiveElement(zElement.element, camera, skybox);
                     break;
+                case "e":
+                    this.drawReflectiveEnvMapElement(zElement.element, camera, skybox)
                 case "n":
                 default: 
                     this.drawElementWithShadow(zElement.element, camera, shadowMap, skybox);
@@ -70,7 +72,46 @@ class Renderer
 
     drawReflectiveEnvMapElement(element, camera, envMap)
     {
-        
+        // Den Shader binden
+        element.shader.bind();
+
+        // Die envMap binden
+        envMap.bind();
+
+        // Die ModelViewmatrix setzen
+        let modelViewMatrix = mat4.create();
+        let modelWorldMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), modelWorldMatrix);
+        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+
+        // Die Normalenmatrix setzen
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelWorldMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+
+        // Die ModelViewProjectionMatrix setzen
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        // Die ModelMatrix setzen
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.transform.getWorldMatrix());
+
+        // Die LightSpaceMatrix setzen
+        element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
+
+        // Die Camera(Eye)-Position setzen
+        let eyePosition = camera.getEyePosition();
+        element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
+
+        // Die InverseViewTransform setzen
+        // Die EnvMap setzen
+        element.shader.setUniform1i("envBox", envMap.slot);
+
+        // Zeichnen
+        element.draw(false);
     }
 
     /**

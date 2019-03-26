@@ -25,6 +25,8 @@ import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
 import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
 import Skybox from './Classes/Skybox.js';
 import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
+import EnvironmentalMap from './Classes/EnvironmentalMap.js';
+import fragmentShaderEnvString from './Shaders/FragmentShaderEnv.js';
 
 // Das Canvas holen, GL laden, Blending aktivieren und den aktuellen Path ermitteln
 const canvas = document.getElementById('c');
@@ -85,6 +87,7 @@ let color = new Color(objShader2, 0.9, 0.7, 0.1);
 let object = new Object(objShader2, 'Resources/mobster.obj', 1, color);
 object.transform.move([-3, 0, 2]);
 
+/*
 // Erstelle den Cube
 let objShader3 = new Shader(vertexShaderString, fragmentShaderEmpricialFresnelString);
 let color2 = new Color(objShader3, 0, 0.5, 0);
@@ -92,8 +95,9 @@ color2.ambient = [1, 1, 1];
 color2.diffuse = [1, 1, 1];
 color2.specular = [1, 1, 1];
 color2.shininess = 77;
-let cube3 = new Cube(objShader3, false, color2, null, "r");
+let cube3 = new Cube(objShader3, false, color2, null, "e");
 cube3.transform.move([0, 0, 0]);
+*/
 
 // Erstelle die Sphere
 let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
@@ -102,7 +106,7 @@ let sphere = new Sphere(objShader5, false, color5, null, "r");
 sphere.transform.move([4, -2, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden
-let objects = [sphere, object, cube3, capsule];
+let objects = [sphere, object, capsule];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);
@@ -135,9 +139,34 @@ let paths = [
     "Resources/park/posz.jpg", "Resources/park/negz.jpg"
 ];
 
+// Das Tiefenbild erzeugen
+depthFrameBuffer.bind();
+
+// Cull-Frace auf Front setzen
+gl.cullFace(gl.FRONT); 
+
+renderer.renderDepthScene(objects, dLight);
+depthFrameBuffer.unbind();
+
+// Cull-Face auf Back setzen
+gl.cullFace(gl.BACK);
 
 // Die Skybox erstellen
 let skybox = new Skybox(paths, 2);
+
+// Die Skybox zeichnen
+renderer.renderSkybox(skybox, camera);
+
+// Die Environment-Map zeichnen
+let environmentalMap = new EnvironmentalMap(6, () => renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox), canvas.clientWidth, canvas.clientHeight);
+let envShader = new Shader(vertexShaderString, fragmentShaderEnvString);
+let color2 = new Color(envShader, 0, 0.5, 0);
+color2.ambient = [1, 1, 1];
+color2.diffuse = [1, 1, 1];
+color2.specular = [1, 1, 1];
+color2.shininess = 77;
+let cube3 = new Cube(envShader, false, color2, null, "e");
+cube3.transform.move([0, 0, 0]);
 
 // Die Szene animieren
 requestAnimationFrame(() => animate());
@@ -156,26 +185,6 @@ function animate()
         requestAnimationFrame(animate);
         return;
     }
-    
-    // Das Tiefenbild erzeugen
-    depthFrameBuffer.bind();
-
-    // Cull-Frace auf Front setzen
-    gl.cullFace(gl.FRONT); 
-
-    renderer.renderDepthScene(objects, dLight);
-    depthFrameBuffer.unbind();
-
-    // Cull-Face auf Back setzen
-    gl.cullFace(gl.BACK);
-
-    /*
-    // Tiefenbild anzeigen
-    let depthShader = new Shader(vertexShaderDepthMapString, fragmentShaderDepthMapString);
-    let depthTexture = new FrameBufferTexture(depthShader, 1, 1, 1, 32, 0, depthFrameBuffer.depthMap);
-    let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
-    renderer.renderDepthPlane(depthPlane, camera);
-    */
 
     // Cull-Face aktivieren
     gl.enable(gl.CULL_FACE);
@@ -185,6 +194,12 @@ function animate()
 
     // Die Elemente zeichnen
     renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox);
+
+    // Die Environmentalmap neuzeichnen
+    environmentalMap.rerender();
+
+    // Das EnvMap-Element zeichnen
+    renderer.drawReflectiveEnvMapElement(cube3, camera, environmentalMap);
 
     // neu animieren
     requestAnimationFrame(animate);

@@ -17,7 +17,7 @@ void main() {
     vec3 normal = normalize(vNormal);
     vec3 I = normalize(xPosition - uEyePosition);
     vec3 R = reflect(I, normal);
-    ve3 T = inverseViewTransform * R;
+    vec3 T = inverseViewTransform * R;
     gl_FragColor = textureCube(envBox, R);
 }`;
 
