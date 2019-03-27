@@ -16,10 +16,10 @@ uniform mat3 inverseViewTransform;
 uniform samplerCube envBox;
 void main() {
     vec3 normal = normalize(vNormal);
-    vec3 I = normalize(xPosition - uEyePosition);
-    vec3 R = reflect(I, normal);
-    vec3 T = inverseViewTransform * R;
-    gl_FragColor = textureCube(envBox, R);
+    vec3 incident = normalize(xPosition - uEyePosition);
+    vec3 reflect = reflect(incident, normal);
+    vec3 T = inverseViewTransform * reflect;
+    gl_FragColor = vec4(vec3(textureCube(envBox, reflect)), 1.0);
 }`;
 
 export default fragmentShaderEnvString

@@ -18,6 +18,8 @@ import Skybox from './Classes/Skybox.js';
 import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
 import EnvironmentalMap from './Classes/EnvironmentalMap.js';
 import fragmentShaderEnvString from './Shaders/FragmentShaderEnv.js';
+import fragmentShaderSimpleString from './Shaders/FragmentShaderSimple.js';
+import vertexShaderSimpleString from './Shaders/VertexShaderSimple.js';
 
 // Das Canvas holen, GL laden, Blending aktivieren und den aktuellen Path ermitteln
 const canvas = document.getElementById('c');
@@ -57,34 +59,26 @@ camera.move([0, 0, -15]);
 prepareCanvasEvents();
 prepareCheckboxEvents();
 
-// Erstelle die Kapsel
-let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
-let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 4);
-let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4, "n");
-capsule.transform.move([-1, -2.5, -3]);
-
 // Erstelle den Mobster
-let objShader2 = new Shader(vertexShaderString, fragmentShaderColorString);
+let objShader2 = new Shader(vertexShaderSimpleString, fragmentShaderSimpleString);
 let color = new Color(objShader2, 0.9, 0.7, 0.1);
-let object = new Object(objShader2, 'Resources/mobster.obj', 1, color, null, "n");
+let object = new Object(objShader2, 'Resources/mobster.obj', 1, color, null, "s");
 object.transform.move([-3, 0, 2]);
 
 // Erstelle die Sphere
-let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
+let objShader5 = new Shader(vertexShaderSimpleString, fragmentShaderSimpleString);
 let color5 = new Color(objShader5, 0, 0.5, 0);
-let sphere = new Sphere(objShader5, false, color5, null, "fr");
+let sphere = new Sphere(objShader5, false, color5, null, "s");
 sphere.transform.move([4, -2, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden
-let objects = [sphere, object, capsule];
+let objects = [sphere, object];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);
 let pLight = new PointLight("pLight", [0, 1, 2], 1, 0.07, 0.17, 0.05, 0.5, 0.5);
-let sLight = new SpotLight("sLight", [2, 2, 5], [0, -1, -0], 12);
 renderer.addLight(dLight);
 renderer.addLight(pLight);
-renderer.addLight(sLight);
 
 // Den depthFrameBuffer erstellen
 let depthFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
@@ -153,7 +147,7 @@ function animate()
     renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox);
 
     // Die Environmentalmap neuzeichnen
-    environmentalMap.rerender();
+    //environmentalMap.rerender();
 
     // Das EnvMap-Element zeichnen
     renderer.drawReflectiveEnvMapElement(cube3, camera, environmentalMap);
@@ -181,14 +175,6 @@ function prepareCheckboxEvents()
             dLight.isOn = true;
         } else {
             dLight.isOn = false;
-        }
-    });
-
-    $("#spotlight").change((e) => {
-        if(document.getElementById('spotlight').checked) {
-            sLight.isOn = true;
-        } else {
-            sLight.isOn = false;
         }
     });
 }

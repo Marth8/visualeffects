@@ -55,12 +55,10 @@ uniform PointLight pLight;
 
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
 vec3 GetPointLight(PointLight pLight, vec3 normal);
-vec3 GetSpotLight(SpotLight sLight, vec3 normal);
 void main() {
     vec3 normal = normalize(vNormal);
     vec3 result = GetDirectionalLight(dLight, normal);
     result += GetPointLight(pLight, normal);
-    result += GetSpotLight(sLight, normal);
     gl_FragColor = vec4(result, uAlpha);
 }
 

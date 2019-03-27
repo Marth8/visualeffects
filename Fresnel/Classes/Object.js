@@ -16,7 +16,7 @@ class Object extends GameObject
      * @param {float} scaleFac Der Skalierungsfaktor.
      * @param {Color} color Die Farbe.
      * @param {Texture} texture Die Texture.
-     * @param {int} type Der Typ des Objektes. (n = "normal", r = "full reflective").
+     * @param {int} type Der Typ des Objektes. (n = "normal", fr = "full reflective", r = "reflective", s = "simple").
      * @param {Transform} transform Die Transformierung.
      */
     constructor(shader, file, scaleFac, color = null, texture = null, type = "n", transform = new Transform())

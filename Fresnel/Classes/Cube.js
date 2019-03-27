@@ -78,7 +78,7 @@ class Cube extends GameObject
      * @param {boolean} hasTexture Ob der Cube eine Texture hat.
      * @param {Color} color Die Farbe des Cubes.
      * @param {Texture} texture Die Texture des Cubes.
-     * @param {int} type Der Typ des Objektes. (n = "normal", r = "full reflective").
+     * @param {int} type Der Typ des Objektes. (n = "normal", fr = "full reflective", r = "reflective", s = "simple").
      */
     constructor(shader, hasTexture, color, texture, type = "n")
     {

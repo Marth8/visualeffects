@@ -14,7 +14,7 @@ class Sphere extends GameObject
      * @param {boolean} hasTexture Ob die Kugel eine Textur hat.
      * @param {Color} color Die Farbe der Kugel.
      * @param {Texture} texture Die Textur der Kugel.
-     * @param {int} type Der Typ der Kugel. (n = "normal", r = "full reflective").
+     * @param {int} type Der Typ der Kugel. (n = "normal", fr = "full reflective", r = "reflective", s = "simple").
      */
     constructor(shader, hasTexture, color, texture, type = "n")
     {

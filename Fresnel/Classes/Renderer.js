@@ -64,13 +64,59 @@ class Renderer
                     this.drawReflectiveElement(zElement.element, camera, shadowMap, skybox);
                     break;
                 case "e":
-                    this.drawReflectiveEnvMapElement(zElement.element, camera, skybox)
+                    this.drawReflectiveEnvMapElement(zElement.element, camera, skybox);
+                    break;
+                case "s":
+                    this.drawSimpleElement(zElement.element, camera);
+                    break;
                 case "n":
                 default: 
                     this.drawElementWithShadow(zElement.element, camera, shadowMap, skybox);
                     break;
             }
         }
+    }
+
+    /**
+     * Methode zum Zeichnen eines simplen Elements.
+     * @param {*} element Das Element.
+     * @param {ViewCamera} camera Die ViewCamera.
+     */
+    drawSimpleElement(element, camera)
+    {
+        // Den Shader binden
+        element.shader.bind();
+
+        // Die Lichter binden
+        this.lights.forEach(value => value.bind(element.shader, camera));
+
+        // Die ModelViewmatrix setzen
+        let modelViewMatrix = mat4.create();
+        let modelWorldMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), modelWorldMatrix);
+        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+
+        // Die Normalenmatrix setzen
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelWorldMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+
+        // Die ModelViewProjectionMatrix setzen
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        // Die ModelMatrix setzen
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.transform.getWorldMatrix());
+
+        // Die Camera(Eye)-Position setzen
+        let eyePosition = camera.getEyePosition();
+        element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
+
+        // Zeichnen
+        element.draw();
     }
 
     drawReflectiveEnvMapElement(element, camera, envMap)
@@ -229,7 +275,7 @@ class Renderer
      * @param {ViewCamera} camera Die Kamera.
      * @param {*} shadowMap Die Texture des Tiefenbildes.
      */
-    drawElementWithShadow(element, camera, shadowMap, skybox)
+    drawElementWithShadow(element, camera, shadowMap)
     {
         // Den Shader binden
         element.shader.bind();
