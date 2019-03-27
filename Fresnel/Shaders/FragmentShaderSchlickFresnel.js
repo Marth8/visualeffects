@@ -1,4 +1,4 @@
-const fragmentShaderEmpricialString =
+const fragmentShaderSchlickFresnelString =
 `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -197,4 +197,4 @@ float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir)
     return shadow;
 }`;
 
-export default fragmentShaderEmpricialString
+export default fragmentShaderSchlickFresnelString

@@ -89,7 +89,10 @@ void main() {
     vec3 reflectColor = vec3(textureCube(skybox, reflect));
 
     // Compute empirical fresnel
-    float fresnel = max(0.0, (1.0 - dot(-incident, normal)));
+    float fresnelPower = 1.0;
+    float fresnelBias = 0.0;
+    float fresnelScale = 1.0;
+    float fresnel = max(0.0, min(1.0, pow((1.0 + dot(incident, normal)) * fresnelScale + fresnelBias, fresnelPower)));
 
     vec3 color = mix(result, reflectColor, fresnel);
     
