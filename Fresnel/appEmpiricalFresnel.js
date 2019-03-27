@@ -78,7 +78,7 @@ prepareCheckboxEvents();
 let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
 let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 4);
 let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4);
-capsule.transform.move([-1, -2.5, -3]);
+capsule.transform.move([-1, -0.5, -3]);
 
 // Erstelle den Mobster
 let objShader2 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
@@ -100,10 +100,22 @@ cube3.transform.move([0, 0, 0]);
 let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
 let color5 = new Color(objShader5, 0, 0.5, 0);
 let sphere = new Sphere(objShader5, false, color5, null, "fr");
-sphere.transform.move([4, -2, 2]);
+sphere.transform.move([4, 0, 2]);
+
+// Erstelle plane
+let objShader4 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
+objShader4.bind();
+let color3 = new Color(objShader4, 0.9, 0.1, 0.1);
+color3.ambient = [1, 0.5, 0.31];
+color3.diffuse = [1, 0.5, 0.31];
+color3.specular = [0.5, 0.5, 0.5];
+color3.shininess = 32;
+let plane = new Cube(objShader4, false, color3, null, "r");
+plane.transform.setScale([20, 0.1, 20]);
+plane.transform.move([0, -3.5, 0]);
 
 // Erstelle die Objekte, welche gezeichnet werden
-let objects = [sphere, object, cube3, capsule];
+let objects = [sphere, object, cube3, capsule, plane];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);

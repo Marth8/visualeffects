@@ -82,10 +82,9 @@ void main() {
     result += GetPointLight(pLight, normal);
     result += GetSpotLight(sLight, normal);
 
+    // Compute reflect color
     vec3 incident = normalize(xPosition - uEyePosition);
     vec3 reflect = reflect(incident, normal);
-    vec3 refract = refract(incident, normal, 0.67);
-
     vec3 reflectColor = vec3(textureCube(skybox, reflect));
 
     // Compute empirical fresnel
@@ -97,9 +96,6 @@ void main() {
     vec3 color = mix(result, reflectColor, fresnel);
     
     gl_FragColor = vec4(color, uAlpha);
-
-    //gl_FragColor = textureCube(color, reflect);
-    //gl_FragColor = vec4(fresnel, 1.0);
 }
 
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)

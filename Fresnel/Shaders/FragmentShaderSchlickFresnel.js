@@ -78,25 +78,26 @@ float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir);
 void main() {
     vec3 normal = normalize(vNormal);
 
+    // compute normal coor
     vec3 result = GetDirectionalLight(dLight, normal);
     result += GetPointLight(pLight, normal);
     result += GetSpotLight(sLight, normal);
 
+    // compute reflect color
     vec3 incident = normalize(xPosition - uEyePosition);
     vec3 reflect = reflect(incident, normal);
-    vec3 refract = refract(incident, normal, 0.67);
-
     vec3 reflectColor = vec3(textureCube(skybox, reflect));
 
-    // Compute empirical fresnel
-    float fresnel = max(0.0, (1.0 - dot(-incident, normal)));
+    // compute empirical fresnel
+    float fresnelPower = 1.0;
+    float fresnelBias = 0.0;
+    float fresnelScale = 1.0;
+    float fresnel = max(0.0, min(1.0, pow((1.0 + dot(incident, normal)) * fresnelScale + fresnelBias, fresnelPower)));
 
+    // compute color with lerp
     vec3 color = mix(result, reflectColor, fresnel);
     
     gl_FragColor = vec4(color, uAlpha);
-
-    //gl_FragColor = textureCube(color, reflect);
-    //gl_FragColor = vec4(fresnel, 1.0);
 }
 
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
