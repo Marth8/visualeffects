@@ -11,19 +11,8 @@ import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
 import SpotLight from './Classes/SpotLight.js';
 import FrameBuffer from './Classes/FrameBuffer.js';
-import FrameBufferTexture from './Classes/FrameBufferTexture.js';
-import Plane from './Classes/Plane.js';
 import vertexShaderString from './Shaders/VertexShader.js';
-import fragmentShaderColorString from './Shaders/FragmentShaderColor.js';
-import fragmentShaderTextureString from './Shaders/FragmentShaderTexture.js';
-import vertexShaderDepthMapString from './Shaders/VertexShaderDepthPlane.js';
-import fragmentShaderDepthMapString from './Shaders/FragmentShaderDepthPlane.js';
-import fragmentShaderReflectivePlaneString from './Shaders/FragmentShaderReflectivePlane.js';
-import CubeMap from './Classes/CubeMap.js';
-import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
-import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
 import Skybox from './Classes/Skybox.js';
-import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
 import fragmentShaderEmpricialColorString from './Shaders/FragmentShaderEmpricialFresnelColor.js';
 import fragmentShaderEmpricialTextureString from './Shaders/FragmentShaderEmpricialFresnelTexture.js';
 
@@ -66,53 +55,52 @@ prepareCanvasEvents();
 prepareCheckboxEvents();
 
 // Erstelle die Kapsel
-let objShader = new Shader(vertexShaderString, fragmentShaderEmpricialTextureString);
-let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 4);
-let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4, "r");
-capsule.transform.move([-1, -0.5, -3]);
+let objShader1 = new Shader(vertexShaderString, fragmentShaderEmpricialTextureString);
+let texture1 = new Texture(objShader1, path + "Resources/capsule0.jpg", 4);
+let capsule1 = new Object(objShader1, 'Resources/capsule.obj', 1, null, texture1, "r");
+capsule1.transform.move([-1, -0.5, -3]);
 
 // Erstelle den Mobster
 let objShader2 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
-let color = new Color(objShader2, 0.9, 0.7, 0.1);
-let object = new Object(objShader2, 'Resources/mobster.obj', 1, color, null, "r");
-object.transform.move([-3, 0, 2]);
+let color2 = new Color(objShader2, 0.9, 0.7, 0.1);
+let object2 = new Object(objShader2, 'Resources/mobster.obj', 1, color2, null, "r");
+object2.transform.move([-3, 0, 2]);
 
 // Erstelle den Cube
 let objShader3 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
-let color2 = new Color(objShader3, 0, 0.5, 0, 1);
-color2.ambient = [1, 1, 1];
-color2.diffuse = [1, 1, 1];
-color2.specular = [1, 1, 1];
-color2.shininess = 77;
-let cube3 = new Cube(objShader3, false, color2, null, "r");
+let color3 = new Color(objShader3, 0, 0.5, 0, 1);
+color3.ambient = [1, 1, 1];
+color3.diffuse = [1, 1, 1];
+color3.specular = [1, 1, 1];
+color3.shininess = 77;
+let cube3 = new Cube(objShader3, false, color3, null, "r");
 cube3.transform.move([0, 2.5, 0]);
 
 // Erstelle die Sphere
-let objShader5 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
-let color5 = new Color(objShader5, 0, 0.5, 0.5);
-let sphere = new Sphere(objShader5, false, color5, null, "r");
-sphere.transform.move([4, 0, 2]);
+let objShader4 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
+let color4 = new Color(objShader4, 0, 0.5, 0.5);
+let sphere4 = new Sphere(objShader4, false, color4, null, "r");
+sphere4.transform.move([4, 0, 2]);
 
 // Erstelle einen weiteren Cube
-let objShader6 = new Shader(vertexShaderString, fragmentShaderEmpricialTextureString);
-let texture6 = new Texture(objShader6, path + 'Resources/rustediron2_basecolor.png', 3, 1.0);
-let cube2 = new Cube(objShader6, true, null, texture6, "r");
-cube2.transform.move([4, 2, -2]);
+let objShader5 = new Shader(vertexShaderString, fragmentShaderEmpricialTextureString);
+let texture5 = new Texture(objShader5, path + 'Resources/rustediron2_basecolor.png', 3, 1.0);
+let cube5 = new Cube(objShader5, true, null, texture5, "r");
+cube5.transform.move([4, 2, -2]);
 
 // Erstelle plane
-let objShader4 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
-objShader4.bind();
-let color3 = new Color(objShader4, 0.9, 0.1, 0.1);
-color3.ambient = [1, 0.5, 0.31];
-color3.diffuse = [1, 0.5, 0.31];
-color3.specular = [0.5, 0.5, 0.5];
-color3.shininess = 32;
-let plane = new Cube(objShader4, false, color3, null, "r");
-plane.transform.setScale([10, 0.1, 10]);
-plane.transform.move([0, -3.5, 0]);
+let objShader6 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
+let color6 = new Color(objShader6, 0.9, 0.1, 0.1);
+color6.ambient = [1, 0.5, 0.31];
+color6.diffuse = [1, 0.5, 0.31];
+color6.specular = [0.5, 0.5, 0.5];
+color6.shininess = 32;
+let plane6 = new Cube(objShader6, false, color6, null, "r");
+plane6.transform.setScale([10, 0.1, 10]);
+plane6.transform.move([0, -3.5, 0]);
 
 // Erstelle die Objekte, welche gezeichnet werden
-let objects = [sphere, cube2, object, cube3, capsule, plane];
+let objects = [sphere4, cube3, object2, cube5, capsule1, plane6];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);
