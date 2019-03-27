@@ -25,7 +25,8 @@ import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
 import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
 import Skybox from './Classes/Skybox.js';
 import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
-import fragmentShaderEmpricialString from './Shaders/FragmentShaderEmpricialFresnel.js';
+import fragmentShaderEmpricialColorString from './Shaders/FragmentShaderEmpricialFresnelColor.js';
+import fragmentShaderEmpricialTextureString from './Shaders/FragmentShaderEmpricialFresnelTexture.js';
 
 // Das Canvas holen, GL laden, Blending aktivieren und den aktuellen Path ermitteln
 const canvas = document.getElementById('c');
@@ -75,19 +76,19 @@ prepareCanvasEvents();
 prepareCheckboxEvents();
 
 // Erstelle die Kapsel
-let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
+let objShader = new Shader(vertexShaderString, fragmentShaderEmpricialTextureString);
 let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 4);
-let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4);
+let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4, "r");
 capsule.transform.move([-1, -0.5, -3]);
 
 // Erstelle den Mobster
-let objShader2 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
+let objShader2 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
 let color = new Color(objShader2, 0.9, 0.7, 0.1);
 let object = new Object(objShader2, 'Resources/mobster.obj', 1, color, null, "r");
 object.transform.move([-3, 0, 2]);
 
 // Erstelle den Cube
-let objShader3 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
+let objShader3 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
 let color2 = new Color(objShader3, 0, 0.5, 0, 1);
 color2.ambient = [1, 1, 1];
 color2.diffuse = [1, 1, 1];
@@ -97,13 +98,19 @@ let cube3 = new Cube(objShader3, false, color2, null, "r");
 cube3.transform.move([0, 2.5, 0]);
 
 // Erstelle die Sphere
-let objShader5 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
+let objShader5 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
 let color5 = new Color(objShader5, 0, 0.5, 0.5);
 let sphere = new Sphere(objShader5, false, color5, null, "r");
 sphere.transform.move([4, 0, 2]);
 
+// Erstelle eine weitere Sphere
+let objShader6 = new Shader(vertexShaderString, fragmentShaderEmpricialTextureString);
+let texture6 = new Texture(objShader6, path + 'Resources/rustediron2_basecolor.png', 3, 1.0);
+let cube2 = new Cube(objShader6, true, null, texture6, "r");
+cube2.transform.move([4, 2, -2]);
+
 // Erstelle plane
-let objShader4 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
+let objShader4 = new Shader(vertexShaderString, fragmentShaderEmpricialColorString);
 objShader4.bind();
 let color3 = new Color(objShader4, 0.9, 0.1, 0.1);
 color3.ambient = [1, 0.5, 0.31];
@@ -115,7 +122,7 @@ plane.transform.setScale([10, 0.1, 10]);
 plane.transform.move([0, -3.5, 0]);
 
 // Erstelle die Objekte, welche gezeichnet werden
-let objects = [sphere, object, cube3, capsule, plane];
+let objects = [sphere, cube2, object, cube3, capsule, plane];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);
@@ -153,7 +160,7 @@ let paths = [
 
 
 // Die Skybox erstellen
-let skybox = new Skybox(paths, 2);
+let skybox = new Skybox(paths, 1);
 
 // Die Szene animieren
 requestAnimationFrame(() => animate());

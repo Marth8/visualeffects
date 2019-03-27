@@ -24,7 +24,6 @@ import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
 import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
 import Skybox from './Classes/Skybox.js';
 import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
-import fragmentShaderEmpricialString from './Shaders/FragmentShaderEmpricialFresnel.js';
 import fragmentShaderSchlickFresnelString from './Shaders/fragmentShaderSchlickFresnel.js';
 
 
