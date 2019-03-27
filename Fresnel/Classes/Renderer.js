@@ -57,8 +57,11 @@ class Renderer
         {
             switch(zElement.element.type)
             {
+                case "fr":
+                    this.drawFullReflectiveElement(zElement.element, camera, skybox);
+                    break;
                 case "r":
-                    this.drawReflectiveElement(zElement.element, camera, skybox);
+                    this.drawReflectiveElement(zElement.element, camera, shadowMap, skybox);
                     break;
                 case "e":
                     this.drawReflectiveEnvMapElement(zElement.element, camera, skybox)
@@ -116,12 +119,69 @@ class Renderer
     }
 
     /**
+     * Methode zum Zeichnen eines Elements mit Schatten.
+     * @param {*} element Das Element (Objekt, Cube, Sphere oder Plane).
+     * @param {ViewCamera} camera Die Kamera.
+     * @param {*} shadowMap Die Texture des Tiefenbildes.
+     * @param {Skybox} skybox Die Skybox.
+     */
+    drawReflectiveElement(element, camera, shadowMap, skybox)
+    {
+        // Den Shader binden
+        element.shader.bind();
+
+        // Die Lichter binden
+        this.lights.forEach(value => value.bind(element.shader, camera));
+
+        // Die ModelViewmatrix setzen
+        let modelViewMatrix = mat4.create();
+        let modelWorldMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(modelViewMatrix, camera.getViewMatrix(), modelWorldMatrix);
+        element.shader.setUniformMatrix4fv("uModelViewMatrix", false, modelViewMatrix);
+
+        // Die Normalenmatrix setzen
+        let normalMatrix = mat4.create();
+        mat4.invert(normalMatrix, modelWorldMatrix);
+        mat4.transpose(normalMatrix, normalMatrix);
+        element.shader.setUniformMatrix4fv("uNormalMatrix", false, normalMatrix);
+
+        // Die ModelViewProjectionMatrix setzen
+        let matrix = camera.getViewProjectionMatrix();
+        let modelMatrix = element.transform.getWorldMatrix();
+        mat4.multiply(matrix, matrix, modelMatrix);
+        element.shader.setUniformMatrix4fv("uTransform", false, matrix);
+
+        // Die ModelMatrix setzen
+        element.shader.setUniformMatrix4fv("uModelMatrix", false, element.transform.getWorldMatrix());
+
+        // Die LightSpaceMatrix setzen
+        element.shader.setUniformMatrix4fv("lightSpaceMatrix", false, this.lightViewProjection);
+
+        // Die Camera(Eye)-Position setzen
+        let eyePosition = camera.getEyePosition();
+        element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
+
+        // Das Tiefenbild setzen
+        this.gl.activeTexture(this.gl.TEXTURE0 + 0);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, shadowMap);
+        element.shader.setUniform1i("shadowMap", 0); 
+
+        // Die Skybox setzen
+        this.gl.activeTexture(this.gl.TEXTURE0 + 2);
+        this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, skybox.cubeMap.texture);
+        element.shader.setUniform1i("skybox", 2);
+
+        // Zeichnen
+        element.draw();
+    }
+
+    /**
      * Methode zum Zeichnen eines reflektiven Elements.
      * @param {*} element Das Element (Objekt, Cube, Sphere oder Plane).
      * @param {ViewCamera} camera Die Kamera.
      * @param {Skybox} skybox Die Skybox.
      */
-    drawReflectiveElement(element, camera, skybox)
+    drawFullReflectiveElement(element, camera, skybox)
     {
         // Den Shader binden
         element.shader.bind();

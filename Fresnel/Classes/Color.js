@@ -32,7 +32,6 @@ class Color extends Material
     bind()
     {
         super.bind();
-        
         this.shader.setUniform3f("uColor", this.v0, this.v1, this.v2);
         this.shader.setUniform1f("uAlpha", this.alpha)
     }

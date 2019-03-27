@@ -1,4 +1,4 @@
-const fragmentShaderReflectRefractString =
+const fragmentShaderEmpricialString =
 `
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -71,11 +71,6 @@ uniform DirectionalLight dLight;
 uniform PointLight pLight;
 uniform SpotLight sLight;
 
-const float Eta = 0.67;          // Ratio of indices of refraction (air -> glass)
-const float FresnelPower = 10.0; // Controls degree of reflectivity at grazing angles
-const float F  = ((1.0 - Eta) * (1.0 - Eta)) / ((1.0 + Eta) * (1.0 + Eta));
-
-vec3 fresnelSchlick(float cosTheta, vec3 F0);
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal);
 vec3 GetPointLight(PointLight pLight, vec3 normal);
 vec3 GetSpotLight(SpotLight sLight, vec3 normal);
@@ -90,27 +85,18 @@ void main() {
     vec3 incident = normalize(xPosition - uEyePosition);
     vec3 reflect = reflect(incident, normal);
     vec3 refract = refract(incident, normal, 0.67);
-    vec3 wi = normalize(dLight.position - xPosition);
-    float cosTheta = max(dot(normal, wi), 0.0);
 
-    vec3 refractColor = vec3(textureCube(skybox, refract));
     vec3 reflectColor = vec3(textureCube(skybox, reflect));
 
-    vec3 F0 = vec3(0.04);
-    vec3 F = fresnelSchlick(cosTheta, F0);
-    vec3 ratio = F + (1.0 - F) * pow(1.0 - cosTheta, 1.0);
+    // Compute empirical fresnel
+    float fresnel = max(0.0, (1.0 - dot(-incident, normal)));
 
-    vec3 color = mix(result, reflectColor, ratio);
+    vec3 color = mix(result, reflectColor, fresnel);
     
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, uAlpha);
 
     //gl_FragColor = textureCube(color, reflect);
     //gl_FragColor = vec4(fresnel, 1.0);
-}
-
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
-{
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
@@ -211,4 +197,4 @@ float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir)
     return shadow;
 }`;
 
-export default fragmentShaderReflectRefractString
+export default fragmentShaderEmpricialString

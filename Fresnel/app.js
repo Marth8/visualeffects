@@ -80,13 +80,13 @@ let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4);
 capsule.transform.move([-1, -2.5, -3]);
 
 // Erstelle den Mobster
-let objShader2 = new Shader(vertexShaderString, fragmentShaderSchlickFresnelString);
+let objShader2 = new Shader(vertexShaderString, fragmentShaderColorString);
 let color = new Color(objShader2, 0.9, 0.7, 0.1);
 let object = new Object(objShader2, 'Resources/mobster.obj', 1, color);
 object.transform.move([-3, 0, 2]);
 
 // Erstelle den Cube
-let objShader3 = new Shader(vertexShaderString, fragmentShaderSchlickFresnelString);
+let objShader3 = new Shader(vertexShaderString, fragmentShaderColorString);
 let color2 = new Color(objShader3, 0, 0.5, 0);
 color2.ambient = [1, 1, 1];
 color2.diffuse = [1, 1, 1];
@@ -98,7 +98,7 @@ cube3.transform.move([0, 0, 0]);
 // Erstelle die Sphere
 let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
 let color5 = new Color(objShader5, 0, 0.5, 0);
-let sphere = new Sphere(objShader5, false, color5, null, "r");
+let sphere = new Sphere(objShader5, false, color5, null, "fr");
 sphere.transform.move([4, -2, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden

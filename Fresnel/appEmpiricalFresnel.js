@@ -25,7 +25,7 @@ import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
 import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
 import Skybox from './Classes/Skybox.js';
 import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
-import fragmentShaderReflectRefractString from './Shaders/FragmentShaderReflectRefract.js';
+import fragmentShaderEmpricialString from './Shaders/FragmentShaderEmpricialFresnel.js';
 
 // Das Canvas holen, GL laden, Blending aktivieren und den aktuellen Path ermitteln
 const canvas = document.getElementById('c');
@@ -81,14 +81,14 @@ let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4);
 capsule.transform.move([-1, -2.5, -3]);
 
 // Erstelle den Mobster
-let objShader2 = new Shader(vertexShaderString, fragmentShaderColorString);
+let objShader2 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
 let color = new Color(objShader2, 0.9, 0.7, 0.1);
-let object = new Object(objShader2, 'Resources/mobster.obj', 1, color);
+let object = new Object(objShader2, 'Resources/mobster.obj', 1, color, null, "r");
 object.transform.move([-3, 0, 2]);
 
 // Erstelle den Cube
-let objShader3 = new Shader(vertexShaderString, fragmentShaderReflectRefractString);
-let color2 = new Color(objShader3, 0, 0.5, 0);
+let objShader3 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
+let color2 = new Color(objShader3, 0, 0.5, 0, 1);
 color2.ambient = [1, 1, 1];
 color2.diffuse = [1, 1, 1];
 color2.specular = [1, 1, 1];
@@ -99,7 +99,7 @@ cube3.transform.move([0, 0, 0]);
 // Erstelle die Sphere
 let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
 let color5 = new Color(objShader5, 0, 0.5, 0);
-let sphere = new Sphere(objShader5, false, color5, null, "r");
+let sphere = new Sphere(objShader5, false, color5, null, "fr");
 sphere.transform.move([4, -2, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden
@@ -120,6 +120,7 @@ let depthFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
 //let reflectionFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth,);
 
 // CubeMap erzeugen
+
 /*
 let paths = 
 [
@@ -129,12 +130,14 @@ let paths =
     "Resources/skybox/bottom.jpg",
     "Resources/skybox/front.jpg",
     "Resources/skybox/back.jpg",
-];*/
+];
+*/
 let paths = [
     "Resources/park/posx.jpg", "Resources/park/negx.jpg", 
     "Resources/park/posy.jpg", "Resources/park/negy.jpg", 
     "Resources/park/posz.jpg", "Resources/park/negz.jpg"
 ];
+
 
 
 // Die Skybox erstellen

@@ -102,7 +102,7 @@ cube3.transform.move([0, 0, 0]);
 // Erstelle die Sphere
 let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
 let color5 = new Color(objShader5, 0, 0.5, 0);
-let sphere = new Sphere(objShader5, false, color5, null, "r");
+let sphere = new Sphere(objShader5, false, color5, null, "fr");
 sphere.transform.move([4, -2, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden
