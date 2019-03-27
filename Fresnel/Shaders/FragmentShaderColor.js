@@ -6,6 +6,7 @@ precision highp float;
 precision mediump float;
 #endif
 uniform vec3 uColor;
+uniform float uAlpha;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying vec3 xPosition;
@@ -78,7 +79,7 @@ void main() {
     vec3 result = GetDirectionalLight(dLight, normal);
     result += GetPointLight(pLight, normal);
     result += GetSpotLight(sLight, normal);
-    gl_FragColor = vec4(result, 1.0);
+    gl_FragColor = vec4(result, uAlpha);
 }
 
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)

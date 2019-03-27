@@ -107,6 +107,7 @@ class Renderer
         element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
 
         // Die InverseViewTransform setzen
+        
         // Die EnvMap setzen
         element.shader.setUniform1i("envBox", envMap.slot);
 

@@ -17,13 +17,13 @@ class Color extends Material
      * @param {float} v2 Der dritte Farbwert.
      * @param {float} v3 Der vierte Farbwert.
      */
-    constructor(shader, v0, v1, v2, v3 = null, ambient= [1.0, 0.5, 0.31], diffuse = [1.0, 0.5, 0.31], specular = [0.5, 0.5, 0.5], shininess = 32.0)
+    constructor(shader, v0, v1, v2, alpha = 1.0, ambient= [1.0, 0.5, 0.31], diffuse = [1.0, 0.5, 0.31], specular = [0.5, 0.5, 0.5], shininess = 32.0)
     {
         super(shader, ambient, diffuse, specular, shininess);
         this.v0 = v0; 
         this.v1 = v1;
         this.v2 = v2;
-        this.v3 = v3;
+        this.alpha = alpha;
     }
 
     /**
@@ -33,15 +33,8 @@ class Color extends Material
     {
         super.bind();
         
-        // Je nach Anzahl der Parameter die Farbe setzen.
-        if(!this.v3)
-        {
-            this.shader.setUniform3f("uColor", this.v0, this.v1, this.v2);
-        }
-        else
-        {
-            this.shader.setUniform4f("uColor", this.v0, this.v1, this.v2, this.v3);
-        }
+        this.shader.setUniform3f("uColor", this.v0, this.v1, this.v2);
+        this.shader.setUniform1f("uAlpha", this.alpha)
     }
 
 }
