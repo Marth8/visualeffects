@@ -64,6 +64,7 @@ struct Material
     vec3 diffuse;
     vec3 specular;
     float shininess;
+    float metalness;
 };
 
 uniform Material material;
@@ -78,24 +79,29 @@ float ShadowCalculation(vec4 vPositionLightSpace, vec3 normal, vec3 lightDir);
 void main() {
     vec3 normal = normalize(vNormal);
 
-    // compute normal coor
+    // compute light intensity
     vec3 result = GetDirectionalLight(dLight, normal);
     result += GetPointLight(pLight, normal);
     result += GetSpotLight(sLight, normal);
 
+    // compute normal color
+    vec3 refractColor = result * uColor;
+
     // compute reflect color
     vec3 incident = normalize(xPosition - uEyePosition);
     vec3 reflect = reflect(incident, normal);
-    vec3 reflectColor = vec3(textureCube(skybox, reflect));
+    vec3 reflectColor = vec3(textureCube(skybox, reflect)) * result;
 
-    // compute empirical fresnel
+    // set f0 for dialetics (approximation of F0 value)
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, uColor, material.metalness);
+
+    // computer fresnel by schlick
     float fresnelPower = 1.0;
-    float fresnelBias = 0.0;
-    float fresnelScale = 1.0;
-    float fresnel = max(0.0, min(1.0, pow((1.0 + dot(incident, normal)) * fresnelScale + fresnelBias, fresnelPower)));
+    vec3 fresnel = F0 + (1.0 - F0) * pow(1.0 - dot(-incident, normal), fresnelPower);
 
     // compute color with lerp
-    vec3 color = mix(result, reflectColor, fresnel);
+    vec3 color = mix(refractColor, reflectColor, fresnel);
     
     gl_FragColor = vec4(color, uAlpha);
 }
@@ -121,7 +127,7 @@ vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
     float shadow = ShadowCalculation(vPositionLightSpace, normal, lightDir);       
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular));  
 
-    return lighting * uColor;
+    return lighting;
 }
 
 vec3 GetPointLight(PointLight pLight, vec3 normal)
@@ -148,7 +154,7 @@ vec3 GetPointLight(PointLight pLight, vec3 normal)
     diffuse *= attenuation;
     specular *= attenuation;
 
-    return (diffuse + ambient + specular) * uColor;
+    return (diffuse + ambient + specular);
 }
 
 vec3 GetSpotLight(SpotLight sLight, vec3 normal)
@@ -173,7 +179,7 @@ vec3 GetSpotLight(SpotLight sLight, vec3 normal)
         float spec = pow(max(dot(normal, halfway), 0.0), material.shininess);
         vec3 specular = sLight.specular * (spec * material.specular * sLight.color);
         
-        return (diffuse + ambient + specular) * uColor;
+        return (diffuse + ambient + specular);
     }
     else
     {

@@ -12,9 +12,9 @@ class Texture extends Material{
      * @param {string} path Der Pfad zur Textur.
      * @param {int} slot Der Texturslot.
      */
-    constructor(shader, path, slot = 0, ambient= [1.0, 0.5, 0.31], diffuse = [1.0, 0.5, 0.31], specular = [0.5, 0.5, 0.5], shininess = 32.0)
+    constructor(shader, path, slot = 0, ambient= [1.0, 0.5, 0.31], diffuse = [1.0, 0.5, 0.31], specular = [0.5, 0.5, 0.5], shininess = 32.0, metalness = 0.0)
     {
-        super(shader, ambient, diffuse, specular, shininess);
+        super(shader, ambient, diffuse, specular, shininess, metalness);
 
         // Kontext erstellen
         const gl = this.gl = GL.getGL();
@@ -68,6 +68,7 @@ class Texture extends Material{
         this.shader.setUniform3f("material.ambient", this.ambient[0], this.ambient[1], this.ambient[2]);
         this.shader.setUniform1i("material.diffuse", this.slot);
         this.shader.setUniform1f("material.shininess", this.shininess);
+        this.shader.setUniform1f("material.metalness", this.metalness);
     }
 
 }

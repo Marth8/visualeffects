@@ -61,6 +61,7 @@ struct Material
     sampler2D diffuse;
     vec3 ambient;
     float shininess;
+    float metalness;
 };
 
 uniform Material material;

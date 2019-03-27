@@ -115,9 +115,6 @@ renderer.addLight(sLight);
 // Den depthFrameBuffer erstellen
 let depthFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
 
-// Den reflectionFrameBuffer erstellen
-//let reflectionFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth,);
-
 // CubeMap erzeugen
 /*
 let paths = 

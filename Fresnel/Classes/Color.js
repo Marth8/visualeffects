@@ -17,9 +17,9 @@ class Color extends Material
      * @param {float} v2 Der dritte Farbwert.
      * @param {float} v3 Der vierte Farbwert.
      */
-    constructor(shader, v0, v1, v2, alpha = 1.0, ambient= [1.0, 0.5, 0.31], diffuse = [1.0, 0.5, 0.31], specular = [0.5, 0.5, 0.5], shininess = 32.0)
+    constructor(shader, v0, v1, v2, alpha = 1.0, ambient= [1.0, 0.5, 0.31], diffuse = [1.0, 0.5, 0.31], specular = [0.5, 0.5, 0.5], shininess = 32.0, metalness = 0.0)
     {
-        super(shader, ambient, diffuse, specular, shininess);
+        super(shader, ambient, diffuse, specular, shininess, metalness);
         this.v0 = v0; 
         this.v1 = v1;
         this.v2 = v2;

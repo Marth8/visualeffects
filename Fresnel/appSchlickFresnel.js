@@ -79,11 +79,12 @@ prepareCheckboxEvents();
 let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
 let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 4);
 let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4);
-capsule.transform.move([-1, -2.5, -3]);
+capsule.transform.move([-1, -0.5, -3]);
 
 // Erstelle den Mobster
 let objShader2 = new Shader(vertexShaderString, fragmentShaderSchlickFresnelString);
 let color = new Color(objShader2, 0.9, 0.7, 0.1);
+color.metalness = 0.5;
 let object = new Object(objShader2, 'Resources/mobster.obj', 1, color, null, "r");
 object.transform.move([-3, 0, 2]);
 
@@ -95,16 +96,25 @@ color2.diffuse = [1, 1, 1];
 color2.specular = [1, 1, 1];
 color2.shininess = 77;
 let cube3 = new Cube(objShader3, false, color2, null, "r");
-cube3.transform.move([0, 0, 0]);
+cube3.transform.move([0, 3, 0]);
 
 // Erstelle die Sphere
-let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
-let color5 = new Color(objShader5, 0, 0.5, 0);
-let sphere = new Sphere(objShader5, false, color5, null, "fr");
-sphere.transform.move([4, -2, 2]);
+let objShader5 = new Shader(vertexShaderString, fragmentShaderSchlickFresnelString);
+let color5 = new Color(objShader5, 0, 0.5, 0.5);
+let sphere = new Sphere(objShader5, false, color5, null, "r");
+sphere.transform.move([4, 2.5, 2]);
 
-// Erstelle die Objekte, welche gezeichnet werden
-let objects = [sphere, object, cube3, capsule];
+// Erstelle plane
+let objShader4 = new Shader(vertexShaderString, fragmentShaderSchlickFresnelString);
+objShader4.bind();
+let color3 = new Color(objShader4, 0.9, 0.1, 0.1);
+color3.ambient = [1, 0.5, 0.31];
+color3.diffuse = [1, 0.5, 0.31];
+color3.specular = [0.5, 0.5, 0.5];
+color3.shininess = 32;
+let plane = new Cube(objShader4, false, color3, null, "r");
+plane.transform.setScale([10, 0.1, 10]);
+plane.transform.move([0, -3.5, 0]);
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);
@@ -114,11 +124,11 @@ renderer.addLight(dLight);
 renderer.addLight(pLight);
 renderer.addLight(sLight);
 
+// Erstelle die Objekte, welche gezeichnet werden
+let objects = [sphere, object, cube3, capsule, plane];
+
 // Den depthFrameBuffer erstellen
 let depthFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
-
-// Den reflectionFrameBuffer erstellen
-//let reflectionFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth,);
 
 // CubeMap erzeugen
 

@@ -94,12 +94,12 @@ color2.diffuse = [1, 1, 1];
 color2.specular = [1, 1, 1];
 color2.shininess = 77;
 let cube3 = new Cube(objShader3, false, color2, null, "r");
-cube3.transform.move([0, 0, 0]);
+cube3.transform.move([0, 2.5, 0]);
 
 // Erstelle die Sphere
-let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
-let color5 = new Color(objShader5, 0, 0.5, 0);
-let sphere = new Sphere(objShader5, false, color5, null, "fr");
+let objShader5 = new Shader(vertexShaderString, fragmentShaderEmpricialString);
+let color5 = new Color(objShader5, 0, 0.5, 0.5);
+let sphere = new Sphere(objShader5, false, color5, null, "r");
 sphere.transform.move([4, 0, 2]);
 
 // Erstelle plane
@@ -111,7 +111,7 @@ color3.diffuse = [1, 0.5, 0.31];
 color3.specular = [0.5, 0.5, 0.5];
 color3.shininess = 32;
 let plane = new Cube(objShader4, false, color3, null, "r");
-plane.transform.setScale([20, 0.1, 20]);
+plane.transform.setScale([10, 0.1, 10]);
 plane.transform.move([0, -3.5, 0]);
 
 // Erstelle die Objekte, welche gezeichnet werden
