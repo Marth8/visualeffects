@@ -11,18 +11,9 @@ import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
 import SpotLight from './Classes/SpotLight.js';
 import FrameBuffer from './Classes/FrameBuffer.js';
-import FrameBufferTexture from './Classes/FrameBufferTexture.js';
-import Plane from './Classes/Plane.js';
 import vertexShaderString from './Shaders/VertexShader.js';
 import fragmentShaderColorString from './Shaders/FragmentShaderColor.js';
 import fragmentShaderTextureString from './Shaders/FragmentShaderTexture.js';
-import vertexShaderDepthMapString from './Shaders/VertexShaderDepthPlane.js';
-import fragmentShaderDepthMapString from './Shaders/FragmentShaderDepthPlane.js';
-import fragmentShaderReflectivePlaneString from './Shaders/FragmentShaderReflectivePlane.js';
-import fragmentShaderSchlickFresnelString from './Shaders/FragmentShaderSchlickFresnel.js';
-import CubeMap from './Classes/CubeMap.js';
-import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
-import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
 import Skybox from './Classes/Skybox.js';
 import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
 

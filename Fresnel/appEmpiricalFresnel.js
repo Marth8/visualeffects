@@ -19,7 +19,6 @@ import fragmentShaderTextureString from './Shaders/FragmentShaderTexture.js';
 import vertexShaderDepthMapString from './Shaders/VertexShaderDepthPlane.js';
 import fragmentShaderDepthMapString from './Shaders/FragmentShaderDepthPlane.js';
 import fragmentShaderReflectivePlaneString from './Shaders/FragmentShaderReflectivePlane.js';
-import fragmentShaderSchlickFresnelString from './Shaders/FragmentShaderSchlickFresnel.js';
 import CubeMap from './Classes/CubeMap.js';
 import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
 import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
@@ -57,16 +56,7 @@ gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight)
 renderer.clear();
 
 // Die Kamera mit der Prespektivenmatrix erstellen
-const fieldOfView = 45 * Math.PI / 180;   // in radians
-const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-const zNear = 0.1;
-const zFar = 1000.0;
 const projectionMatrix = mat4.create();
-/**mat4.perspective(projectionMatrix,
-                 fieldOfView,
-                 aspect,
-                 zNear,
-                 zFar); */
 mat4.perspective(projectionMatrix, Math.PI/4, 1, 1, 100);
 let camera = new ViewCamera(projectionMatrix);
 camera.move([0, 0, -15]);
@@ -103,7 +93,7 @@ let color5 = new Color(objShader5, 0, 0.5, 0.5);
 let sphere = new Sphere(objShader5, false, color5, null, "r");
 sphere.transform.move([4, 0, 2]);
 
-// Erstelle eine weitere Sphere
+// Erstelle einen weiteren Cube
 let objShader6 = new Shader(vertexShaderString, fragmentShaderEmpricialTextureString);
 let texture6 = new Texture(objShader6, path + 'Resources/rustediron2_basecolor.png', 3, 1.0);
 let cube2 = new Cube(objShader6, true, null, texture6, "r");
@@ -135,29 +125,12 @@ renderer.addLight(sLight);
 // Den depthFrameBuffer erstellen
 let depthFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
 
-// Den reflectionFrameBuffer erstellen
-//let reflectionFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth,);
-
-// CubeMap erzeugen
-
-/*
-let paths = 
-[
-    "Resources/skybox/right.jpg",
-    "Resources/skybox/left.jpg",
-    "Resources/skybox/top.jpg",
-    "Resources/skybox/bottom.jpg",
-    "Resources/skybox/front.jpg",
-    "Resources/skybox/back.jpg",
-];
-*/
+// SkyBox erzeugen
 let paths = [
     "Resources/park/posx.jpg", "Resources/park/negx.jpg", 
     "Resources/park/posy.jpg", "Resources/park/negy.jpg", 
     "Resources/park/posz.jpg", "Resources/park/negz.jpg"
 ];
-
-
 
 // Die Skybox erstellen
 let skybox = new Skybox(paths, 1);
@@ -173,6 +146,7 @@ function animate()
     // Die Szene clearen
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    // Wenn die Skybox noch nicht fertig ist, noch nicht zeichnen
     if (!skybox.canBeDrawn())
     {
         // neu animieren
@@ -186,19 +160,12 @@ function animate()
     // Cull-Frace auf Front setzen
     gl.cullFace(gl.FRONT); 
 
+    // Tiefenbild rendern
     renderer.renderDepthScene(objects, dLight);
     depthFrameBuffer.unbind();
 
     // Cull-Face auf Back setzen
     gl.cullFace(gl.BACK);
-
-    /*
-    // Tiefenbild anzeigen
-    let depthShader = new Shader(vertexShaderDepthMapString, fragmentShaderDepthMapString);
-    let depthTexture = new FrameBufferTexture(depthShader, 1, 1, 1, 32, 0, depthFrameBuffer.depthMap);
-    let depthPlane = new Plane(depthShader, true, null, depthTexture, false);
-    renderer.renderDepthPlane(depthPlane, camera);
-    */
 
     // Cull-Face aktivieren
     gl.enable(gl.CULL_FACE);
