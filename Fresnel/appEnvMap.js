@@ -11,18 +11,9 @@ import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
 import SpotLight from './Classes/SpotLight.js';
 import FrameBuffer from './Classes/FrameBuffer.js';
-import FrameBufferTexture from './Classes/FrameBufferTexture.js';
-import Plane from './Classes/Plane.js';
 import vertexShaderString from './Shaders/VertexShader.js';
 import fragmentShaderColorString from './Shaders/FragmentShaderColor.js';
 import fragmentShaderTextureString from './Shaders/FragmentShaderTexture.js';
-import vertexShaderDepthMapString from './Shaders/VertexShaderDepthPlane.js';
-import fragmentShaderDepthMapString from './Shaders/FragmentShaderDepthPlane.js';
-import fragmentShaderReflectivePlaneString from './Shaders/FragmentShaderReflectivePlane.js';
-import fragmentShaderEmpricialFresnelString from './Shaders/FragmentShaderEmpricalFresnel.js';
-import CubeMap from './Classes/CubeMap.js';
-import fragmentShaderSkyboxString from './Shaders/FragmentShaderSkybox.js';
-import vertexShaderSkyboxString from './Shaders/VertexShaderSkybox.js';
 import Skybox from './Classes/Skybox.js';
 import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
 import EnvironmentalMap from './Classes/EnvironmentalMap.js';
@@ -57,16 +48,7 @@ gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight)
 renderer.clear();
 
 // Die Kamera mit der Prespektivenmatrix erstellen
-const fieldOfView = 45 * Math.PI / 180;   // in radians
-const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-const zNear = 0.1;
-const zFar = 1000.0;
 const projectionMatrix = mat4.create();
-/**mat4.perspective(projectionMatrix,
-                 fieldOfView,
-                 aspect,
-                 zNear,
-                 zFar); */
 mat4.perspective(projectionMatrix, Math.PI/4, 1, 1, 100);
 let camera = new ViewCamera(projectionMatrix);
 camera.move([0, 0, -15]);
@@ -78,26 +60,14 @@ prepareCheckboxEvents();
 // Erstelle die Kapsel
 let objShader = new Shader(vertexShaderString, fragmentShaderTextureString);
 let texture4 = new Texture(objShader, path + "Resources/capsule0.jpg", 4);
-let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4);
+let capsule = new Object(objShader, 'Resources/capsule.obj', 1, null, texture4, "n");
 capsule.transform.move([-1, -2.5, -3]);
 
 // Erstelle den Mobster
 let objShader2 = new Shader(vertexShaderString, fragmentShaderColorString);
 let color = new Color(objShader2, 0.9, 0.7, 0.1);
-let object = new Object(objShader2, 'Resources/mobster.obj', 1, color);
+let object = new Object(objShader2, 'Resources/mobster.obj', 1, color, null, "n");
 object.transform.move([-3, 0, 2]);
-
-/*
-// Erstelle den Cube
-let objShader3 = new Shader(vertexShaderString, fragmentShaderEmpricialFresnelString);
-let color2 = new Color(objShader3, 0, 0.5, 0);
-color2.ambient = [1, 1, 1];
-color2.diffuse = [1, 1, 1];
-color2.specular = [1, 1, 1];
-color2.shininess = 77;
-let cube3 = new Cube(objShader3, false, color2, null, "e");
-cube3.transform.move([0, 0, 0]);
-*/
 
 // Erstelle die Sphere
 let objShader5 = new Shader(vertexShaderString, fragmentShaderSkyboxReflectiveString);
@@ -119,20 +89,7 @@ renderer.addLight(sLight);
 // Den depthFrameBuffer erstellen
 let depthFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth);
 
-// Den reflectionFrameBuffer erstellen
-//let reflectionFrameBuffer = new FrameBuffer(canvas.clientHeight, canvas.clientWidth,);
-
-// CubeMap erzeugen
-/*
-let paths = 
-[
-    "Resources/skybox/right.jpg",
-    "Resources/skybox/left.jpg",
-    "Resources/skybox/top.jpg",
-    "Resources/skybox/bottom.jpg",
-    "Resources/skybox/front.jpg",
-    "Resources/skybox/back.jpg",
-];*/
+// Paths anlegen
 let paths = [
     "Resources/park/posx.jpg", "Resources/park/negx.jpg", 
     "Resources/park/posy.jpg", "Resources/park/negy.jpg", 

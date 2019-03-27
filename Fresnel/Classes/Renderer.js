@@ -371,24 +371,29 @@ class Renderer
         // Den shader binden
         skybox.shader.bind();
 
-        // Die Viewmatrix holen und die Translation leer setzen
+        // Die viewMatrix ermitteln
         let cameraMatrix = camera.getViewMatrix();
         let viewMatrix = mat4.create();
         mat4.invert(viewMatrix, cameraMatrix);
-        viewMatrix[12] = 0;
-        viewMatrix[13] = 0;
-        viewMatrix[14] = 0;
+
+        // Die ViewRotation ermitteln und invertieren
+        let viewRotation = quat.create();
+        mat4.getRotation(viewRotation, viewMatrix);
+        quat.invert(viewRotation, viewRotation);
+
+        // Matrix aus der InversenViewRotation erstellen
+        let inverseViewRotationMatrix = mat4.create();
+        mat4.fromRotationTranslationScale(inverseViewRotationMatrix, viewRotation, vec3.create(), vec3.fromValues(1, 1, 1));
+        
+        // Die ProjectionMatrix holen
+        let projectionMatrix = camera.getProjectionMatrix();
 
         // Die ViewDirectionProjectionMatrix neu zusammenabuen
         let viewDirectionProjectionMatrix = mat4.create();
-        mat4.multiply(viewDirectionProjectionMatrix, camera.getProjectionMatrix(), viewMatrix);
+        mat4.multiply(viewDirectionProjectionMatrix, projectionMatrix, inverseViewRotationMatrix);
 
         // Die Rotation als mat4 setzen
         skybox.shader.setUniformMatrix4fv("uTransform", false, viewDirectionProjectionMatrix);
-
-        // Die Camera(Eye)-Position setzen
-        let eyePosition = camera.getEyePosition();
-        //skybox.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
 
         // Die Skybox zeichnen
         skybox.draw();
