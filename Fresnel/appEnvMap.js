@@ -57,15 +57,15 @@ prepareCanvasEvents();
 prepareCheckboxEvents();
 
 // Erstelle den Mobster
-let objShader2 = new Shader(vertexShaderSimpleString, fragmentShaderSimpleString);
-let color = new Color(objShader2, 0.9, 0.7, 0.1);
-let object = new Object(objShader2, 'Resources/mobster.obj', 1, color, null, "s");
+let objShaderObject = new Shader(vertexShaderSimpleString, fragmentShaderSimpleString);
+let colorObject = new Color(objShaderObject, 0.9, 0.7, 0.1);
+let object = new Object(objShaderObject, 'Resources/mobster.obj', 1, colorObject, null, "s");
 object.transform.move([-3, 0, 2]);
 
 // Erstelle die Sphere
-let objShader5 = new Shader(vertexShaderSimpleString, fragmentShaderSimpleString);
-let color5 = new Color(objShader5, 0, 0.5, 0);
-let sphere = new Sphere(objShader5, false, color5, null, "s");
+let objShaderSphere = new Shader(vertexShaderSimpleString, fragmentShaderSimpleString);
+let colorSphere = new Color(objShaderSphere, 0, 0.5, 0);
+let sphere = new Sphere(objShaderSphere, false, colorSphere, null, "s");
 sphere.transform.move([4, -2, 2]);
 
 // Erstelle die Objekte, welche gezeichnet werden
@@ -105,15 +105,15 @@ let skybox = new Skybox(paths, 2);
 // Die Skybox zeichnen
 renderer.renderSkybox(skybox, camera);
 
-// Das env-Map reflective zeichnen
+// Das Element, was die Umgebungsmap reflektiert, erstellen
 let envShader = new Shader(vertexShaderString, fragmentShaderEnvString);
-let color2 = new Color(envShader, 0, 0.5, 0);
-color2.ambient = [1, 1, 1];
-color2.diffuse = [1, 1, 1];
-color2.specular = [1, 1, 1];
-color2.shininess = 77;
-let cube3 = new Sphere(envShader, false, color2, null, "e");
-cube3.transform.move([0, 0, 0]);
+let envColor = new Color(envShader, 0, 0.5, 0);
+envColor.ambient = [1, 1, 1];
+envColor.diffuse = [1, 1, 1];
+envColor.specular = [1, 1, 1];
+envColor.shininess = 77;
+let envSphere = new Sphere(envShader, false, envColor, null, "e");
+envSphere.transform.move([0, 0, 0]);
 
 // Die Environment-Map zeichnen
 let environmentalMap = new EnvironmentalMap(3, (camera) => renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox), canvas.clientWidth, canvas.clientHeight);
@@ -145,11 +145,11 @@ function animate()
     // Die Elemente zeichnen
     renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox);
 
-    // Die Environmentalmap neu rendern
-    //environmentalMap.rerender();
+    // Die Environmentalmap neu rendern (Achtung: sehr rechenintensiv)
+    environmentalMap.rerender();
 
     // Das EnvMap-Element zeichnen
-    renderer.drawReflectiveEnvMapElement(cube3, camera, environmentalMap);
+    renderer.drawReflectiveEnvMapElement(envSphere, camera, environmentalMap);
 
     // neu animieren
     requestAnimationFrame(animate);

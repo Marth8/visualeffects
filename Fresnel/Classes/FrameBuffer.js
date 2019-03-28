@@ -76,6 +76,16 @@ class FrameBuffer {
         // Den Framebuffer unbinden
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
     }
+
+    /**
+     * Methode zum Clearen des Framebuffers.
+     */
+    clear()
+    {
+        this.gl.deleteFramebuffer(this.frameBuffer);
+        this.gl.deleteTexture(this.depthMap);
+        this.gl.deleteTexture(this.colorMap);
+    }
 }
 
 export default FrameBuffer

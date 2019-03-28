@@ -117,6 +117,8 @@ class EnvironmentalMap
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y, this.envMap, 0);
         this.renderFunction(viewCamera);
         framebuffer.unbind();
+
+        framebuffer.clear();
     }
 }
 
