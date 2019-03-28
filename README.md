@@ -25,6 +25,8 @@ Weiterhin enthält das Repository Models von:
 <ul>
     <li>Mobster: https://people.sc.fsu.edu/~jburkardt/data/obj/obj.html </li>
     <li>Capsule: http://paulbourke.net/dataformats/obj/minobj.html </li>
+    <li>Skybox Textures: http://www.custommapmakers.org/skyboxes.php</li>
+    <li>Metal Texture: https://freepbr.com/materials/rusted-iron-pbr-metal-material-alt/</li>
 </ul>
 <br>
 Die Engine wurde in den Browsern Firefox und Chrome getestet.
