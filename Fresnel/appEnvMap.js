@@ -108,8 +108,7 @@ let skybox = new Skybox(paths, 2);
 // Die Skybox zeichnen
 renderer.renderSkybox(skybox, camera);
 
-// Die Environment-Map zeichnen
-let environmentalMap = new EnvironmentalMap(6, () => renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox), canvas.clientWidth, canvas.clientHeight);
+// Das env-Map reflective zeichnen
 let envShader = new Shader(vertexShaderString, fragmentShaderEnvString);
 let color2 = new Color(envShader, 0, 0.5, 0);
 color2.ambient = [1, 1, 1];
@@ -118,6 +117,9 @@ color2.specular = [1, 1, 1];
 color2.shininess = 77;
 let cube3 = new Cube(envShader, false, color2, null, "e");
 cube3.transform.move([0, 0, 0]);
+
+// Die Environment-Map zeichnen
+let environmentalMap = new EnvironmentalMap(6, () => renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox), canvas.clientWidth, canvas.clientHeight);
 
 // Die Szene animieren
 requestAnimationFrame(() => animate());
