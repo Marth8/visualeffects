@@ -52,6 +52,9 @@ class Renderer
         // z-Sorting durchführen
         sorting.sort((a, b) => a.z - b.z);
 
+        // Die Skybox zeichnen
+        this.renderSkybox(skybox, camera);
+
         // Elemente anhand des z-Sortings zeichnen
         for(let zElement of sorting)
         {
@@ -124,9 +127,6 @@ class Renderer
         // Den Shader binden
         element.shader.bind();
 
-        // Die envMap binden
-        envMap.bind();
-
         // Die ModelViewmatrix setzen
         let modelViewMatrix = mat4.create();
         let modelWorldMatrix = element.transform.getWorldMatrix();
@@ -156,9 +156,30 @@ class Renderer
         element.shader.setUniform3f("uEyePosition", eyePosition[0], eyePosition[1], eyePosition[2]);
 
         // Die InverseViewTransform setzen
+        let cameraMatrix = camera.getViewMatrix();
+        let viewMatrix = mat4.create();
+        mat4.invert(viewMatrix, cameraMatrix);
+
+        // Die ViewRotation ermitteln und invertieren
+        let viewRotation = quat.create();
+        mat4.getRotation(viewRotation, viewMatrix);
+        quat.invert(viewRotation, viewRotation);
+
+        // Matrix aus der InversenViewRotation erstellen
+        let inverseViewRotationMatrix = mat4.create();
+        mat4.fromRotationTranslationScale(inverseViewRotationMatrix, viewRotation, vec3.create(), vec3.fromValues(1, 1, 1));
         
-        // Die EnvMap setzen
-        element.shader.setUniform1i("envBox", envMap.slot);
+        // Die ProjectionMatrix holen
+        let projectionMatrix = camera.getProjectionMatrix();
+
+        // Die ViewDirectionProjectionMatrix neu zusammenabuen
+        let viewDirectionProjectionMatrix = mat4.create();
+        mat4.multiply(viewDirectionProjectionMatrix, projectionMatrix, inverseViewRotationMatrix);
+        element.shader.setUniformMatrix4fv("inverseViewTransform", false, inverseViewRotationMatrix);
+
+        // Die EnvMap binden und setzen
+        envMap.bind();
+        element.shader.setUniform1i("envBox", 3);
 
         // Zeichnen
         element.draw(false);

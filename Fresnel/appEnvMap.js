@@ -119,7 +119,7 @@ let cube3 = new Cube(envShader, false, color2, null, "e");
 cube3.transform.move([0, 0, 0]);
 
 // Die Environment-Map zeichnen
-let environmentalMap = new EnvironmentalMap(6, () => renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox), canvas.clientWidth, canvas.clientHeight);
+let environmentalMap = new EnvironmentalMap(3, (camera) => renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox), canvas.clientWidth, canvas.clientHeight);
 
 // Die Szene animieren
 requestAnimationFrame(() => animate());
@@ -139,16 +139,16 @@ function animate()
         return;
     }
 
+    // Cull-Face auf Back setzen
+    gl.cullFace(gl.BACK);
+
     // Cull-Face aktivieren
     gl.enable(gl.CULL_FACE);
-
-    // Die Skybox zeichnen
-    renderer.renderSkybox(skybox, camera);
 
     // Die Elemente zeichnen
     renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox);
 
-    // Die Environmentalmap neuzeichnen
+    // Die Environmentalmap neu rendern
     //environmentalMap.rerender();
 
     // Das EnvMap-Element zeichnen

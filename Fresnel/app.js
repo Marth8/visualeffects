@@ -138,9 +138,6 @@ function animate()
     // Cull-Face aktivieren
     gl.enable(gl.CULL_FACE);
 
-    // Die Skybox zeichnen
-    renderer.renderSkybox(skybox, camera);
-
     // Die Elemente zeichnen
     renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox);
 

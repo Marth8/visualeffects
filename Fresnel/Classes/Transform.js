@@ -144,6 +144,19 @@ class Transform
     }
 
     /**
+     * Setzt das Transform auf die Identity-Matrix zurück;
+     */
+    reset()
+    {
+        this.position = vec3.create();
+        this.rotation = vec3.create();
+        this.rotationQuarternion = quat.fromEuler(quat.create(), this.rotation[0], this.rotation[1], this.rotation[2]);
+        this.scale = vec3.fromValues(1, 1, 1);
+        this.localChanged = true;
+        this.childs.forEach((element) => element.worldChanged = true);
+    }
+
+    /**
      * Methode zum Setzen des Parents.
      * @param {Transform} parent Der Vater.
      */

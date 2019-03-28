@@ -50,7 +50,7 @@ class FrameBuffer {
             console.warn("FBO status: " + status);
         }
         
-        // Den Buffer binden
+        // Den Buffer entbinden
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
@@ -64,6 +64,7 @@ class FrameBuffer {
 
         // Den Framebuffer binden und das Bild clearen
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
+
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     }
 
