@@ -8,18 +8,24 @@ Projekt: Fresnel Effekt (Ist dann im Ordner "\Fresnel") <br>
 Um das Projekt laufen lassen zu können, auf lokalen Server starten lassen (Live-Server von VSCode, XAMPP, etc.) und auf die jeweiligen html-Dateien navigieren (index.html in Fresnel-Ordner).
 
 Um dabei die verschiedenen Szenen zu benutzen, müssen verschiedene JavaScript-Dateien in der Zeile 24 der index.html eingebunden werden:
-    1. app.js => Szene mit Kombination der verschiedenen Fresnel Effekte und Reflexionen
-    1. appEmpiricialFresnel.js => Szene mit de empirischen Fresnel-Effekt
-    3. appSchlickFresnel.js => Szene mit den Fresnel-Effekt der Schlick-Approximation
-    4. appEnvMap.js => Szene mit EnvironmentMap und Fresnel-Shader-Cube
-
+<br>
+<ol>
+    <li> app.js => Szene mit Kombination der verschiedenen Fresnel Effekte und Reflexionen</li>
+    <li> appEmpiricialFresnel.js => Szene mit de empirischen Fresnel-Effekt</li>
+    <li> appSchlickFresnel.js => Szene mit den Fresnel-Effekt der Schlick-Approximation</li>
+    <li> appEnvMap.js => Szene mit EnvironmentMap und Fresnel-Shader-Cube</li>
+</ol>
 Das Repository enthält dabei Code von:
-    - gl-Matrix: https://github.com/toji/gl-matrix 
-    - OBJ-Loader, welcher in dem Modul vorgegeben wurde
-
+<ul>
+    <li>gl-Matrix: https://github.com/toji/gl-matrix </li>
+    <li>OBJ-Loader, welcher in dem Modul vorgegeben wurde </li>
+</ul>
 Weiterhin enthält das Repository Models von:
-    - Mobster: https://people.sc.fsu.edu/~jburkardt/data/obj/obj.html 
-    - Capsule: http://paulbourke.net/dataformats/obj/minobj.html 
-
+<br>
+<ul>
+    <li>Mobster: https://people.sc.fsu.edu/~jburkardt/data/obj/obj.html </li>
+    <li>Capsule: http://paulbourke.net/dataformats/obj/minobj.html </li>
+</ul>
+<br>
 Die Engine wurde in den Browsern Firefox und Chrome getestet.
 
