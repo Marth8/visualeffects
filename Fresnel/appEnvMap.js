@@ -12,10 +12,7 @@ import PointLight from './Classes/PointLight.js';
 import SpotLight from './Classes/SpotLight.js';
 import FrameBuffer from './Classes/FrameBuffer.js';
 import vertexShaderString from './Shaders/VertexShader.js';
-import fragmentShaderColorString from './Shaders/FragmentShaderColor.js';
-import fragmentShaderTextureString from './Shaders/FragmentShaderTexture.js';
 import Skybox from './Classes/Skybox.js';
-import fragmentShaderSkyboxReflectiveString from './Shaders/FragmentShaderSkyboxReflective.js';
 import EnvironmentalMap from './Classes/EnvironmentalMap.js';
 import fragmentShaderEnvString from './Shaders/FragmentShaderEnv.js';
 import fragmentShaderSimpleString from './Shaders/FragmentShaderSimple.js';
@@ -115,7 +112,7 @@ color2.ambient = [1, 1, 1];
 color2.diffuse = [1, 1, 1];
 color2.specular = [1, 1, 1];
 color2.shininess = 77;
-let cube3 = new Cube(envShader, false, color2, null, "e");
+let cube3 = new Sphere(envShader, false, color2, null, "e");
 cube3.transform.move([0, 0, 0]);
 
 // Die Environment-Map zeichnen

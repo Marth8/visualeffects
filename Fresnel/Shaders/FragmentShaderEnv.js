@@ -12,13 +12,11 @@ varying vec3 vPosition;
 varying vec3 xPosition;
 varying vec4 vPositionLightSpace;
 uniform vec3 uEyePosition;
-uniform mat4 inverseViewTransform;
 uniform samplerCube envBox;
 void main() {
     vec3 normal = normalize(vNormal);
     vec3 incident = normalize(xPosition - uEyePosition);
     vec3 reflect = reflect(incident, normal);
-    //vec3 T = mat3(inverseViewTransform) * reflect;
     gl_FragColor = textureCube(envBox, reflect);
 }`;
 
