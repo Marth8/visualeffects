@@ -15,8 +15,9 @@ import vertexShaderString from './Shaders/VertexShader.js';
 import Skybox from './Classes/Skybox.js';
 import EnvironmentalMap from './Classes/EnvironmentalMap.js';
 import fragmentShaderEnvString from './Shaders/FragmentShaderEnv.js';
-import fragmentShaderSimpleString from './Shaders/FragmentShaderSimple.js';
+import fragmentShaderSimpleString from './Shaders/FragmentShaderSimpleColor.js';
 import vertexShaderSimpleString from './Shaders/VertexShaderSimple.js';
+import fragmentShaderSimpleTextureString from './Shaders/FragmentShaderSimpleTexture.js';
 
 // Das Canvas holen, GL laden, Blending aktivieren und den aktuellen Path ermitteln
 const canvas = document.getElementById('c');
@@ -56,6 +57,12 @@ camera.move([0, 0, -15]);
 prepareCanvasEvents();
 prepareCheckboxEvents();
 
+// Erstelle die Kapsel
+let objShaderCapsule = new Shader(vertexShaderSimpleString, fragmentShaderSimpleTextureString);
+let textureCapsule = new Texture(objShaderCapsule, path + "Resources/capsule0.jpg", 4);
+let capsule = new Object(objShaderCapsule, 'Resources/capsule.obj', 1, null, textureCapsule, "s");
+capsule.transform.move([-5, -0.5, -3]);
+
 // Erstelle den Mobster
 let objShaderObject = new Shader(vertexShaderSimpleString, fragmentShaderSimpleString);
 let colorObject = new Color(objShaderObject, 0.9, 0.7, 0.1);
@@ -66,10 +73,16 @@ object.transform.move([-3, 0, 2]);
 let objShaderSphere = new Shader(vertexShaderSimpleString, fragmentShaderSimpleString);
 let colorSphere = new Color(objShaderSphere, 0, 0.5, 0);
 let sphere = new Sphere(objShaderSphere, false, colorSphere, null, "s");
-sphere.transform.move([4, -2, 2]);
+sphere.transform.move([3, -2, 2]);
+
+// Erstelle einen weiteren Cube
+let objShaderCube = new Shader(vertexShaderSimpleString, fragmentShaderSimpleTextureString);
+let textureCube = new Texture(objShaderCube, path + 'Resources/rustediron2_basecolor.png', 2);
+let cube = new Cube(objShaderCube, true, null, textureCube, "s");
+cube.transform.move([2.5, 2, -1]);
 
 // Erstelle die Objekte, welche gezeichnet werden
-let objects = [sphere, object];
+let objects = [sphere, object, capsule, cube];
 
 // Erstelle die Lichter und füge dieser der Kamera hinzu
 let dLight = new DirectionalLight("dLight", [-3, 10, -3], [1, -3, -1], 0.2, 0.9, 1.0);
@@ -141,6 +154,9 @@ function animate()
 
     // Cull-Face aktivieren
     gl.enable(gl.CULL_FACE);
+
+    // Den Mobster rotieren
+    object.transform.rotateY(2);
 
     // Die Elemente zeichnen
     renderer.render(objects, camera, depthFrameBuffer.depthMap, skybox);

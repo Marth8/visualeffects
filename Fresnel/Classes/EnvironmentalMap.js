@@ -65,7 +65,6 @@ class EnvironmentalMap
      */
     rerender()
     {
-
         // Die Szene 6 mal anhand der Renderfunction rendern und die verschiedenen Bilder des von Framebuffer auf Cubemap speichern
         let framebuffer = new FrameBuffer(this.height, this.width);
 
