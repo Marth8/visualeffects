@@ -122,10 +122,24 @@ class Renderer
         element.draw();
     }
 
-    drawReflectiveEnvMapElement(element, camera, envMap)
+    /**
+     * Methode zum Zeichnen des reflektiven Environment-Map Elementes in der Mitte.
+     * @param {GameObject} element Das Element.
+     * @param {ViewCamera} camera Die Kamera
+     * @param {EnvirontmentMap} envMap Die EnvMap.
+     * @param {bool} withLights Ob das Element mit Lichter gezeichnet werden soll.
+     * @param {bool} isFullReflective Ob das Element voll reflektiv ist.
+     */
+    drawReflectiveEnvMapElement(element, camera, envMap, withLights = false, isFullReflective = true)
     {
         // Den Shader binden
         element.shader.bind();
+        
+        // Wenn mit Lichter, dann diese binden
+        if (withLights)
+        {
+            this.lights.forEach(value => value.bind(element.shader, camera));
+        }
 
         // Die ModelViewmatrix setzen
         let modelViewMatrix = mat4.create();
@@ -159,8 +173,16 @@ class Renderer
         envMap.bind();
         element.shader.setUniform1i("envBox", 3);
 
-        // Zeichnen
-        element.draw(false);
+        if(isFullReflective)
+        {
+            // Zeichnen
+            element.draw(false);
+        }
+        else
+        {
+            // Zeichnen
+            element.draw(true);
+        }
     }
 
     /**

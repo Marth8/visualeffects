@@ -10,10 +10,11 @@ Um das Projekt laufen lassen zu können, auf lokalen Server starten lassen (Live
 Um dabei die verschiedenen Szenen zu benutzen, müssen verschiedene JavaScript-Dateien in der Zeile 24 der index.html eingebunden werden:
 <br>
 <ol>
-    <li> app.js => Szene mit Kombination der verschiedenen Fresnel Effekte und Reflexionen</li>
-    <li> appEmpiricialFresnel.js => Szene mit dem empirischen Fresnel-Effekt</li>
-    <li> appSchlickFresnel.js => Szene mit dem Fresnel-Effekt der Schlick-Approximation</li>
-    <li> appEnvMap.js => Szene mit Dynamic Environment Map und voll reflektiver Sphere</li>
+    <li> app.js => Szene mit Skybox und einer voll reflektiven Kugel</li>
+    <li> appEmpiricialFresnel.js => Szene mit dem empirischen Fresnel-Effekt (alle Objekte)</li>
+    <li> appSchlickFresnel.js => Szene mit dem Fresnel-Effekt der Schlick-Approximation (alle Objekte)</li>
+    <li> appEnvMap.js => Szene mit einer voll reflektiven Kugen, welche eine Dynamic Environment Map benutzt (6x Rendering)</li>
+    <li> appEnvMapFresnel.js => Szene mit dem Fresnel-Effekt der Schlick-Approximation auf dem mittleren Cube, projiziert auf die Dynamic Environment Map (6x Rendering).</li>
 </ol>
 Das Repository enthält dabei Code von:
 <ul>
