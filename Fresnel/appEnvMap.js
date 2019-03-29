@@ -9,7 +9,6 @@ import Sphere from './Classes/Sphere.js';
 import Object from './Classes/Object.js';
 import DirectionalLight from './Classes/DirectionalLight.js';
 import PointLight from './Classes/PointLight.js';
-import SpotLight from './Classes/SpotLight.js';
 import FrameBuffer from './Classes/FrameBuffer.js';
 import vertexShaderString from './Shaders/VertexShader.js';
 import Skybox from './Classes/Skybox.js';

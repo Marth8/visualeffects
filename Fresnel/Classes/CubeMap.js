@@ -7,9 +7,9 @@ class CubeMap
 {
     /**
      * Konstruktor zum Erstellen der CubeMap.
-     * @param {*} shader Der Shader.
-     * @param {*} paths Die Paths.
-     * @param {*} slot Der Slot.
+     * @param {Shader} shader Der Shader.
+     * @param {array(string)} paths Die Paths.
+     * @param {int} slot Der Slot.
      */
     constructor(shader, paths, slot)
     {

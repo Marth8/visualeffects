@@ -1,4 +1,3 @@
-import GL from './GL.js';
 import GameObject from './GameObject.js';
 import CubeMap from './CubeMap.js';
 import fragmentShaderSkyboxString from './../Shaders/FragmentShaderSkybox.js';
@@ -8,6 +7,7 @@ import VertexArray from './VertexArray.js';
 import VertexBuffer from './VertexBuffer.js';
 import IndexBuffer from './IndexBuffer.js';
 
+// Die Skybox-Koordinaten anlegen
 const skyboxVertices = new Float32Array([
     // positions          
     -1.0,  1.0, -1.0,
@@ -53,7 +53,16 @@ const skyboxVertices = new Float32Array([
      1.0, -1.0,  1.0
 ]);
 
-class Skybox extends GameObject {
+/**
+ * Klasse repräsentiert eine Skybox.
+ */
+class Skybox extends GameObject 
+{
+    /**
+     * Konstruktor zum Erstellen der Skybox.
+     * @param {array(string)} paths Die Pfade der Skybox-Texturen.
+     * @param {int} slot Der Slot.
+     */
     constructor(paths, slot)
     {
         super();
@@ -83,11 +92,17 @@ class Skybox extends GameObject {
         this.vertexArray.addBuffer(vb1, [posAttribLocation], 3);
     }
 
+    /**
+     * Methode zum Ermitteln, dass die cubeMap gezeichnet werden kann.
+     */
     canBeDrawn()
     {
         return (this.cubeMap.canBeDrawn == 6);
     }
 
+    /**
+     * Methode zum Zeichnen der Skybox.
+     */
     draw()
     {
         this.gl.depthFunc(this.gl.LEQUAL);

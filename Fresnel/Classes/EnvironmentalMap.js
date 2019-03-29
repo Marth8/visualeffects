@@ -10,9 +10,9 @@ class EnvironmentalMap
     /**
      * Konstruktor zum Erstellen einer Umgebungsmap.
      * @param {int} slot Der Slot der Umgebungsmap.
-     * @param {*} renderFunction Die Renderer-Funktion.
-     * @param {*} width Die Breite.
-     * @param {*} height Die Höhe.
+     * @param {() => func()} renderFunction Die Renderer-Funktion.
+     * @param {float} width Die Breite.
+     * @param {float} height Die Höhe.
      */
     constructor(slot, renderFunction, width, height)
     {

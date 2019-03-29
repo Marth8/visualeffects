@@ -29,7 +29,7 @@ class Renderer
 
     /**
      * Methode zum Rendern der Szene anhand des Typs der Objekte.
-     * @param {array} elements Die Elemente.
+     * @param {array(GameObject)} elements Die Elemente.
      * @param {ViewCamera} camera Die Kamera.
      * @param {*} shadowMap Die Shadowmap
      * @param {Skybox} skybox Die Skybox 
@@ -82,7 +82,7 @@ class Renderer
 
     /**
      * Methode zum Zeichnen eines simplen Elements.
-     * @param {*} element Das Element.
+     * @param {GameObject} element Das Element.
      * @param {ViewCamera} camera Die ViewCamera.
      */
     drawSimpleElement(element, camera)
@@ -187,7 +187,7 @@ class Renderer
 
     /**
      * Methode zum Zeichnen eines Elements mit Schatten.
-     * @param {*} element Das Element (Objekt, Cube, Sphere oder Plane).
+     * @param {GameObject} element Das Element (Objekt, Cube, Sphere oder Plane).
      * @param {ViewCamera} camera Die Kamera.
      * @param {*} shadowMap Die Texture des Tiefenbildes.
      * @param {Skybox} skybox Die Skybox.
@@ -244,7 +244,7 @@ class Renderer
 
     /**
      * Methode zum Zeichnen eines reflektiven Elements.
-     * @param {*} element Das Element (Objekt, Cube, Sphere oder Plane).
+     * @param {GameObject} element Das Element (Objekt, Cube, Sphere oder Plane).
      * @param {ViewCamera} camera Die Kamera.
      * @param {Skybox} skybox Die Skybox.
      */
@@ -292,7 +292,7 @@ class Renderer
 
     /**
      * Methode zum Zeichnen eines Elements mit Schatten.
-     * @param {*} element Das Element (Objekt, Cube, Sphere oder Plane).
+     * @param {GameObject} element Das Element (Objekt, Cube, Sphere oder Plane).
      * @param {ViewCamera} camera Die Kamera.
      * @param {*} shadowMap Die Texture des Tiefenbildes.
      */
@@ -363,7 +363,7 @@ class Renderer
 
     /**
      * Methode zum Rendern des Tiefenbildes.
-     * @param {*} elements Die Elemente (Cube, Sphere, Plane, Objects, ..).
+     * @param {array(GameObject)} elements Die Elemente (Cube, Sphere, Plane, Objects, ..).
      * @param {DirectionalLight} light Das DirectionalLIght.
      * @param {float} left Linker Anteil des Bereichs.
      * @param {float} right Rechter Anteil des Bereichs.
@@ -421,7 +421,7 @@ class Renderer
      * Methode zum Rendern der Reflektionsszene anhand des Elements, welches aktuell betrachtet wird.
      * @param {array} elements Die Elemente, die gerendert werden
      * @param {ViewCamera} camera Die Kamera.
-     * @param {*} element Das Element.
+     * @param {GameObject} element Das Element.
      */
     renderReflectiveSceneForElement(elements, camera, element)
     {
@@ -469,7 +469,7 @@ class Renderer
     
     /**
      * Methode zum Zeichnen von Elementen mit Schatten.
-     * @param {array} elements Das Array der Elemente.
+     * @param {array(GameObject)} elements Das Array der Elemente.
      * @param {ViewCamera} camera Die Kamera.
      * @param {*} shadowMap Die Texture der Tiefenmap.
      */
@@ -500,7 +500,7 @@ class Renderer
 
     /**
      * Methode zum Zeichnen eines Elementes.
-     * @param {*} element Das Element (Object, Cube, Plane, Sphere, ..)
+     * @param {GameObject} element Das Element (Object, Cube, Plane, Sphere, ..)
      * @param {ViewCamera} camera Die Kamera.
      */
     drawElement(element, camera)
@@ -537,7 +537,7 @@ class Renderer
 
     /**
      * Methode zum Zeichnen von mehreren Elementen
-     * @param {array} elements Die Elemente im Array.
+     * @param {array(GameObject)} elements Die Elemente im Array.
      * @param {ViewCamera} camera Die Kamera.
      * @param {boolean} zSorting Ob zSorting durchgeführt werden soll.
      */
