@@ -69,55 +69,58 @@ class EnvironmentalMap
         // Die Szene 6 mal anhand der Renderfunction rendern und die verschiedenen Bilder des von Framebuffer auf Cubemap speichern
         let framebuffer = new FrameBuffer(this.height, this.width);
 
-        // Die ViewCamera für die 6 Sichten (-x, x, -y, y, -z und z) erstellen
+        // Die ViewCamera für die 6 Sichten (-x, x, -y, y, -z und z) erstellen mit 90 Grad Viewport
         let projection = mat4.create();
         mat4.perspective(projection, Math.PI/2, 1, 1, 100);
         let viewCamera = new ViewCamera(projection);
-        const gl = this.gl;
 
         // Die sechs Sichten rendern
+        // Die erste Sicht (-z) rendern
         framebuffer.bind();
         viewCamera.setScale([-1, -1, 1]);
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, this.envMap, 0);
         this.renderFunction(viewCamera);
 
-        this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_POSITIVE_X, this.envMap, 0);
+        // Die zweite Sicht (+x) rendern
         viewCamera.reset();
         viewCamera.setScale([-1, -1, 1]);
         viewCamera.rotateY(-90);
-        framebuffer.unbind();
-        framebuffer.bind();
+        this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_POSITIVE_X, this.envMap, 0);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.renderFunction(viewCamera);
 
+        // Die dritte Sicht (+z) rendern
         viewCamera.reset();
         viewCamera.setScale([-1, -1, 1]);
         viewCamera.rotateY(180);
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_POSITIVE_Z, this.envMap, 0);
-        framebuffer.unbind();
-        framebuffer.bind();
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.renderFunction(viewCamera);
 
+        // Die vierte Sicht (-x) rendern
         viewCamera.reset();
         viewCamera.setScale([-1, -1, 1]);
         viewCamera.rotateY(90);
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_NEGATIVE_X, this.envMap, 0);
-        framebuffer.unbind();
-        framebuffer.bind();
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.renderFunction(viewCamera);
 
+        // Die fünfte Sicht (-y) rendern
         viewCamera.reset();
         viewCamera.rotateX(90);
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, this.envMap, 0);
-        framebuffer.unbind();
-        framebuffer.bind();
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.renderFunction(viewCamera);
         
+        // Die sechste Sicht (+y) rendern
         viewCamera.reset();
         viewCamera.rotateX(-90);
         this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y, this.envMap, 0);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
         this.renderFunction(viewCamera);
         framebuffer.unbind();
 
+        // Den Framebuffer clearen, dass die Texturen nicht im RAM bleiben
         framebuffer.clear();
     }
 }

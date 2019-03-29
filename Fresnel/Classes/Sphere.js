@@ -69,7 +69,7 @@ class Sphere extends GameObject
      */
     initSphere()
     {
-      let SPHERE_DIV = 12;
+      let SPHERE_DIV = 24;
       let i, ai, si, ci;
       let j, aj, sj, cj;
       let p1, p2;

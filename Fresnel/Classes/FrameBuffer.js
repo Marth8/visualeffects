@@ -59,11 +59,11 @@ class FrameBuffer {
      */
     bind()
     {
-        // Den Viewport setzen
-        this.gl.viewport(0, 0, this.width, this.height);
-
         // Den Framebuffer binden und das Bild clearen
         this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
+
+        // Den Viewport setzen
+        this.gl.viewport(0, 0, this.width, this.height);
 
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     }
