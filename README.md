@@ -11,14 +11,22 @@ Um dabei die verschiedenen Szenen zu benutzen, müssen verschiedene JavaScript-D
 <br>
 <ol>
     <li> app.js => Szene mit Kombination der verschiedenen Fresnel Effekte und Reflexionen</li>
-    <li> appEmpiricialFresnel.js => Szene mit de empirischen Fresnel-Effekt</li>
-    <li> appSchlickFresnel.js => Szene mit den Fresnel-Effekt der Schlick-Approximation</li>
-    <li> appEnvMap.js => Szene mit EnvironmentMap und Fresnel-Shader-Cube</li>
+    <li> appEmpiricialFresnel.js => Szene mit dem empirischen Fresnel-Effekt</li>
+    <li> appSchlickFresnel.js => Szene mit dem Fresnel-Effekt der Schlick-Approximation</li>
+    <li> appEnvMap.js => Szene mit Dynamic Environment Map und voll reflektiver Sphere</li>
 </ol>
 Das Repository enthält dabei Code von:
 <ul>
     <li>gl-Matrix: https://github.com/toji/gl-matrix </li>
     <li>OBJ-Loader, welcher in dem Modul vorgegeben wurde </li>
+</ul>
+Das Repository enthält Shader-Ideen von:
+<ul>
+    <li>Beleuchtung, Schatten und Fresnel Logik: https://learnopengl.com/book/learnopengl_book_bw.pdf </li>
+    <li>Fresnel Logik: https://www.ronja-tutorials.com/2018/05/26/fresnel.html</li>
+    <li>Fresnel Logik: http://kylehalladay.com/blog/tutorial/2014/02/18/Fresnel-Shaders-From-The-Ground-Up.html</li>
+    <li>Dynamic Environment Map: http://math.hws.edu/graphicsbook/</li>
+    <li>Dynamic Environt Map und Fresnel Effekt: http://developer.download.nvidia.com/CgTutorial/cg_tutorial_chapter07.html</li>
 </ul>
 Weiterhin enthält das Repository Models von:
 <br>
@@ -29,5 +37,5 @@ Weiterhin enthält das Repository Models von:
     <li>Metal Texture: https://freepbr.com/materials/rusted-iron-pbr-metal-material-alt/</li>
 </ul>
 <br>
-Die Engine wurde in den Browsern Firefox und Chrome getestet.
+Die Engine und verschiedenen Szenen wurde in den Browsern Firefox und Chrome getestet.
 
