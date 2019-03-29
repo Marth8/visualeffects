@@ -57,7 +57,7 @@ prepareCheckboxEvents();
 // Erstelle die Kapsel
 let objShader1 = new Shader(vertexShaderString, fragmentShaderSchlickFresnelTextureString);
 let texture1 = new Texture(objShader1, path + "Resources/capsule0.jpg", 4);
-let capsule1 = new Object(objShader1, 'Resources/capsule.obj', 1, null, texture1);
+let capsule1 = new Object(objShader1, 'Resources/capsule.obj', 1, null, texture1, "r");
 capsule1.transform.move([-1, -0.5, -3]);
 
 // Erstelle den Mobster
