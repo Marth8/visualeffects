@@ -11,6 +11,7 @@ varying vec3 xPosition;
 varying vec2 vTexCoord;
 varying vec4 vPositionLightSpace;
 uniform sampler2D shadowMap;
+uniform float uAlpha;
 uniform vec3 uEyePosition;
 struct DirectionalLight
 {
@@ -79,7 +80,7 @@ void main() {
     vec3 result = GetDirectionalLight(dLight, normal);
     result += GetPointLight(pLight, normal);
     result += GetSpotLight(sLight, normal);
-    gl_FragColor = vec4(result, 1.0);
+    gl_FragColor = vec4(result, uAlpha);
 }
 
 vec3 GetDirectionalLight(DirectionalLight dLight, vec3 normal)
