@@ -5,7 +5,7 @@ Teilnehmer: Nicolai Fröhlig <br>
 Matrikelnummer: 639186 <br>
 Projekt: Fresnel Effekt (Ist dann im Ordner "\Fresnel") <br>
 
-Um das Projekt laufen lassen zu können, auf lokalen Server starten lassen (Live-Server von VSCode, XAMPP, etc.) und auf die jeweiligen html-Dateien navigieren (index.html in Fresnel-Ordner).
+Um das Projekt laufen lassen zu können, auf lokalen Server starten lassen (Live-Server von VSCode, XAMPP, etc.) und auf die  html-Datei navigieren (index.html in Fresnel-Ordner).
 
 Um dabei die verschiedenen Szenen zu benutzen, müssen verschiedene JavaScript-Dateien in der Zeile 24 der index.html eingebunden werden (einfach eingebundene JavaScript-Datei in der index.html im "\Fresnel" Ordner ändern):
 <br>
